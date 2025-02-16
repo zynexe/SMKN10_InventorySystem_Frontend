@@ -1,0 +1,571 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+/* AssetHome.css (and BHPHome.css - adjust as needed) */
+.asset-home-container, .bhp-home-container { /* Common styles */
+    display: flex;
+    height: 100vh; /* Ensure full viewport height */
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+  width: 100vw; /* Ensure container takes full viewport width */
+  margin: 0; /* Remove any default margins */
+  padding: 0; /* Remove any default padding *
+
+  }
+  
+  .main-content {
+    flex: 1; /* Takes up remaining space */
+    padding: 20px;
+    overflow-y: auto; /* Add scroll if content overflows */
+  }
+
+  .sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
+     /* Ensure the sidebar takes full height */
+  }
+
+  .logo-container {
+      display: flex;
+      flex-direction: column; /* Stack logo and title */
+      align-items: center; /* Center horizontally */
+      margin-bottom: 20px;
+  }
+  
+  .logo {
+    width: 140px; /* Adjust logo size */
+    margin-bottom: 12px; /* Space between logo and title */
+  }
+  
+  .app-title {
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+  
+  .nav-links {
+    list-style: none;
+    padding: 0;
+    
+  }
+  
+  .nav-links li a {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    text-decoration: none;
+    color: #686868;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    gap: 10px; /* Space between icon and text */
+  }
+  
+  .nav-links li a img {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease; /* Add smooth animation */
+  }
+  
+  .nav-links li a:hover {
+    background-color: #EBF4FF;
+    color: #000; /* Change text color on hover */
+  }
+  
+  .nav-links li a:hover img {
+    transform: scale(1.08); /* Slightly increase icon size on hover */
+  }
+  
+  .switch-system button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    font-weight: bold;
+    color: #686868;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    gap: 10px; /* Space between icon and text */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .switch-system button img {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+  }
+  
+ 
+  .switch-system button:hover img {
+    background-color: transparent;
+    transform: rotate(180deg); /* Rotate icon slightly */
+  }
+
+  .header {
+      display: flex;
+      justify-content: space-between; /* Align items to start and end */
+      align-items: center; /* Vertically center items */
+      margin-bottom: 12px;
+  }
+  
+  .header h2 {
+      margin: 0; /* Remove default margin for h2 */
+  }
+  
+  .dashboard-cards {
+      display: flex;
+      gap: 12px; /* Space between cards */
+  }
+  
+  .card {
+      background-color: #fff;
+      border-radius: 14px;
+      padding: 20px;
+     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.021); /* Soft shadow */
+      flex: 1; /* Cards take equal width */
+      text-align: left; /* Align text to the left */
+    cursor: pointer; /* Make card clickable */
+  }
+
+  .card h3{
+    font-size: 1.0em;
+    font-weight: bold;
+    
+    margin-bottom: 20px;
+    color: #939393;
+  }
+
+  .card:hover h3{
+    font-size: 1.0em;
+    font-weight: bold;
+    display: flex; /* Use flexbox for alignment */
+    justify-content: space-between; /* Space between title and arrow */
+    align-items: center; /* Vertically align items */
+    margin-bottom: 20px;
+    color: #000000;
+    transition: background-color 0.2s;
+  }
+
+  .card p{
+    font-size: 1.0em;
+    font-weight: bold; 
+    margin-bottom: 20px;
+    color: #000000;
+  }
+
+  .card-statistic { /* Changed class name here */
+    border: 1px solid #e6e6e6;
+    background-color: #ffffff;
+    padding: 32px 24px;
+    border-radius: 12px;
+    flex: 1;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.card-statistic:hover { /* Changed class name here */
+    background-color: #fafafa;
+  
+}
+
+.card-statistic h3 { /* Changed class name here */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 4px 0;
+    color: #686868;
+}
+.card-statistic h2 { /* Changed class name here */
+
+  margin: 4px 0;
+}
+
+.card-arrow {
+    font-size: 1.2em;
+    margin-left: 10px;
+    transition: transform 0.2s ease;
+}
+
+.card-statistic:hover .card-arrow { /* Changed class name here */
+    transform: translateX(5px);
+    
+}
+
+  
+.chart-container {
+  margin-bottom: 20px; /* Space below the chart */
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  
+}
+
+.apex-chart-wrapper {
+  border-radius: 16px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow */
+  overflow: hidden; /* Ensure fill color doesn't overflow rounded corners */
+  background-color: #fff;
+  padding: 32px 16px;
+}
+
+  /* Asset Page Styling */
+.asset-page-container {
+  background-color: #F8F9FC; /* Light background for contrast */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
+}
+
+.asset-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.asset-table thead {
+  background-color: #d9e7f4; /* Header background */
+  color: #333;
+  font-weight: 600;
+}
+
+.asset-table th, .asset-table td {
+  padding: 12px 16px;
+  text-align: center;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.asset-table tr:last-child td {
+  border-bottom: none;
+}
+
+.asset-table td {
+  
+  color: #686868;
+}
+
+.more-info {
+  background-color: #ffffff;
+  border: 1px solid #afa5a5;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: auto;
+  color: #686868;
+  font-weight: medium;
+}
+
+
+
+.more-info:hover {
+  background-color: #EBF4FF;
+  border-color: #B0C4DE;
+  color: #000;
+  font-weight: medium;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+
+
+.main-button {
+  background-color: #2B60A1;
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  padding: 10px 24px;
+}
+
+.main-button:hover {
+  background-color: #244a80;
+}
+
+.main-button img {
+  margin: 0;
+  width: 12px;
+  height: 12px;
+}
+.secondary-button {
+  background-color: #ffffff;
+  color: rgb(103, 103, 103);
+  border: #c8c8c8  1px solid;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+
+  transition: all 0.3s ease;
+}
+
+.secondary-button:hover {
+  color: #000;
+  background-color: #fcfcfc;
+  box-shadow: 0px 2px 5px rgba(108, 108, 108, 0.1);
+  transition: all 0.3s ease;
+}
+
+.secondary-button img {
+  justify-content: center;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  margin: 0px;
+  
+}
+
+.month-filter:hover {
+  font-weight: bold;
+  color: #000;
+  box-shadow: 0px 2px 5px rgba(108, 108, 108, 0.1);
+  transition: all 0.3s ease;
+}
+
+
+/* Gedung.css */
+
+.gedung-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+  gap: 16px; /* Spacing between grid items */
+}
+
+.gedung-card {
+  border: 1px solid #ccc; /* Light border for the cards */
+  border-radius: 16px; /* Rounded corners for the cards */
+  overflow: hidden; /* Hide overflowing content */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.gedung-image {
+  width: 100%;
+  height: 200px; /* Fixed height for the image */
+  object-fit: cover; /* Cover the entire area */
+}
+
+.gedung-details {
+  padding: 15px;
+}
+.gedung-details p {
+  margin-top: -4px;
+  color: #686868;
+  
+}
+.gedung-details h3 {
+  margin-bottom: 5px;
+  
+}
+
+.gedung-card:hover {
+  transform: translateY(-4px); /* Move card up slightly on hover */
+  box-shadow: 0 4px 24px rgba(122, 122, 122, 0.266); /* More prominent shadow */
+  transition: all 0.3s ease;
+}
+
+.gedung-card:active { /* Style when the card is clicked */
+  transform: translateY(0); /* Reset position */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Original shadow */
+  transition: all 0.3s ease;
+}
+
+
+modal-overlay {
+  position: fixed; /* Stay in place */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  z-index: 1000; /* Ensure it's on top */
+}
+
+
+
+.modal-content h1 {
+  margin-top: 0;
+  margin-left: auto;
+}
+
+
+.form-group {
+  margin-bottom: 15px;
+  justify-content: center;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* ... other styles ... */
+
+.breadcrumb {
+  display: flex;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.breadcrumb-item {
+  padding: 10px 10px;
+  color: #686868; /* Default text color */
+ 
+  background-color: transparent; /* Default background color */
+  cursor: pointer; /* Indicate clickability if needed */
+}
+
+.breadcrumb-item.active {
+  font-weight: 550; /* Bold text for active step */
+  color: rgb(33, 33, 33); /* Active step text color */
+   /* Active step border color */
+}
+
+/* Optional: Add a separator between breadcrumb items */
+.breadcrumb-item + .breadcrumb-item::before {
+  content: ">";
+  margin: 0 10px;
+  color: #ccc;
+}
+
+.breadcrumb-item.active + .breadcrumb-item::before {
+  content: ">";
+  margin: 0 10px;
+  color: #000000;
+}
+
+.pagination-total-container {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: space-between; /* Align items to opposite ends */
+  align-items: center; /* Vertically align items */
+  margin-top: 20px; /* Add some space above */
+ 
+}
+
+.total-value {
+  text-align: right; /* Ensure right alignment */
+  margin: 0; /* Remove any default margins */
+  background-color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(108, 108, 108, 0.1);
+  transition: all 0.3s ease;
+  font-weight: bold;
+  font-size: 1,1em;
+}
+
+.total-value:hover {
+  transform: translateY(-1px); /* Move card up slightly on hover */
+  transition: all 0.3s ease;
+  background-color: #2B60A1;
+  color: white;
+  
+}
+
+/* Pagination Styling */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  
+  padding: 6px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(108, 108, 108, 0.1);
+  width: 400px;
+}
+
+.pagination button {
+  background-color: transparent;
+ 
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease, color 0.3s ease;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pagination button:hover {
+  background-color: #cfe3fd;
+  
+}
+
+.pagination button.active {
+  background-color: #2B60A1;
+  color: white;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #ababab;
+}
+
+/* Disable previous/next buttons if needed */
+.pagination button:disabled {
+  background-color: #e1e1e1;
+  cursor: not-allowed;
+}
+
+/* Search styling */
+
+.search-container {
+  margin-right: 4px; /* Space between search and buttons */
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+  width: 400px;
+}
