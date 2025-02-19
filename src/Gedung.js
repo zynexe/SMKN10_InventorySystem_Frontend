@@ -1,20 +1,31 @@
 // Gedung.js
-import React from 'react';
-import './Asset.css'; // Import the CSS file
-import gedungImage from './assets/Gedung-image.png'; // Import your gedung image
+import React, { useState } from 'react'; // Import useState!
+import './Asset.css';
+import gedungImage from './assets/Gedung-image.png';
 import { useNavigate } from "react-router-dom";
-import logo from "./logo.png"; // Import your logo
+import logo from "./logo.png";
 import homeIcon from "./assets/home.png";
 import assetIcon from "./assets/asset.png";
 import kodeRekeningIcon from "./assets/kode-rekening.png";
 import gedungIcon from "./assets/gedung.png";
 import profileIcon from "./assets/profile.png";
 import switchIcon from "./assets/switch.png";
+import GedungDetails from './GedungDetails';
 
 
 function Gedung() {
     const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedGedung, setSelectedGedung] = useState(null);
 
+    const handleCardClick = (gedung) => {
+        setSelectedGedung(gedung);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
     const gedungData = [
         { name: 'Gedung A', items: 12, assets: 'Rp.200.000.000' },
         { name: 'Gedung B', items: 12, assets: 'Rp.200.000.000' },
@@ -86,30 +97,32 @@ function Gedung() {
                 </div>
                 <div className="content">
                 <div className="gedung-grid">
-                    {gedungData.map((gedung, index) => (
-                        <div className="gedung-card" key={index} onClick={() => handleCardClick(gedung)}> {/* Add onClick */}
-                            <img src={gedungImage} alt={gedung.name} className="gedung-image" />
-                            <div className="gedung-details">
-                                <h3>{gedung.name}</h3>
-                                <p>{gedung.items} Items</p>
-                                <h4>{gedung.assets}</h4>
+                        {gedungData.map((gedung, index) => (
+                            <div
+                                className="gedung-card"
+                                key={index}
+                                onClick={() => handleCardClick(gedung)}
+                            >
+                                <img src={gedungImage} alt={gedung.name} className="gedung-image" />
+                                <div className="gedung-details">
+                                    <h3>{gedung.name}</h3>
+                                    <p>{gedung.items} Items</p>
+                                    <h4>{gedung.assets}</h4>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-                    {/* Pagination */}
+                        ))}
+                    </div>
+                <GedungDetails
+                    isOpen={isModalOpen}
+                    closeModal={closeModal}
+                    gedung={selectedGedung}
+                />
                     
                 </div>
             </div>
         </div>
     );
-    function handleCardClick(gedung) {
-        // Handle the click action here.  For example:
-        console.log(`Clicked on ${gedung.name}`);
-        // You could navigate to a different page, open a modal, etc.
-        // For example, to navigate:
-        // navigate(`/gedung/${gedung.name}`); // Assuming you have a route like this
-    }
+   
 }
 
 export default Gedung;

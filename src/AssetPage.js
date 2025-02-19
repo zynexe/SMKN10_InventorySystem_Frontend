@@ -1,3 +1,4 @@
+// AssetPage.js
 import React, { useState, useEffect } from "react";
 import "./Asset.css";
 import logo from "./logo.png";
@@ -11,7 +12,9 @@ import calendarMonth from "./assets/calenderMonth.png";
 import calendarYear from "./assets/calenderYear.png";
 import addIcon from "./assets/add.png";
 import { useNavigate } from "react-router-dom";
-import Modal from 'react-modal';
+import Pagination from "./Components/Pagination";
+import ModalAssetPage from "./Components/ModalAssetPage"; // Import the new modal component
+import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // Import icons
 
 const generateRandomNamaBarang = () => {
   const prefixes = ["CANON", "NIKON", "SONY", "FUJIFILM", "OLYMPUS"];
@@ -24,6 +27,7 @@ const generateRandomNamaBarang = () => {
 
   return `${randomPrefix} ${randomModel} ${randomSuffix}`;
 };
+
 const assetData = Array.from({ length: 635 }, (_, i) => ({
   no: i + 1,
   kodeBarang: `1.3.2.06.01.02.${126 + i}`,
@@ -40,160 +44,59 @@ function AssetPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const totalPages = Math.ceil(assetData.length / itemsPerPage);
-  
-  const [searchTerm, setSearchTerm] = useState(""); // State for search term
-  const [filteredData, setFilteredData] = useState(assetData); // State for filtered data
 
-    useEffect(() => {
-        // Filter data based on search term
-        const filtered = assetData.filter(item => {
-            const lowerCaseSearchTerm = searchTerm.toLowerCase();
-            return (
-                item.kodeBarang.toLowerCase().includes(lowerCaseSearchTerm) ||
-                item.namaBarang.toLowerCase().includes(lowerCaseSearchTerm) ||
-                item.merkBarang.toLowerCase().includes(lowerCaseSearchTerm) // Add more fields if needed
-            );
-        });
-        setFilteredData(filtered);
-    }, [searchTerm]); // Re-filter when searchTerm changes
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredData, setFilteredData] = useState(assetData);
 
-  
-    const paginatedData = filteredData.slice( // Use filteredData for pagination
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-  const renderPagination = () => {
-    let pages = [];
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, startPage + 4);
-
-    if (endPage - startPage < 4) {
-      startPage = Math.max(1, endPage - 4);
-    }
-
-    if (startPage > 1) {
-      pages.push(
-        <button key={1} onClick={() => setCurrentPage(1)}>1</button>
+  useEffect(() => {
+    const filtered = assetData.filter((item) => {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      return (
+        item.kodeBarang.toLowerCase().includes(lowerCaseSearchTerm) ||
+        item.namaBarang.toLowerCase().includes(lowerCaseSearchTerm) ||
+        item.merkBarang.toLowerCase().includes(lowerCaseSearchTerm)
       );
-      if (startPage > 2) {
-        pages.push(<span key="start-ellipsis">...</span>);
-      }
-    }
+    });
+    setFilteredData(filtered);
+  }, [searchTerm]);
 
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          className={currentPage === i ? "active" : ""}
-          onClick={() => setCurrentPage(i)}
-        >
-          {i}
-        </button>
-      );
-    }
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        pages.push(<span key="end-ellipsis">...</span>);
-      }
-      pages.push(
-        <button key={totalPages} onClick={() => setCurrentPage(totalPages)}>
-          {totalPages}
-        </button>
-      );
-    }
+  const [totalValue, setTotalValue] = useState(0);
 
-    return pages;
-  };
-
-  const [totalValue, setTotalValue] = useState(0); // State for total value
-
-    useEffect(() => {
-        // Calculate total value for the current page's items
-        let pageTotal = 0;
-        paginatedData.forEach(item => {
-            // Remove "Rp." and any thousands separators before converting to number
-            const price = parseFloat(item.harga.replace("Rp.", "").replace(/\./g, ""));
-            pageTotal += price * item.jumlah;
-        });
-        setTotalValue(pageTotal);
-    }, [paginatedData]); // Recalculate when paginatedData changes
+  useEffect(() => {
+    let pageTotal = 0;
+    paginatedData.forEach((item) => {
+      const price = parseFloat(item.harga.replace("Rp.", "").replace(/\./g, ""));
+      pageTotal += price * item.jumlah;
+    });
+    setTotalValue(pageTotal);
+  }, [paginatedData]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1); // Track current step (1, 2, or 3)
+  const [currentStep, setCurrentStep] = useState(1);
 
-    const openModal = () => {
-        setIsModalOpen(true);
-        setCurrentStep(1); // Reset step to 1 when modal opens
-    };
+  const openModal = () => {
+    setIsModalOpen(true);
+    setCurrentStep(1);
+  };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
-    const handleNext = (e) => {
-        e.preventDefault();
-        if (currentStep < 3) {
-            setCurrentStep(currentStep + 1);
-        } else {
-            handleSubmit(e); // Submit on the last step
-        }
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form submitted!");
+    closeModal();
+  };
 
-    const handleBack = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-        }
-    };
-
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      // Handle form submission here (e.g., send data to API)
-      console.log("Form submitted!");
-      closeModal(); // Close the modal after submit
-    };
-
-    const renderBreadcrumbs = () => {
-        const steps = [
-            { label: '1. Info Barang', step: 1 },
-            { label: '2. Info BPA Penerimaan', step: 2 },
-            { label: '3. Info Barang', step: 3 },
-        ];
-
-        return (
-            <div className="breadcrumb">
-                {steps.map((s) => (
-                    <div key={s.step} className={`breadcrumb-item ${currentStep >= s.step ? 'active' : ''}`}>
-                        {s.label}
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
-  const customStyles = { // Custom styles for the modal (optional)
-    content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-        width: '580px', // Adjust as needed
-        maxWidth: '90vw', // For smaller screens
-         // Optional: Add border radius to the modal
-    },
-    overlay: {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
-        zIndex: 1000, // Ensure it's on top
-    },
-};
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
-
-
 
   return (
     <div className="asset-home-container">
@@ -221,10 +124,10 @@ function AssetPage() {
             </a>
           </li>
           <li>
-          <a href="#" onClick={() => navigate("/gedung")}>
+            <a href="#" onClick={() => navigate("/gedung")}>
               <img src={gedungIcon} alt="Gedung" className="icon" />
               Gedung
-          </a>
+            </a>
           </li>
           <li>
             <a href="#">
@@ -243,171 +146,94 @@ function AssetPage() {
 
       <div className="main-content">
         <div className="header">
-          <h2 style={{ marginRight: '10px' }}>Asset</h2>
-          
+          <h2 style={{ marginRight: "10px" }}>Asset</h2>
           <div className="header-buttons">
-          <div className="search-container"> {/* Container for search bar */}
+            <div className="search-container">
               <input
-                  type="text"
-                  placeholder="Cari Item / Kode Barang"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="search-input"
+                type="text"
+                placeholder="Cari Item / Kode Barang"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="search-input"
               />
-          </div>
+            </div>
             <button className="secondary-button">
               <img src={calendarMonth} alt="CalendarMonth" /> Januari
             </button>
             <button className="secondary-button">
               <img src={calendarYear} alt="CalendarYear" /> 2025
             </button>
-            <button className="main-button" onClick={openModal}> {/* Open modal on click */}
+            <button className="main-button" onClick={openModal}>
               <img src={addIcon} alt="Add" className="icon" /> Add
             </button>
           </div>
         </div>
 
         <div className="table-container">
-          <table className="asset-table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Kode Barang</th>
-                <th>Nama Barang</th>
-                <th>Merk Barang</th>
-                <th>Satuan</th>
-                <th>Jumlah</th>
-                <th>Harga</th>
-                <th>Lokasi</th>
-                <th>Info BPA Penerimaan</th>
-                <th>Info Asset</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((item) => (
-                <tr key={item.no}>
-                  <td>{item.no}</td>
-                  <td>{item.kodeBarang}</td>
-                  <td>{item.namaBarang}</td>
-                  <td>{item.merkBarang}</td>
-                  <td>{item.satuan}</td>
-                  <td>{item.jumlah}</td>
-                  <td>{item.harga}</td>
-                  <td>{item.lokasi}</td>
-                  <td><button className="more-info">More Info</button></td>
-                  <td><button className="more-info">More Info</button></td>
+            <table className="asset-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Kode Barang</th>
+                  <th>Nama Barang</th>
+                  <th>Merk Barang</th>
+                  <th>Satuan</th>
+                  <th>Jumlah</th>
+                  <th>Harga</th>
+                  <th>Lokasi</th>
+                  <th>Info BPA Penerimaan</th>
+                  <th>Info Asset</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-
-        <div className="pagination-total-container">  {/* New container */}
-                    <div className="pagination">
-                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>❮</button>
-                      {renderPagination()} 
-                      <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>❯</button>
-                    </div>
-                    <div className="total-value">
-                        Total: Rp. {totalValue.toLocaleString('id-ID')}
-                    </div>
-                </div>
-        {/* React Modal */}
-        <Modal // React Modal component
-                    isOpen={isModalOpen}
-                    onRequestClose={closeModal} // Handles closing on overlay click or Esc key
-                    style={customStyles} // Apply custom styles if needed
-                    contentLabel="Add Asset Modal" // For accessibility
-                >
-                    <h2 style={{ textAlign: 'center' }}>Add Asset</h2>
-                    {renderBreadcrumbs()} {/* Render breadcrumbs */}
+              </thead>
+              <tbody>
+                {paginatedData.map((item) => (
+                  <tr key={item.no}>
+                    <td>{item.no}</td>
+                    <td>{item.kodeBarang}</td>
+                    <td>{item.namaBarang}</td>
+                    <td>{item.merkBarang}</td>
+                    <td>{item.satuan}</td>
+                    <td>{item.jumlah}</td>
+                    <td>{item.harga}</td>
+                    <td>{item.lokasi}</td>
                     
-                  <form onSubmit={currentStep === 3 ? handleSubmit : handleNext}> {/* Conditionally handle submit or next */}
-                      {/* Conditionally render form content based on currentStep */}
-                      {currentStep === 1 && (
-                          <div>
-                              {/* ... Step 1 form fields */}
-                              <div className="form-group">
-                                  <label htmlFor="kodeBarang">Kode Barang (ID)</label>
-                                  <input type="text" id="kodeBarang" name="kodeBarang"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="namaBarang">Nama Barang</label>
-                                  <input type="text" id="namaBarang" name="namaBarang"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="merkBarang">Merk Barang</label>
-                                  <input type="text" id="merkBarang" name="merkBarang"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="jumlah">Jumlah</label>
-                                  <input type="number" id="jumlah" name="jumlah"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="satuan">Satuan</label>
-                                  <input type="text" id="satuan" name="satuan"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="harga">Harga (Rupiah)</label>
-                                  <input type="number" id="harga" name="harga"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="lokasi">Lokasi</label>
-                                  <input type="text" id="lokasi" name="lokasi"  />
-                              </div>
-                          </div>
-                      )}
-                      {currentStep === 2 && (
-                          <div>
-                              {/* ... Step 2 form fields */}
-                              <div className="form-group">
-                                  <label htmlFor="Tanggal">Tanggal</label>
-                                  <input type="date" id="Tanggal" name="Tanggal"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="SumberPerolehan">Sumber Perolehan </label>
-                                  <input type="text" id="SumberPerolehan" name="SumberPerolehan"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="KoderingBelanja">Kodering Belanja</label>
-                                  <input type="text" id="KoderingBelanja" name="KoderingBelanja"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="No.SPKFakturKuitansi">No.SPK /Faktur / Kuitansi</label>
-                                  <input type="text" id="No.SPKFakturKuitansi" name="No.SPKFakturKuitansi"  />
-                              </div>
-                              <div className="form-group">
-                                  <label htmlFor="NoBAPenerimaan">No BA Penerimaan</label>
-                                  <input type="number" id="NoBAPenerimaan" name="NoBAPenerimaan"  />
-                              </div>
-                        
-                             
-                          </div>
-                      )}
-                      {currentStep === 3 && (
-                          <div>
-                              {/* ... Step 3 form fields */}
-                              <p>Step 3 content</p> {/* Replace with your form fields */}
-                          </div>
-                      )}
-
-                        <div className="modal-buttons">
-                            {currentStep > 1 ? ( // If currentStep is greater than 1, show "Back" button
-                                <button type="button" className="secondary-button" onClick={handleBack}>
-                                    Back
-                                </button>
-                            ) : ( // Otherwise, show a "Close" button
-                                <button type="button" className="secondary-button" onClick={closeModal}>
-                                    Close
-                                </button>
-                            )}
-                            <button type="submit" className="main-button">
-                                {currentStep === 3 ? 'Submit' : 'Next'}
+                    <td>
+                      <button className="more-info">More Info</button>
+                    </td>
+                    <td>
+                      <button className="more-info">More Info</button>
+                    </td>
+                    <td>
+                        <div className="actions-container">
+                            <button className="icon-button edit-button"> {/* Add icon-button class */}
+                                <FaEdit /> {/* Use the edit icon */}
+                            </button>
+                            <button className="icon-button delete-button"> {/* Add icon-button class */}
+                                <FaTrashAlt /> {/* Use the delete icon */}
                             </button>
                         </div>
-                  </form>
-                </Modal>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+        
+        </div>
+
+        <div className="pagination-total-container">
+          <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
+          <div className="total-value">Total: Rp. {totalValue.toLocaleString("id-ID")}</div>
+        </div>
+
+        {/* Use the ModalAssetPage component */}
+        <ModalAssetPage
+          isOpen={isModalOpen}
+          closeModal={closeModal}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          handleSubmit={handleSubmit}
+        />
       </div>
     </div>
   );

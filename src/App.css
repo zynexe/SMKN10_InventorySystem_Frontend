@@ -3,7 +3,7 @@
 body {
   margin: 0;
   font-family: 'DM Sans', sans-serif; /* Changed to DM Sans */
-  background-color: #F2F8FF;  
+  background-color: #f8fbff;  
   display : flex;
   justify-content: center;
   align-items: center;

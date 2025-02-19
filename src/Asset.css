@@ -500,14 +500,6 @@ modal-overlay {
   font-size: 1,1em;
 }
 
-.total-value:hover {
-  transform: translateY(-1px); /* Move card up slightly on hover */
-  transition: all 0.3s ease;
-  background-color: #2B60A1;
-  color: white;
-  
-}
-
 /* Pagination Styling */
 .pagination {
   display: flex;
@@ -568,4 +560,64 @@ modal-overlay {
   border-radius: 6px;
   font-size: 1em;
   width: 400px;
+}
+
+.actions-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button { /* Style for both icon buttons */
+  background-color: transparent; /* Transparent background */
+  border-color: transparent; /* Remove default button border */
+  margin: 0 2px; /* Adjust margin as needed */
+  border-radius: 6px;/* Remove default button border */
+  padding: 6px; /* Adjust padding as needed */
+  cursor: pointer;
+  font-size: 16px; /* Adjust icon size as needed */
+  transition: color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+
+
+.edit-button {
+  
+  color: #007bff; /* Blue color for edit */
+}
+
+.edit-button:hover {
+  background-color: #007bff;
+  color: #ffffff; /* Darker blue on hover */
+}
+
+.delete-button {
+  color: red; /* Red color for delete */
+}
+
+.delete-button:hover {
+  background-color: red;
+  color:  #ffffff;/* Darker red on hover */
+}
+
+.table-container { /* Style for the wrapper div */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  /* Add any other styling you want for the scrollbar */
+}
+
+.close-button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border-color: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  color: #ffffff;
+  background-color: red;
+  transition: all 0.3s ease;
+}
+
+.close-button:HOVER {
+  border-color: red;
+  color: red;
+  background-color: transparent;
 }

@@ -21,16 +21,16 @@ function AssetHome() {
   const [monthlyExpenses, setMonthlyExpenses] = useState([ // Sample data
       { month: "JAN", expenses: 20000000 },
       { month: "FEB", expenses: 25000000 },
-      { month: "MAR", expenses: 10000000},
+      { month: "MAR", expenses: 25000000},
       { month: "APR", expenses: 30000000 },
-      { month: "MAY", expenses: 28000000 },
-      { month: "JUN", expenses: 50000000 },
-      { month: "JUL", expenses: 32000000 },
-      { month: "AUG", expenses: 40000000 },
-      { month: "SEP", expenses: 38000000 },
-      { month: "OCT", expenses: 45000000 },
-      { month: "NOV", expenses: 42000000 },
-      { month: "DEC", expenses: 50000000 },
+      { month: "MAY", expenses: 38000000 },
+      { month: "JUN", expenses: 40000000 },
+      { month: "JUL", expenses: 42000000 },
+      { month: "AUG", expenses: 60000000 },
+      { month: "SEP", expenses: 68000000 },
+      { month: "OCT", expenses: 75000000 },
+      { month: "NOV", expenses: 82000000 },
+      { month: "DEC", expenses: 90000000 },
   ]);
 
   const chartRef = useRef(null); // Create a ref for the chart container
@@ -173,7 +173,7 @@ const chartSeries = [
               
           </div>
           <div className="header">
-                        <h3>Statistik Asset</h3>
+                        <h3>Asset Statistics</h3>
                     </div>
                     <div className="dashboard-cards">
                     <div className="card-statistic" onClick={() => handleCardClick("/gedung")}> {/* Changed class name */}

@@ -21,7 +21,7 @@ function ChooseSystem() {
   return (
     <div className="choose-system-container">
       <button className="back-button" onClick={() => navigate('/')}>
-        <FaArrowLeft className="back-icon" /> Back
+        <FaArrowLeft className="back-icon" /> Log Out
       </button>
 
 
