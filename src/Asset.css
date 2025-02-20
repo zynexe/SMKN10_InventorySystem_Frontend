@@ -8,7 +8,7 @@
     display: flex;
   width: 100vw; /* Ensure container takes full viewport width */
   margin: 0; /* Remove any default margins */
-  padding: 0; /* Remove any default padding *
+  
 
   }
   
@@ -19,6 +19,7 @@
   }
 
   .sidebar {
+    
     width: 250px;
     background-color: #ffffff;
     padding: 20px;
@@ -225,7 +226,7 @@
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
 }
 
-.asset-table {
+.table {
   width: 100%;
   border-collapse: collapse;
   background-color: #ffffff;
@@ -234,23 +235,23 @@
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.asset-table thead {
+.table thead {
   background-color: #d9e7f4; /* Header background */
   color: #333;
   font-weight: 600;
 }
 
-.asset-table th, .asset-table td {
+.table th, .table td {
   padding: 12px 16px;
   text-align: center;
   border-bottom: 1px solid #E0E0E0;
 }
 
-.asset-table tr:last-child td {
+.table tr:last-child td {
   border-bottom: none;
 }
 
-.asset-table td {
+.table td {
   
   color: #686868;
 }
@@ -620,4 +621,12 @@ modal-overlay {
   border-color: red;
   color: red;
   background-color: transparent;
+}
+
+.total-items {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px 18px;
+  box-shadow: 0px 2px 5px rgba(108, 108, 108, 0.1);
+  font-weight: bold;
 }

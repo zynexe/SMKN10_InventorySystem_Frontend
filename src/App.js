@@ -6,6 +6,7 @@ import AssetHome from './AssetHome';
 import AssetPage from './AssetPage';
 import BHPHome from './BHPHome';
 import Gedung from './Gedung'; // Import the Gedung component
+import KodeBarang from './KodeBarang';
 import logo from './logo.png';
 
 function LoginPage() {
@@ -57,6 +58,7 @@ function App() {
         <Route path="/asset-page" element={<AssetPage />} />
         <Route path="/bhp-home" element={<BHPHome />} />
         <Route path="/gedung" element={<Gedung />} /> 
+        <Route path="/kode-barang" element={<KodeBarang />} /> {/* New route */}
       </Routes>
     </Router>
   );

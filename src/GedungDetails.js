@@ -65,7 +65,7 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
             overflow: 'auto',
             borderRadius: '15px',
             backgroundColor: 'rgba(255, 255, 255, 0.77)', // Glassmorphism background
-            backdropFilter: 'blur(10px)', // Blur effect
+            backdropFilter: 'blur(8px)', // Blur effect
             border: '1px solid rgba(255, 255, 255, 0.3)', // Subtle border
             boxShadow: '0 8px 32px 0 rgba(148, 163, 201, 0.7)', // Add a subtle shadow
         },

@@ -1,13 +1,6 @@
 // AssetPage.js
 import React, { useState, useEffect } from "react";
 import "./Asset.css";
-import logo from "./logo.png";
-import homeIcon from "./assets/home.png";
-import assetIcon from "./assets/asset.png";
-import kodeRekeningIcon from "./assets/kode-rekening.png";
-import gedungIcon from "./assets/gedung.png";
-import profileIcon from "./assets/profile.png";
-import switchIcon from "./assets/switch.png";
 import calendarMonth from "./assets/calenderMonth.png";
 import calendarYear from "./assets/calenderYear.png";
 import addIcon from "./assets/add.png";
@@ -15,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import Pagination from "./Components/Pagination";
 import ModalAssetPage from "./Components/ModalAssetPage"; // Import the new modal component
 import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // Import icons
+import Sidebar from './Layout/Sidebar'; // Import Sidebar
+import SearchBar from './Components/SearchBar'; // Import SearchBar
 
 const generateRandomNamaBarang = () => {
   const prefixes = ["CANON", "NIKON", "SONY", "FUJIFILM", "OLYMPUS"];
@@ -100,85 +95,35 @@ function AssetPage() {
 
   return (
     <div className="asset-home-container">
-      <div className="sidebar">
-        <div className="logo-container">
-          <img src={logo} alt="Logo" className="logo" />
-        </div>
-        <ul className="nav-links">
-          <li>
-            <a href="#" onClick={() => navigate("/asset-home")}>
-              <img src={homeIcon} alt="Home" className="icon" />
-              Home
-            </a>
-          </li>
-          <li>
-            <a href="#" className="active" onClick={() => navigate("/asset-page")}>
-              <img src={assetIcon} alt="Asset" className="icon" />
-              Asset
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <img src={kodeRekeningIcon} alt="Kode Rekening" className="icon" />
-              Kode Rekening
-            </a>
-          </li>
-          <li>
-            <a href="#" onClick={() => navigate("/gedung")}>
-              <img src={gedungIcon} alt="Gedung" className="icon" />
-              Gedung
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <img src={profileIcon} alt="Profile" className="icon" />
-              Profile
-            </a>
-          </li>
-        </ul>
-        <div className="switch-system">
-          <button onClick={() => navigate("/choose-system")}>
-            <img src={switchIcon} alt="Switch System" className="icon" />
-            Switch System
-          </button>
-        </div>
-      </div>
+      <Sidebar /> 
 
       <div className="main-content">
         <div className="header">
-          <h2 style={{ marginRight: "10px" }}>Asset</h2>
-          <div className="header-buttons">
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="Cari Item / Kode Barang"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="search-input"
-              />
+            <h2 style={{ marginRight: "10px" }}>Asset</h2>
+            <div className="header-buttons">
+                <SearchBar searchTerm={searchTerm} handleSearchChange={handleSearchChange} /> {/* Use SearchBar */}
+                <button className="secondary-button">
+                    <img src={calendarMonth} alt="CalendarMonth" /> Januari
+                </button>
+                <button className="secondary-button">
+                    <img src={calendarYear} alt="CalendarYear" /> 2025
+                </button>
+                <button className="main-button" onClick={openModal}>
+                    <img src={addIcon} alt="Add" className="icon" /> Add
+                </button>
             </div>
-            <button className="secondary-button">
-              <img src={calendarMonth} alt="CalendarMonth" /> Januari
-            </button>
-            <button className="secondary-button">
-              <img src={calendarYear} alt="CalendarYear" /> 2025
-            </button>
-            <button className="main-button" onClick={openModal}>
-              <img src={addIcon} alt="Add" className="icon" /> Add
-            </button>
-          </div>
         </div>
 
         <div className="table-container">
-            <table className="asset-table">
+            <table className="table">
               <thead>
                 <tr>
                   <th>No</th>
                   <th>Kode Barang</th>
                   <th>Nama Barang</th>
                   <th>Merk Barang</th>
-                  <th>Satuan</th>
                   <th>Jumlah</th>
+                  <th>Satuan</th>
                   <th>Harga</th>
                   <th>Lokasi</th>
                   <th>Info BPA Penerimaan</th>
@@ -193,8 +138,8 @@ function AssetPage() {
                     <td>{item.kodeBarang}</td>
                     <td>{item.namaBarang}</td>
                     <td>{item.merkBarang}</td>
-                    <td>{item.satuan}</td>
                     <td>{item.jumlah}</td>
+                    <td>{item.satuan}</td>
                     <td>{item.harga}</td>
                     <td>{item.lokasi}</td>
                     

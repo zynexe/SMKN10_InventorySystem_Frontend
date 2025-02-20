@@ -10,6 +10,7 @@ import switchIcon from "./assets/switch.png";
 import { useNavigate } from "react-router-dom";
 import calendarMonth from "./assets/calenderMonth.png"; // Import calendar icon
 import ApexCharts from 'apexcharts'
+import Sidebar from './Layout/Sidebar'; // Import Sidebar
 
 
 function AssetHome() {
@@ -90,49 +91,7 @@ const chartSeries = [
   return (
     <div className="asset-home-container">
       {/* Sidebar/Navbar */}
-      <div className="sidebar">
-        <div className="logo-container">
-          <img src={logo} alt="Logo" className="logo" />
-        </div>
-        <ul className="nav-links">
-          <li>
-            <a href="#" className="active" onClick={() => navigate("/asset-home")}>
-              <img src={homeIcon} alt="Home" className="icon" />
-              Home
-            </a>
-          </li>
-          <li>
-            <a href="#" onClick={() => navigate("/asset-page")}>
-              <img src={assetIcon} alt="Asset" className="icon" />
-              Asset
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <img src={kodeRekeningIcon} alt="Kode Rekening" className="icon" />
-              Kode Rekening
-            </a>
-          </li>
-          <li>
-           <a href="#" onClick={() => navigate("/gedung")}>
-              <img src={gedungIcon} alt="Gedung" className="icon" />
-              Gedung
-          </a>
-          </li>
-          <li>
-            <a href="#">
-              <img src={profileIcon} alt="Profile" className="icon" />
-              Profile
-            </a>
-          </li>
-        </ul>
-        <div className="switch-system">
-          <button onClick={() => navigate("/choose-system")}>
-            <img src={switchIcon} alt="Switch System" className="icon" />
-            Switch System
-          </button>
-        </div>
-      </div>
+      <Sidebar />
 
       {/* Main Content */}
       <div className="main-content">
