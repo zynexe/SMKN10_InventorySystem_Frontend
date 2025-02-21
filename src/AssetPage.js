@@ -92,7 +92,7 @@ function AssetPage() {
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
-
+ 
   return (
     <div className="asset-home-container">
       <Sidebar /> 

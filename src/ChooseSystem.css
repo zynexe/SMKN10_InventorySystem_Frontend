@@ -1,103 +1,118 @@
 /* Full Page Centering */
 .choose-system-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-   
-  }
-  
-  /* Back Button */
-  .back-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    color: #da4747;
-    background: none;
-    border: none;
-    cursor: pointer;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    transition: transform 0.3s ease;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20px; /* Add padding to the container */
+}
 
-  .back-button:hover {
-    color: #da4747;
-    background: none;
-    transform: translate(12px,0 );
-    font-weight: 500;
-  }
+/* Back Button */
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: #da4747;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  transition: transform 0.3s ease;
+}
 
-  
-  .back-icon {
-    font-size: 14px;
-    color: #da4747;
-  }
+.back-button:hover {
+  color: #da4747;
+  background: none;
+  transform: translate(12px, 0);
+  font-weight: 500;
+}
 
-  
-  
-  /* White Container Box */
+.back-icon {
+  font-size: 14px;
+  color: #da4747;
+}
+
+/* White Container Box */
+.choose-system-box {
+  background-color: #fff;
+  padding: 80px 40px; /* Reduce padding for smaller screens */
+  border-radius: 16px;
+  box-shadow: 0 10px 30px #cde4ff;
+  text-align: center;
+  width: 100%; /* Make the box responsive */
+  max-width: 400px; /* Limit the maximum width */
+}
+
+/* Title */
+.choose-system-box h1 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 42px; /* Reduce margin for smaller screens */
+}
+
+/* Button Container */
+.system-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Reduce gap for smaller screens */
+}
+
+/* System Button */
+.system-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px; /* Reduce padding for smaller screens */
+  font-size: 16px;
+  color: #000;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.system-options button {
+  padding: 12px 24px; /* Reduce padding for smaller screens */
+  background-color: #fff;
+  color: #000000;
+  border: 1px solid #cbcbcb;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.system-options button:hover {
+  background-color: #0056b3;
+  color: #fff;
+}
+
+/* Logo inside Button */
+.system-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 576px) {
   .choose-system-box {
-    background-color: #fff;
-    padding: 80px 40px 100px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px #CDE4FF;
-    text-align: center;
-    width: 400px;
+    padding: 100px 15px 100px; /* Further reduce padding for very small screens */
+    margin-left: 10px;
+    margin-right: 10px;
+    
     
   }
-  
-  /* Title */
+
   .choose-system-box h1 {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 48px;
-    
+    font-size: 18px; /* Reduce font size for very small screens */
+    margin-bottom: 42px;
   }
-  
-  /* Button Container */
-  .system-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  /* System Button */
-  .system-button {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    color: #000;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
+
   .system-options button {
-    padding: 15px 30px;
-    background-color: #fff;
-    color: #000000;
-    border: 1px solid #cbcbcb;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
+    font-size: 12px; /* Reduce font size for very small screens */
   }
-  
-    .system-options button:hover {
-    background-color: #0056b3;
-    color: #fff;
-    }
-  
-  /* Logo inside Button */
-  .system-icon {
-    width: 20px;
-    height: 20px;
-  }
-  
+}

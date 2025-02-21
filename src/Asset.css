@@ -17,16 +17,211 @@
     padding: 20px;
     overflow-y: auto; /* Add scroll if content overflows */
   }
-
   .sidebar {
-    
     width: 250px;
     background-color: #ffffff;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
-     /* Ensure the sidebar takes full height */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .asset-home-container, .bhp-home-container {
+      flex-direction: column; /* Stack sidebar and main content */
+    }
+
+    .sidebar {
+      width: auto;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: -350px; /* Hide the sidebar initially */
+      z-index: 100;
+      padding: 20px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+      transition: left 0.2s ease; /* Smooth transition for sliding effect */
+      background-color: #fff; /* Ensure background color is present */
+    }
+  
+    .sidebar-open {
+      left: 0; /* Slide in the sidebar when open */
+    }
+  
+    .main-content {
+      padding: 10px;
+    }
+
+    /* Add margin to main content when sidebar is closed */
+    .sidebar:not(.sidebar-open) + .main-content {
+      margin-left: 34px;
+    }
+  
+    .nav-links {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .nav-links li {
+      margin-bottom: 5px;
+    }
+  
+    .nav-links li a {
+      padding: 8px 12px;
+    }
+  
+    .hamburger-icon {
+      display: block;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      cursor: pointer;
+      padding: 10px;
+      border: 1px solid #ccc; /* Add border */
+      background-color: #fff; /* Add background color */
+      border-radius: 5px; /* Add border-radius */
+      z-index: 101; /* Ensure it's above the sidebar */
+    }
+  
+    .close-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      padding: 5px;
+      border: none;
+      background: none;
+    }
+  
+    /* Hide these elements by default on small screens */
+    .logo-container {
+      display: block; /* Keep logo container visible */
+      margin-bottom: 12px;
+    }
+  
+    .logo {
+      width: 120px; /* Adjust logo size for smaller screens */
+    }
+  
+    .nav-links,
+    .switch-system {
+      display: flex; /* Show nav links and switch system when sidebar is open */
+      flex-direction: column;
+    }
+  
+    /* Styles when sidebar is open */
+    .sidebar-open .logo-container,
+    .sidebar-open .nav-links,
+    .sidebar-open .switch-system {
+      display: flex;
+    }
+  
+    .sidebar-open .hamburger-icon {
+      display: none; /* Hide hamburger icon when sidebar is open */
+    }
+  
+    /* Ensure the logo is visible */
+    .logo-container {
+      position: relative;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 101; /* Ensure it's above the sidebar */
+      background: transparent;
+      margin-bottom: 70px;
+    }
+  
+    .logo {
+      width: 100px; /* Smaller logo on smaller screens */
+    }
+
+    .dashboard-cards {
+      display: flex;
+      overflow-x: auto; /* Enable horizontal scrolling */
+      padding-bottom: 10px; /* Add some space for the scrollbar */
+    }
+
+    .card {
+      flex: 0 0 auto; /* Do not grow, do not shrink, base width auto */
+      width: 200px; /* Set a fixed width for each card */
+      margin-right: 10px; /* Add some spacing between cards */
+    }
+
+    .header {
+      flex-direction: column; /* Stack header elements */
+      align-items: flex-start; /* Align items to the start */
+    }
+
+    .header h2 {
+      margin-bottom: 10px; /* Add some space below the heading */
+    }
+
+    .search-container {
+      width: 95%; /* Make search container full width */
+      margin-bottom: 10px; /* Add space below search */
+    }
+
+    .search-container input {
+      min-width: 100%;/* Make search input full width */
+    }
+
+    .header-buttons {
+      width: 100%; /* Make buttons container full width */
+      flex-direction: column; /* Stack buttons */
+      gap: 10px; /* Increase gap between stacked buttons */
+    }
+
+    .main-button,
+    .secondary-button {
+      width: 100%; /* Make buttons full width */
+      text-align: center; /* Center button text */
+      padding: 10px; /* Adjust padding */
+    }
+
+    .gedung-grid {
+      
+      grid-template-columns: repeat(2, 1fr); /* 2 equal columns */
+      
+    }
+
+    .gedung-details h3 {
+      font-size: 1.2em; /* Smaller font size for heading */
+    }
+
+    .gedung-details p,
+    .gedung-details h4 {
+      font-size: 0.9em; /* Smaller font size for paragraphs and h4 */
+    }
+
+    .pagination-total-container {
+      flex-direction: column; /* Stack pagination and total value */
+      align-items: center; /* Center items horizontally */
+      gap: 10px; /* Add some space between them */
+    }
+
+    .total-value {
+      width: 100%; /* Make total value full width */
+      text-align: center; /* Center text */
+    }
+    .pagination {
+      max-width: 95%;
+       /* Make pagination full width */
+      justify-content: center; /* Center items horizontally */
+      flex-wrap: wrap; /* Allow buttons to wrap to the next line */
+    }
+
+    .pagination button {
+      margin: 2px; /* Add some spacing between buttons */
+    }
+  }
+
+  
+  
+  .hamburger-icon img,
+  .close-icon img {
+    width: 24px;
+    height: 24px;
   }
 
   .logo-container {
@@ -40,7 +235,7 @@
     width: 140px; /* Adjust logo size */
     margin-bottom: 12px; /* Space between logo and title */
   }
-  
+
   .app-title {
     font-size: 1.2em;
     font-weight: bold;
@@ -353,8 +548,8 @@
 
 .gedung-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
-  gap: 16px; /* Spacing between grid items */
+  grid-template-columns: repeat(2, 1fr); /* 3 equal columns */
+  gap: 10px; /* Spacing between grid items */
 }
 
 .gedung-card {
@@ -551,9 +746,6 @@ modal-overlay {
 
 /* Search styling */
 
-.search-container {
-  margin-right: 4px; /* Space between search and buttons */
-}
 
 .search-input {
   padding: 8px 12px;

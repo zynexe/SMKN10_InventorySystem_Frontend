@@ -95,7 +95,7 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
             </div>
 
             <div className="table-container">
-                <table className="asset-table">
+                <table className="table">
                     <thead>
                         <tr>
                             <th>No</th>

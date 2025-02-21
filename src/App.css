@@ -24,42 +24,44 @@ body {
   position: relative;
 }
 
+@property --angle{
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
 .container::before, .container::after {
   content: '';
   position: absolute;
-  background: linear-gradient(45deg, #abc8fd7a, #a9d7fd); /* Only two colors */
-  background-size: 400%;
+  background: conic-gradient(from var(--angle),#b9e0ff21 , #48adff); /* Only two colors */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
+  padding: px;
   z-index: -1;
   border-radius: 28px;
-  animation: glowing 12s linear infinite;
+  animation : spin 3s linear infinite;
+  
+  
 }
 
 .container::after {
-  filter: blur(60px);
+  filter: blur(100px);
+  opacity: 0.7;
+  
 }
 
-@keyframes breathing {
-  0% {
-    transform: scale(1.0);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1.0);
-  }
-}
 
-.breathing-element {
-  animation: breathing 4s ease-in-out infinite; /* Adjust duration and timing as needed */
-}
-@keyframes glowing {
-  0% { background-position: 0 0; }
-  100% { background-position: 400% 0; }
-   
-}
+@keyframes spin {
+    from {
+        --angle: 0deg;
+    }
+    to {
+        --angle: 360deg;
+    }
+  }
 
 .login-section {
     flex: 1;
@@ -146,26 +148,63 @@ body {
 /* Responsive Adjustments */
 @media (max-width: 900px) {
     .container {
-        width: 95%; /* Adjust container width */
+        width: 500px; /* Adjust container width */
         flex-direction: column; /* Stack login and visual */
+        align-items: center; /* Center items horizontally */
+        margin-left: 10px;
+        margin-right: 10px;
+        /* Adjust padding */
     }
 
     .input-group input {
-        width: 90%; /* Responsive input width */
+        width: 100%; /* Responsive input width */
     }
 
-    .login-section, .key-visual {
-        flex: none; /* Prevent flex growth */
+    .login-section {
+        flex: 1; /* Allow the login section to grow */
         width: 100%;
-        padding: 20px;
+        
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center content within sections */
     }
 
-    .key-visual img {
-        margin-top: 20px; /* Space between sections */
+    .key-visual {
+        display: none; /* Hide key visual */
+    }
+
+    .header img {
+        width: 150px; /* Adjust company logo size */
+        margin-top: 20px; /* Add margin to the top */
+    }
+
+    .login-box  {
+        width: 90%; /* Make login form same width as key visual */
+        margin: 0 30px; /* Add margin to top and bottom */
+    }
+
+    
+    .login-box input  {
+        width: 95%; /* Remove max-width restriction */
+       
+    }
+
+   
+
+    .login-button {
+        max-width: none; /* Remove max-width restriction */
     }
 }
 
 @media (max-width: 600px) {
+    .container {
+        width: 95%; /* Adjust container width */
+        flex-direction: column; /* Stack login and visual */
+        align-items: center; /* Center items horizontally */
+        margin-left: 10px;
+        margin-right: 10px;
+        
+    }
     .input-group input {
         width: 95%; /* Further input adjustment */
     }
@@ -173,4 +212,12 @@ body {
     .login-section {
         padding: 15px;
     }
+
+    .header img {
+        width: 120px; /* Further adjust company logo size for smaller screens */
+    }
+    .key-visual {
+        display: none; /* Hide key visual */
+    }
 }
+
