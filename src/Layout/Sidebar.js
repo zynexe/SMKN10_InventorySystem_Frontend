@@ -83,16 +83,7 @@ function Sidebar() {
                             Gedung
                         </a>
                     </li>
-                    <li>
-                        <a
-                            href="#"
-                            onClick={() => toggleSidebar()}
-                            className={location.pathname === "/profile" ? "active" : ""}
-                        >
-                            <img src={profileIcon} alt="Profile" className="icon" />
-                            Profile
-                        </a>
-                    </li>
+                
                 </ul>
                 <div className="switch-system">
                     <button onClick={() => { navigate("/choose-system"); toggleSidebar(); }}>

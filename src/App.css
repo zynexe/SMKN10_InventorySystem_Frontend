@@ -201,8 +201,10 @@ body {
         width: 95%; /* Adjust container width */
         flex-direction: column; /* Stack login and visual */
         align-items: center; /* Center items horizontally */
-        margin-left: 10px;
-        margin-right: 10px;
+        margin-right: auto;
+        margin-left: 0;
+        
+        padding: 30px 10px;/* Adjust padding */
         
     }
     .input-group input {

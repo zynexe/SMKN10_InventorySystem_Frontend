@@ -1,5 +1,5 @@
 // ModalAssetPage.js
-import React, { useState } from "react";
+import React from "react";
 import Modal from "react-modal";
 
 const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handleSubmit }) => {
@@ -21,7 +21,7 @@ const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handl
   const renderBreadcrumbs = () => {
     const steps = [
       { label: "1. Info Barang", step: 1 },
-      { label: "2. Info BPA Penerimaan", step: 2 },
+      { label: "2. Info BA Penerimaan", step: 2 },
       { label: "3. Info Barang", step: 3 },
     ];
 
@@ -46,6 +46,12 @@ const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handl
       transform: "translate(-50%, -50%)",
       width: "580px",
       maxWidth: "90vw",
+      padding: "20px",
+      // Add responsive styles here
+      "@media (max-width: 768px)": {
+        width: "95vw", // Adjust width for smaller screens
+        padding: "10px", // Reduce padding
+      },
     },
     overlay: {
       backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -65,7 +71,7 @@ const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handl
 
       <form onSubmit={currentStep === 3 ? handleSubmit : handleNext}>
         {currentStep === 1 && (
-          <div>
+          <div className="step-content">
             <div className="form-group">
               <label htmlFor="kodeBarang">Kode Barang (ID)</label>
               <input type="text" id="kodeBarang" name="kodeBarang" />
@@ -97,7 +103,7 @@ const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handl
           </div>
         )}
         {currentStep === 2 && (
-          <div>
+          <div className="step-content">
             <div className="form-group">
               <label htmlFor="Tanggal">Tanggal</label>
               <input type="date" id="Tanggal" name="Tanggal" />
@@ -121,8 +127,27 @@ const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handl
           </div>
         )}
         {currentStep === 3 && (
-          <div>
-            <p>Step 3 content</p>
+          <div className="step-content">
+            <div className="form-group">
+              <label htmlFor="KodeRekeningAset">Kode Rekening Aset</label>
+              <input type="text" id="KodeRekeningAset" name="KodeRekeningAset" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="NamaRekeningAset">Nama Rekening Aset</label>
+              <input type="text" id="NamaRekeningAset" name="NamaRekeningAset" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="UmurEkonomis">Umur Ekonomis</label>
+              <input type="number" id="UmurEkonomis" name="UmurEkonomis" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="NilaiPerolehan">Nilai Perolehan</label>
+              <input type="number" id="NilaiPerolehan" name="NilaiPerolehan" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="BebanPenyusutan">Beban Penyusutan</label>
+              <input type="number" id="BebanPenyusutan" name="BebanPenyusutan" />
+            </div>
           </div>
         )}
 
