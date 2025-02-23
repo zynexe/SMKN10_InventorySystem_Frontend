@@ -5,6 +5,7 @@ import calendarYear from "./assets/calenderYear.png";
 import ApexCharts from 'apexcharts'
 import Sidebar from './Layout/Sidebar'; // Import Sidebar
 import Dropdown from "./Components/Dropdown"; // Import Dropdown
+import ProfileBar from "./Components/ProfileBar"; // Import ProfileBar
 
 
 function AssetHome() {
@@ -99,7 +100,7 @@ function AssetHome() {
         <div className="asset-home-container">
             {/* Sidebar/Navbar */}
             <Sidebar />
-
+            <ProfileBar />
             {/* Main Content */}
             <div className="main-content">
 

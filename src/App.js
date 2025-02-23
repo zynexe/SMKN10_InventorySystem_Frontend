@@ -5,21 +5,21 @@ import ChooseSystem from './ChooseSystem';
 import AssetHome from './AssetHome';
 import AssetPage from './AssetPage';
 import BHPHome from './BHPHome';
-import Gedung from './Gedung'; // Import the Gedung component
+import Gedung from './Gedung'; 
 import KodeBarang from './KodeBarang';
 import logo from './logo.png';
+import ProfilePage from './ProfilePage'; // Import ProfilePage
 
 function LoginPage() {
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
-    e.preventDefault(); // Prevent form submission
-    navigate('/choose-system'); // Redirect to Choose System page
+    e.preventDefault(); 
+    navigate('/choose-system'); 
   };
 
   return (
     <div className="container">
-      {/* Left Side: Login Form */}
       <div className="login-section">
       <header className="header">
           <img src={logo} alt="Company Logo" />
@@ -40,7 +40,6 @@ function LoginPage() {
         
       </div>
 
-      {/* Right Side: Key Visual */}
       <div className="key-visual">
         <img src="/Login-visual.png" alt="Key Visual" />
       </div>
@@ -58,7 +57,8 @@ function App() {
         <Route path="/asset-page" element={<AssetPage />} />
         <Route path="/bhp-home" element={<BHPHome />} />
         <Route path="/gedung" element={<Gedung />} /> 
-        <Route path="/kode-barang" element={<KodeBarang />} /> {/* New route */}
+        <Route path="/kode-barang" element={<KodeBarang />} /> 
+        <Route path="/ProfilePage" element={<ProfilePage />} /> {/* Add the profile route */}
       </Routes>
     </Router>
   );

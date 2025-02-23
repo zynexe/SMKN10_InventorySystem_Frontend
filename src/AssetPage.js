@@ -184,6 +184,7 @@ function AssetPage() {
       <Sidebar />
 
       <div className="main-content">
+        
         <div className="header">
           <h2 style={{ marginRight: "10px" }}>Asset</h2>
           <div className="header-buttons">
