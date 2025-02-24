@@ -80,16 +80,12 @@ function AssetHome() {
         };
     }, [monthlyExpenses])
 
-    const chartSeries = [
-        {
-            name: "Monthly Expenses",
-            data: monthlyExpenses.map(item => item.expenses) // Use expense values
-        }
-    ];
+   // Function to toggle year dropdown
+   const toggleYearDropdown = (isOpen) => {
+    setIsYearDropdownOpen(isOpen !== undefined ? isOpen : !isYearDropdownOpen);
+   
+  };
 
-    const toggleYearDropdown = () => {
-        setIsYearDropdownOpen(!isYearDropdownOpen);
-    };
 
     const handleYearSelect = (year) => {
         setSelectedYear(year);
@@ -135,7 +131,7 @@ function AssetHome() {
                                     isOpen={isYearDropdownOpen}
                                     toggleDropdown={toggleYearDropdown}
                                     handleSelect={handleYearSelect}
-                                    buttonContent={<><img src={calendarYear} alt="Year" />{selectedYear}</>}
+                                    buttonContent={<><img src={calendarYear} alt="CalendarYear" /> {selectedYear || currentYear}</>}
                                 />
                             </div>
                             <div ref={chartRef} className="apex-chart-wrapper"> </div>{/* Add a wrapper div */}
