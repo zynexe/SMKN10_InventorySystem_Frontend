@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import './Asset.css';
 import Modal from 'react-modal';
 import Pagination from './Components/Pagination'; // Assuming Pagination component is in components folder
+import AssetTable from './Components/AssetTable'; // Import AssetTable component
+import InfoBA from './Components/InfoBA';    // Add this import
+import InfoAset from './Components/InfoAset'; // Add this import
 
 function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
     const [assetData, setAssetData] = useState([]);
@@ -10,6 +13,11 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
     const [itemsPerPage, setItemsPerPage] = useState(10); // Set items per page
     const [totalItems, setTotalItems] = useState(0);
     const [totalValue, setTotalValue] = useState(0);
+    // Add states for InfoBA and InfoAset modals
+    const [isInfoBAOpen, setIsInfoBAOpen] = useState(false);
+    const [isInfoAsetOpen, setIsInfoAsetOpen] = useState(false);
+    const [selectedBPAData, setSelectedBPAData] = useState(null);
+    const [selectedAsetData, setSelectedAsetData] = useState(null);
 
     useEffect(() => {
         // Fetch or simulate fetching asset data for the selected gedung
@@ -24,8 +32,20 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
                 satuan: "Pcs",
                 jumlah: 1,
                 harga: "Rp. 9.743.000",
-                infoBPA: "Some BPA Info", // Add dummy BPA info
-                infoAsset: "Some Asset Info", // Add dummy Asset info
+                lokasi: gedung.name, // Add location field
+                // Add dummy data for modals
+                bpaData: {
+                    // Add your BPA data structure here
+                    noBAPenerimaan: `BPA-${i + 1}`,
+                    tanggal: "2024-02-24",
+                    sumberPerolehan: "Pembelian"
+                },
+                asetData: {
+                    // Add your Asset data structure here
+                    kondisi: "Baik",
+                    tahunPerolehan: "2024",
+                    keterangan: "Kamera DSLR"
+                }
             }));
 
             setAssetData(dummyData);
@@ -42,6 +62,27 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
             fetchAssetData();
         }
     }, [isOpen, gedung]);
+
+    // Update the handler functions
+    const openInfoBA = (bpaData) => {
+        setSelectedBPAData(bpaData);
+        setIsInfoBAOpen(true);
+    };
+
+    const openInfoAset = (asetData) => {
+        setSelectedAsetData(asetData);
+        setIsInfoAsetOpen(true);
+    };
+
+    const closeInfoBA = () => {
+        setIsInfoBAOpen(false);
+        setSelectedBPAData(null);
+    };
+
+    const closeInfoAset = () => {
+        setIsInfoAsetOpen(false);
+        setSelectedAsetData(null);
+    };
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -94,38 +135,11 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
                 </button>
             </div>
 
-            <div className="table-container">
-                <table className="table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Kode Barang</th>
-                            <th>Nama Barang</th>
-                            <th>Merk Barang</th>
-                            <th>Satuan</th>
-                            <th>Jumlah</th>
-                            <th>Info BPA Penerimaan</th>
-                            <th>Info Asset</th>
-                            <th>Harga</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentItems.map((item) => (
-                            <tr key={item.no}>
-                                <td>{item.no}</td>
-                                <td>{item.kodeBarang}</td>
-                                <td>{item.namaBarang}</td>
-                                <td>{item.merkBarang}</td>
-                                <td>{item.satuan}</td>
-                                <td>{item.jumlah}</td>
-                                <td>{item.infoBPA}</td>
-                                <td>{item.infoAsset}</td>
-                                <td>{item.harga}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            <AssetTable
+                paginatedData={currentItems}
+                openInfoBA={openInfoBA}
+                openInfoAset={openInfoAset}
+            />
 
             <div className="pagination-total-container">
                 <Pagination
@@ -137,6 +151,19 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
                     Total: Rp. {totalValue.toLocaleString('id-ID')}
                 </div>
             </div>
+
+            {/* Add InfoBA and InfoAset components */}
+            <InfoBA
+                isOpen={isInfoBAOpen}
+                closeModal={closeInfoBA}
+                bpaData={selectedBPAData}
+            />
+
+            <InfoAset
+                isOpen={isInfoAsetOpen}
+                closeModal={closeInfoAset}
+                asetData={selectedAsetData}
+            />
         </Modal>
     );
 }

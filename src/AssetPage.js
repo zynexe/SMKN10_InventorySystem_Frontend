@@ -13,6 +13,7 @@ import SearchBar from './Components/SearchBar';
 import Dropdown from "./Components/Dropdown";
 import InfoBA from "./Components/InfoBA"; // Import InfoBA
 import InfoAset from "./Components/InfoAset"; // Import InfoAset
+import AssetTable from './Components/AssetTable';
 
 const generateRandomNamaBarang = () => {
   const prefixes = ["CANON", "NIKON", "SONY", "FUJIFILM", "OLYMPUS"];
@@ -26,7 +27,20 @@ const generateRandomNamaBarang = () => {
   return `${randomPrefix} ${randomModel} ${randomSuffix}`;
 };
 
-const assetData = Array.from({ length: 635 }, (_, i) => ({
+const generateRandomDate = () => {
+  const end = new Date();
+  const start = new Date(new Date().setFullYear(end.getFullYear() - 3));
+  const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  
+  // Format date as DD/MM/YYYY
+  return randomDate.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
+
+export const assetData = Array.from({ length: 6969 }, (_, i) => ({
   no: i + 1,
   kodeBarang: `1.3.2.06.01.02.${126 + i}`,
   namaBarang: generateRandomNamaBarang(),
@@ -35,6 +49,7 @@ const assetData = Array.from({ length: 635 }, (_, i) => ({
   jumlah: 1,
   harga: "Rp. 9.743.000",
   lokasi: "Gedung A",
+  tanggal: generateRandomDate(), // Add the random date
   // Dummy data for InfoBA and InfoAset
   bpaData: {
     kodeRekeningBelanja: "5.2.3.01",
@@ -215,57 +230,11 @@ function AssetPage() {
           </div>
         </div>
 
-        <div className="table-container">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Kode Barang</th>
-                <th>Nama Barang</th>
-                <th>Merk Barang</th>
-                <th>Jumlah</th>
-                <th>Satuan</th>
-                <th>Harga</th>
-                <th>Lokasi</th>
-                <th>Info BPA Penerimaan</th>
-                <th>Info Asset</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((item) => (
-                <tr key={item.no}>
-                  <td>{item.no}</td>
-                  <td>{item.kodeBarang}</td>
-                  <td>{item.namaBarang}</td>
-                  <td>{item.merkBarang}</td>
-                  <td>{item.jumlah}</td>
-                  <td>{item.satuan}</td>
-                  <td>{item.harga}</td>
-                  <td>{item.lokasi}</td>
-
-                  <td>
-                    <button className="more-info" onClick={() => openInfoBA(item.bpaData)}>More Info</button>
-                  </td>
-                  <td>
-                    <button className="more-info" onClick={() => openInfoAset(item.asetData)}>More Info</button>
-                  </td>
-                  <td>
-                    <div className="actions-container">
-                      <button className="icon-button edit-button"> {/* Add icon-button class */}
-                        <FaEdit /> {/* Use the edit icon */}
-                      </button>
-                      <button className="icon-button delete-button"> {/* Add icon-button class */}
-                        <FaTrashAlt /> {/* Use the delete icon */}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-        </div>
+        <AssetTable 
+          paginatedData={paginatedData}
+          openInfoBA={openInfoBA}
+          openInfoAset={openInfoAset}
+        />
 
         <div className="pagination-total-container">
           <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />

@@ -1,6 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 
-function Dropdown({ options, isOpen, toggleDropdown, handleSelect, buttonContent }) {
+function Dropdown({ 
+  options, 
+  isOpen, 
+  toggleDropdown, 
+  handleSelect, 
+  buttonContent,
+  selected 
+}) {
     const dropdownRef = useRef(null);
 
     useEffect(() => {
@@ -18,7 +25,10 @@ function Dropdown({ options, isOpen, toggleDropdown, handleSelect, buttonContent
 
     return (
         <div className="dropdown-container" ref={dropdownRef}>
-            <button className="secondary-button" onClick={toggleDropdown}>
+            <button 
+              className={`secondary-button ${selected ? 'active' : ''}`} 
+              onClick={toggleDropdown}
+            >
                 {buttonContent}
             </button>
             {isOpen && (
@@ -27,7 +37,7 @@ function Dropdown({ options, isOpen, toggleDropdown, handleSelect, buttonContent
                         <button
                             key={option}
                             onClick={() => { handleSelect(option); toggleDropdown(false); }}
-                            className="dropdown-item"
+                            className={`dropdown-item ${option === selected ? 'selected' : ''}`}
                         >
                             {option}
                         </button>

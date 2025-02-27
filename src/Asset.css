@@ -907,6 +907,18 @@ modal-overlay {
   background-color: #ddd;
 }
 
+/* Add these new styles */
+.secondary-button.active {
+  background-color: #2b60a1;
+  color: white;
+}
+
+.dropdown-item.selected {
+  background-color: #e6f0ff;
+  font-weight: bold;
+}
+
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1108,4 +1120,10 @@ modal-overlay {
   border-radius: 5px;
   cursor: pointer;
   width: 100%;
+  margin-bottom: 23px;
+}
+
+.section-divider {
+  border-bottom: 1px solid #ccc;
+  margin: 12px 0; /* Add some space above and below the line */
 }

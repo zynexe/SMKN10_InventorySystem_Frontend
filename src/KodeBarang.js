@@ -18,7 +18,7 @@ const KodeBarangPage = () => {
         // Generate 300 random items on mount
         const generateRandomItems = () => {
             const newItems = [];
-            for (let i = 1; i <= 300; i++) {
+            for (let i = 1; i <= 10000; i++) {
                 newItems.push({
                     id: i,
                     kode: `1.${Math.floor(Math.random() * 9) + 1}.${Math.floor(Math.random() * 9) + 1}.0${Math.floor(Math.random() * 9) + 1}.0${Math.floor(Math.random() * 9) + 1}.0${Math.floor(Math.random() * 9) + 1}.${100 + i}`,

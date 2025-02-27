@@ -24,20 +24,24 @@ const ProfilePage = () => {
 
                         <div className="profile-page-section">
                             <h3>Profile</h3>
+                            <div className="section-divider"></div> {/* Add the divider here */}
                             <div className="profile-page-input">
                                 <input type="text" value="Mamank Asep" />
                                 <button className="change-name-button">Change Name</button>
                             </div>
+                            
                         </div>
 
                         <div className="password-page-section">
                             <h3>Password</h3>
+                             <div className="section-divider"></div> {/* Add the divider here */}
                             <div className="password-page-inputs">
                                 <input type="password" placeholder="Current Password" />
                                 <input type="password" placeholder="New Password" />
                                 <input type="password" placeholder="Confirm Password" />
                                 <button className="reset-password-button">Reset Password</button>
                             </div>
+                           
                         </div>
                     </div>
                 </div>

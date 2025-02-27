@@ -7,9 +7,16 @@ import Sidebar from './Layout/Sidebar'; // Import Sidebar
 import Dropdown from "./Components/Dropdown"; // Import Dropdown
 import ProfileBar from "./Components/ProfileBar"; // Import ProfileBar
 
+// Import the data arrays
+import { assetData } from './AssetPage'; // Make sure to export assetData from AssetPage
+import { gedungData } from './Gedung'; // Make sure to export gedungData from Gedung
 
 function AssetHome() {
     const navigate = useNavigate();
+
+    // Calculate totals
+    const totalItems = assetData.reduce((total, item) => total + item.jumlah, 0);
+    const totalGedung = gedungData.length;
 
     const handleCardClick = (route) => {
         navigate(route); // Navigate to the specified route
@@ -34,6 +41,10 @@ function AssetHome() {
     const years = Array.from({ length: 40 }, (_, index) => currentYear - index);
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
+
+    // Add new state for recap values
+    const [rekapTahunan, setRekapTahunan] = useState(0);
+    const [rekapBulanan, setRekapBulanan] = useState(0);
 
     useEffect(() => {
         const chart = new ApexCharts(chartRef.current, { // Create chart instance
@@ -80,6 +91,37 @@ function AssetHome() {
         };
     }, [monthlyExpenses])
 
+    // Add useEffect to calculate recap values
+    useEffect(() => {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-based
+
+        // Calculate total values
+        const totals = assetData.reduce((acc, item) => {
+            // Parse the date from item (DD/MM/YYYY format)
+            const [day, month, year] = item.tanggal.split('/').map(num => parseInt(num));
+            
+            // Parse the price (remove "Rp. " and dots, then convert to number)
+            const price = parseInt(item.harga.replace(/\D/g, '')) * item.jumlah;
+
+            // Check if item is from current year
+            if (year === currentYear) {
+                acc.yearlyTotal += price;
+                
+                // Check if item is from current month
+                if (month === currentMonth) {
+                    acc.monthlyTotal += price;
+                }
+            }
+
+            return acc;
+        }, { yearlyTotal: 0, monthlyTotal: 0 });
+
+        setRekapTahunan(totals.yearlyTotal);
+        setRekapBulanan(totals.monthlyTotal);
+    }, [assetData]);
+
    // Function to toggle year dropdown
    const toggleYearDropdown = (isOpen) => {
     setIsYearDropdownOpen(isOpen !== undefined ? isOpen : !isYearDropdownOpen);
@@ -112,11 +154,11 @@ function AssetHome() {
                         </div>
                         <div className="card">
                             <h3>Rekap Tahunan</h3>
-                            <p>Rp.200.000.000</p>
+                            <p>Rp. {rekapTahunan.toLocaleString('id-ID')}</p>
                         </div>
                         <div className="card">
                             <h3>Rekap Bulanan</h3>
-                            <p>Rp.200.000.000</p>
+                            <p>Rp. {rekapBulanan.toLocaleString('id-ID')}</p>
                         </div>
                     </div>
                     <div className="chart-container">
@@ -146,13 +188,13 @@ function AssetHome() {
                             <h3>
                                 Total Gedung <span className="card-arrow">→</span>
                             </h3>
-                            <h2>24</h2>
+                            <h2>{totalGedung}</h2>
                         </div>
                         <div className="card-statistic" onClick={() => handleCardClick("/asset-page")}> {/* Changed class name */}
                             <h3>
                                 Total Item <span className="card-arrow">→</span>
                             </h3>
-                            <h2>8241</h2>
+                            <h2>{totalItems}</h2>
                         </div>
                     </div>
 
