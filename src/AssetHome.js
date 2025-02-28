@@ -21,20 +21,79 @@ function AssetHome() {
     const handleCardClick = (route) => {
         navigate(route); // Navigate to the specified route
     };
-    const [monthlyExpenses, setMonthlyExpenses] = useState([ // Sample data
-        { month: "JAN", expenses: 20000000 },
-        { month: "FEB", expenses: 25000000 },
-        { month: "MAR", expenses: 25000000 },
-        { month: "APR", expenses: 30000000 },
-        { month: "MAY", expenses: 38000000 },
-        { month: "JUN", expenses: 40000000 },
-        { month: "JUL", expenses: 42000000 },
-        { month: "AUG", expenses: 60000000 },
-        { month: "SEP", expenses: 68000000 },
-        { month: "OCT", expenses: 75000000 },
-        { month: "NOV", expenses: 82000000 },
-        { month: "DEC", expenses: 90000000 },
-    ]);
+
+    const [allExpensesData] = useState({
+        2025: [
+            { month: "JAN", expenses: 25000000 },
+            { month: "FEB", expenses: 28000000 },
+            { month: "MAR", expenses: 32000000 },
+            { month: "APR", expenses: 35000000 },
+            { month: "MAY", expenses: 40000000 },
+            { month: "JUN", expenses: 42000000 },
+            { month: "JUL", expenses: 45000000 },
+            { month: "AUG", expenses: 48000000 },
+            { month: "SEP", expenses: 50000000 },
+            { month: "OCT", expenses: 52000000 },
+            { month: "NOV", expenses: 55000000 },
+            { month: "DEC", expenses: 58000000 },
+        ],
+        2024: [
+            { month: "JAN", expenses: 20000000 },
+            { month: "FEB", expenses: 25000000 },
+            { month: "MAR", expenses: 25000000 },
+            { month: "APR", expenses: 30000000 },
+            { month: "MAY", expenses: 38000000 },
+            { month: "JUN", expenses: 40000000 },
+            { month: "JUL", expenses: 42000000 },
+            { month: "AUG", expenses: 60000000 },
+            { month: "SEP", expenses: 68000000 },
+            { month: "OCT", expenses: 75000000 },
+            { month: "NOV", expenses: 82000000 },
+            { month: "DEC", expenses: 90000000 },
+        ],
+        2023: [
+            { month: "JAN", expenses: 15000000 },
+            { month: "FEB", expenses: 18000000 },
+            { month: "MAR", expenses: 20000000 },
+            { month: "APR", expenses: 22000000 },
+            { month: "MAY", expenses: 25000000 },
+            { month: "JUN", expenses: 28000000 },
+            { month: "JUL", expenses: 30000000 },
+            { month: "AUG", expenses: 32000000 },
+            { month: "SEP", expenses: 35000000 },
+            { month: "OCT", expenses: 38000000 },
+            { month: "NOV", expenses: 40000000 },
+            { month: "DEC", expenses: 42000000 },
+        ],
+        2022: [
+            { month: "JAN", expenses: 10000000 },
+            { month: "FEB", expenses: 12000000 },
+            { month: "MAR", expenses: 15000000 },
+            { month: "APR", expenses: 18000000 },
+            { month: "MAY", expenses: 20000000 },
+            { month: "JUN", expenses: 22000000 },
+            { month: "JUL", expenses: 25000000 },
+            { month: "AUG", expenses: 28000000 },
+            { month: "SEP", expenses: 30000000 },
+            { month: "OCT", expenses: 32000000 },
+            { month: "NOV", expenses: 35000000 },
+            { month: "DEC", expenses: 38000000 },
+        ],
+        2021: [
+            { month: "JAN", expenses: 8000000 },
+            { month: "FEB", expenses: 10000000 },
+            { month: "MAR", expenses: 12000000 },
+            { month: "APR", expenses: 15000000 },
+            { month: "MAY", expenses: 18000000 },
+            { month: "JUN", expenses: 20000000 },
+            { month: "JUL", expenses: 22000000 },
+            { month: "AUG", expenses: 25000000 },
+            { month: "SEP", expenses: 28000000 },
+            { month: "OCT", expenses: 30000000 },
+            { month: "NOV", expenses: 32000000 },
+            { month: "DEC", expenses: 35000000 },
+        ],
+    });
 
     const chartRef = useRef(null); // Create a ref for the chart container
     const currentYear = new Date().getFullYear();
@@ -47,49 +106,59 @@ function AssetHome() {
     const [rekapBulanan, setRekapBulanan] = useState(0);
 
     useEffect(() => {
-        const chart = new ApexCharts(chartRef.current, { // Create chart instance
-            chart: {
-                height: 250,
-                type: 'area',
-                zoom: {
-                    enabled: false
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            xaxis: {
-                categories: monthlyExpenses.map(item => item.month)
-            },
-            yaxis: {
-                title: {
-                    text: 'Expenses'
-                }
-            },
-            tooltip: {
-                y: {
-                    formatter: (value) => {
-                        return "Rp. " + value.toLocaleString();
+        if (chartRef.current) {
+            // Get data for selected year (default to current year if not found)
+            const yearData = allExpensesData[selectedYear] || allExpensesData[currentYear];
+
+            const chart = new ApexCharts(chartRef.current, {
+                chart: {
+                    height: 250,
+                    type: 'area',
+                    zoom: {
+                        enabled: false
                     }
-                }
-            },
-            series: [
-                {
-                    name: "Monthly Expenses",
-                    data: monthlyExpenses.map(item => item.expenses)
-                }
-            ]
-        });
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'smooth'
+                },
+                xaxis: {
+                    categories: yearData.map(item => item.month)
+                },
+                yaxis: {
+                    title: {
+                        text: 'Expenses'
+                    },
+                    labels: {
+                        formatter: function (value) {
+                            return "Rp. " + (value / 1000000).toFixed(0) + "M";
+                        }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: (value) => {
+                            return "Rp. " + value.toLocaleString();
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: `Monthly Expenses ${selectedYear}`,
+                        data: yearData.map(item => item.expenses)
+                    }
+                ]
+            });
 
-        chart.render(); // Render the chart
+            chart.render();
 
-        return () => { // Destroy chart on unmount
-            chart.destroy();
-        };
-    }, [monthlyExpenses])
+            return () => {
+                chart.destroy();
+            };
+        }
+    }, [selectedYear, allExpensesData, currentYear]);
 
     // Add useEffect to calculate recap values
     useEffect(() => {
@@ -130,7 +199,7 @@ function AssetHome() {
 
 
     const handleYearSelect = (year) => {
-        setSelectedYear(year);
+        setSelectedYear(parseInt(year));
         setIsYearDropdownOpen(false);
     };
 

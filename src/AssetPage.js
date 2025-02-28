@@ -7,7 +7,7 @@ import addIcon from "./assets/add.png";
 import { useNavigate } from "react-router-dom";
 import Pagination from "./Components/Pagination";
 import ModalAssetPage from "./Components/ModalAssetPage";
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+
 import Sidebar from './Layout/Sidebar';
 import SearchBar from './Components/SearchBar';
 import Dropdown from "./Components/Dropdown";
@@ -40,7 +40,7 @@ const generateRandomDate = () => {
   });
 };
 
-export const assetData = Array.from({ length: 6969 }, (_, i) => ({
+export const assetData = Array.from({ length: 200 }, (_, i) => ({
   no: i + 1,
   kodeBarang: `1.3.2.06.01.02.${126 + i}`,
   namaBarang: generateRandomNamaBarang(),
@@ -74,8 +74,10 @@ function AssetPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState(assetData);
 
+  const [assets, setAssets] = useState(assetData);
+
   useEffect(() => {
-    const filtered = assetData.filter((item) => {
+    const filtered = assets.filter((item) => {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
       return (
         item.kodeBarang.toLowerCase().includes(lowerCaseSearchTerm) ||
@@ -84,7 +86,7 @@ function AssetPage() {
       );
     });
     setFilteredData(filtered);
-  }, [searchTerm]);
+  }, [searchTerm, assets]);
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -114,9 +116,44 @@ function AssetPage() {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted!");
+  const handleSubmit = (formData) => {
+    // Create new asset object
+    const newAsset = {
+      no: assets.length + 1,
+      kodeBarang: formData.kodeBarang,
+      namaBarang: formData.namaBarang,
+      merkBarang: formData.merkBarang,
+      jumlah: parseInt(formData.jumlah),
+      satuan: formData.satuan,
+      harga: `Rp. ${parseInt(formData.harga).toLocaleString('id-ID')}`,
+      lokasi: formData.lokasi,
+      tanggal: new Date(formData.Tanggal).toLocaleDateString('id-ID'),
+      
+      bpaData: {
+        sumberPerolehan: formData.SumberPerolehan,
+        kodeRekeningBelanja: formData.KoderingBelanja,
+        noSPK: formData.No_SPKFakturKuitansi,
+        noBAST: formData.NoBAPenerimaan,
+      },
+      
+      asetData: {
+        kodeRekeningAset: formData.KodeRekeningAset,
+        namaRekeningAset: formData.NamaRekeningAset,
+        umurEkonomis: parseInt(formData.UmurEkonomis),
+        nilaiPerolehan: parseInt(formData.NilaiPerolehan),
+        bebanPenyusutan: parseInt(formData.BebanPenyusutan),
+      },
+    };
+  
+    // Update assets state
+    setAssets(prevAssets => [...prevAssets, newAsset]);
+    setFilteredData(prevFiltered => [...prevFiltered, newAsset]);
+    
+    // Save to localStorage
+    const updatedAssets = [...assets, newAsset];
+    localStorage.setItem('assets', JSON.stringify(updatedAssets));
+    
+    // Close modal
     closeModal();
   };
 

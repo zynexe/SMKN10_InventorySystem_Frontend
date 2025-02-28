@@ -918,6 +918,17 @@ modal-overlay {
   font-weight: bold;
 }
 
+/* Add these styles to your existing CSS */
+.secondary-button.active {
+  background-color: #e0e0e0;
+  border-color: #666;
+}
+
+.dropdown-item.selected {
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+
 
 .modal-overlay {
   position: fixed;
@@ -1126,4 +1137,38 @@ modal-overlay {
 .section-divider {
   border-bottom: 1px solid #ccc;
   margin: 12px 0; /* Add some space above and below the line */
+}
+
+.step-content {
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-bottom: 20px;
+}
+
+.modal-buttons {
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  padding: 15px 0;
+  margin-top: auto;
+  border-top: 1px solid #eee;
+}
+
+/* Custom scrollbar styles for better appearance */
+.step-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.step-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.step-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.step-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

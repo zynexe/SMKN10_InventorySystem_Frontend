@@ -41,6 +41,7 @@ const AssetTable = ({
                                 <button 
                                     className="more-info" 
                                     onClick={() => openInfoBA(item.bpaData)}
+                                    disabled={!item.bpaData} // Disable if no BA data
                                 >
                                     More Info
                                 </button>
@@ -49,6 +50,7 @@ const AssetTable = ({
                                 <button 
                                     className="more-info" 
                                     onClick={() => openInfoAset(item.asetData)}
+                                    disabled={!item.asetData} // Disable if no Aset data
                                 >
                                     More Info
                                 </button>
