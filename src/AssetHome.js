@@ -169,7 +169,7 @@ function AssetHome() {
         // Calculate total values
         const totals = assetData.reduce((acc, item) => {
             // Parse the date from item (DD/MM/YYYY format)
-            const [day, month, year] = item.tanggal.split('/').map(num => parseInt(num));
+            const [month, year] = item.tanggal.split('/').map(num => parseInt(num));
             
             // Parse the price (remove "Rp. " and dots, then convert to number)
             const price = parseInt(item.harga.replace(/\D/g, '')) * item.jumlah;
@@ -189,7 +189,7 @@ function AssetHome() {
 
         setRekapTahunan(totals.yearlyTotal);
         setRekapBulanan(totals.monthlyTotal);
-    }, [assetData]);
+    }, []);
 
    // Function to toggle year dropdown
    const toggleYearDropdown = (isOpen) => {

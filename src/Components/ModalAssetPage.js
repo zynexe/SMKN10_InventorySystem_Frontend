@@ -178,18 +178,19 @@ const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handl
                 onChange={handleInputChange}
                 required
               />
-               <div className="form-group">
-              <label htmlFor="Tanggal">Tanggal</label>
-              <input
-                type="date"
-                id="Tanggal"
-                name="Tanggal"
-                value={formData.Tanggal || ''}
-                onChange={handleInputChange}
-                required
-              />
+             
             </div>
-            </div>
+            <div className="form-group">
+                <label htmlFor="Tanggal">Tanggal</label>
+                <input
+                  type="date"
+                  id="Tanggal"
+                  name="Tanggal"
+                  value={formData.Tanggal || ''}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
           </div>
         )}
         {currentStep === 2 && (
