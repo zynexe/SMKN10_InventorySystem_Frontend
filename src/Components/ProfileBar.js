@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import profileLogo from '../assets/profile.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-
+import { logoutUser } from '../services/api';
 
 function ProfileBar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -21,10 +21,19 @@ function ProfileBar() {
         navigate('/ProfilePage'); // Redirect to the profile page
     };
 
-    const handleLogoutClick = () => {
-        console.log('Logout');
-        setIsOpen(false);
-        navigate('/');
+    const handleLogoutClick = async () => {
+        try {
+            await logoutUser();
+            setIsOpen(false);
+            navigate('/', { replace: true });
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Optionally show error message to user
+            // If logout API fails, still clear local storage and redirect
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            navigate('/', { replace: true });
+        }
     };
 
     useEffect(() => {

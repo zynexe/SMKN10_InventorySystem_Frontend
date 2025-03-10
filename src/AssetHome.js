@@ -9,14 +9,14 @@ import ProfileBar from "./Components/ProfileBar"; // Import ProfileBar
 
 // Import the data arrays
 import { assetData } from './AssetPage'; // Make sure to export assetData from AssetPage
-import { gedungData } from './Gedung'; // Make sure to export gedungData from Gedung
+import Gedung from './Gedung'; // Use the Gedung component directly
 
 function AssetHome() {
     const navigate = useNavigate();
 
     // Calculate totals
     const totalItems = assetData.reduce((total, item) => total + item.jumlah, 0);
-    const totalGedung = gedungData.length;
+    const totalGedung = Gedung.length;
 
     const handleCardClick = (route) => {
         navigate(route); // Navigate to the specified route
