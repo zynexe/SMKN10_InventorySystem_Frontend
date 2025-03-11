@@ -1,9 +1,10 @@
 // Gedung.js
-import React, { useState } from 'react'; // Import useState!
+import React, { useState } from 'react';
 import './Asset.css';
 import gedungImage from './assets/Gedung-image.png';
 import { useNavigate } from "react-router-dom";
 import GedungDetails from './GedungDetails';
+import GedungFormModal from './Components/GedungFormModal';
 import Sidebar from './Layout/Sidebar';
 
 // Move the data array outside the component
@@ -23,15 +24,45 @@ export const gedungData = [
 function Gedung() {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [selectedGedung, setSelectedGedung] = useState(null);
+    const [gedungs, setGedungs] = useState(gedungData);
+    const [formMode, setFormMode] = useState('add'); // 'add' or 'edit'
 
     const handleCardClick = (gedung) => {
         setSelectedGedung(gedung);
         setIsModalOpen(true);
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
+    const handleAddClick = () => {
+        setFormMode('add');
+        setSelectedGedung(null);
+        setIsFormModalOpen(true);
+    };
+
+    const handleEditClick = (e, gedung) => {
+        e.stopPropagation();
+        setFormMode('edit');
+        setSelectedGedung(gedung);
+        setIsFormModalOpen(true);
+    };
+
+    const handleFormSubmit = (formData) => {
+        if (formMode === 'add') {
+            const newGedung = {
+                name: formData.name,
+                items: 0,
+                assets: 'Rp.0',
+                image: formData.image ? URL.createObjectURL(formData.image) : gedungImage,
+            };
+            setGedungs([...gedungs, newGedung]);
+        } else {
+            setGedungs(gedungs.map(g => 
+                g.name === selectedGedung.name
+                    ? { ...g, name: formData.name, image: formData.image ? URL.createObjectURL(formData.image) : g.image }
+                    : g
+            ));
+        }
     };
 
     return (
@@ -42,31 +73,45 @@ function Gedung() {
                 <div className="header">
                     <h2>Gedung</h2>
                     <div className="header-buttons">
-                        <button className="secondary-button">Edit</button>
-                        <button className="main-button">+ Add</button>
+                        <button className="main-button" onClick={handleAddClick}>
+                            + Add
+                        </button>
                     </div>
                 </div>
                 <div className="content">
                     <div className="gedung-grid">
-                        {gedungData.map((gedung, index) => (
+                        {gedungs.map((gedung, index) => (
                             <div
                                 className="gedung-card"
                                 key={index}
                                 onClick={() => handleCardClick(gedung)}
                             >
-                                <img src={gedungImage} alt={gedung.name} className="gedung-image" />
+                                <img src={gedung.image || gedungImage} alt={gedung.name} className="gedung-image" />
                                 <div className="gedung-details">
                                     <h3>{gedung.name}</h3>
                                     <p>{gedung.items} Items</p>
                                     <h4>{gedung.assets}</h4>
+                                    <button 
+                                        className="edit-button"
+                                        onClick={(e) => handleEditClick(e, gedung)}
+                                    >
+                                        Edit
+                                    </button>
                                 </div>
                             </div>
                         ))}
                     </div>
                     <GedungDetails
                         isOpen={isModalOpen}
-                        closeModal={closeModal}
+                        closeModal={() => setIsModalOpen(false)}
                         gedung={selectedGedung}
+                    />
+                    <GedungFormModal
+                        isOpen={isFormModalOpen}
+                        closeModal={() => setIsFormModalOpen(false)}
+                        gedung={selectedGedung}
+                        onSubmit={handleFormSubmit}
+                        mode={formMode}
                     />
                 </div>
             </div>
