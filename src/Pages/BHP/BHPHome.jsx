@@ -1,13 +1,13 @@
 import React from 'react';
 import './BHPHome.css'; // Create a separate CSS file if needed
-import logo from './logo.png'; // Import your logo
+import logo from '../../assets/logo.png'; // Import logo
 
-import homeIcon from "./assets/home.png";
-import assetIcon from "./assets/asset.png";
-import kodeRekeningIcon from "./assets/kode-rekening.png";
-import gedungIcon from "./assets/gedung.png";
-import profileIcon from "./assets/profile.png";
-import switchIcon from "./assets/switch.png";
+import homeIcon from "../../assets/home.png";
+import assetIcon from "../../assets/asset.png";
+import kodeRekeningIcon from "../../assets/kode-rekening.png";
+import gedungIcon from "../../assets/gedung.png";
+import profileIcon from "../../assets/profile.png";
+import switchIcon from "../../assets/switch.png";
 import { useNavigate } from 'react-router-dom';
 
 

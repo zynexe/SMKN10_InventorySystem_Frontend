@@ -1,10 +1,10 @@
 // pages/KodeBarangPage.js
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
-import SearchBar from './Components/SearchBar'; // Adjust path
-import Pagination from './Components/Pagination'; // Adjust path
-import Sidebar from './Layout/Sidebar'; // Adjust path
-import './Asset.css'; // Use Asset.css for consistent styling
+import SearchBar from '../../Components/SearchBar'; // Adjust path
+import Pagination from '../../Components/Pagination'; // Adjust path
+import Sidebar from '../../Layout/Sidebar'; // Adjust path
+import '../../CSS/Asset.css'; // Import the CSS file
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const KodeBarangPage = () => {

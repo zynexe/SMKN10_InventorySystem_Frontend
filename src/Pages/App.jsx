@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
-import './App.css';
+import '../CSS/App.css';
 import ChooseSystem from './ChooseSystem';
-import AssetHome from './AssetHome';
-import AssetPage from './AssetPage';
-import BHPHome from './BHPHome';
-import Gedung from './Gedung'; 
-import KodeBarang from './KodeBarang';
-import logo from './logo.png';
-import ProfilePage from './ProfilePage'; // Import ProfilePage
-import axios from 'axios';
-import { loginUser } from './services/api';
+
+// Asset imports
+import AssetHome from './Aset/AssetHome';
+import AssetPage from './Aset/AssetPage';
+
+// BHP imports
+import BHPHome from './BHP/BHPHome';
+
+// Other page imports
+import Gedung from './Aset/Gedung'; 
+import KodeBarang from './Aset/KodeBarang';
+import ProfilePage from './ProfilePage';
+import logo from '../assets/logo.png';
+
+// Services
+import { loginUser } from '../services/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();

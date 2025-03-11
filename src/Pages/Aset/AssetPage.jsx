@@ -1,19 +1,19 @@
 // AssetPage.js
 import React, { useState, useEffect, useRef } from "react";
-import "./Asset.css";
-import calendarMonth from "./assets/calenderMonth.png";
-import calendarYear from "./assets/calenderYear.png";
-import addIcon from "./assets/add.png";
+import '../../CSS/Asset.css';
+import calendarMonth from "../../assets/calenderMonth.png";
+import calendarYear from "../../assets/calenderYear.png";
+import addIcon from "../../assets/add.png";
 import { useNavigate } from "react-router-dom";
-import Pagination from "./Components/Pagination";
-import ModalAssetPage from "./Components/ModalAssetPage";
+import Pagination from "../../Components/Pagination";
+import ModalAssetPage from "../../Components/ModalAssetPage";
 
-import Sidebar from './Layout/Sidebar';
-import SearchBar from './Components/SearchBar';
-import Dropdown from "./Components/Dropdown";
-import InfoBA from "./Components/InfoBA"; // Import InfoBA
-import InfoAset from "./Components/InfoAset"; // Import InfoAset
-import AssetTable from './Components/AssetTable';
+import Sidebar from '../../Layout/Sidebar';
+import SearchBar from '../../Components/SearchBar';
+import Dropdown from "../../Components/Dropdown";
+import InfoBA from "../../Components/InfoBA"; // Import InfoBA
+import InfoAset from "../../Components/InfoAset"; // Import InfoAset
+import AssetTable from '../../Components/AssetTable';
 
 const generateRandomNamaBarang = () => {
   const prefixes = ["CANON", "NIKON", "SONY", "FUJIFILM", "OLYMPUS"];

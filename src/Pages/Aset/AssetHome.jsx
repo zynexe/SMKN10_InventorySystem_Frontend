@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./Asset.css"; // Import the CSS file
-import { useNavigate } from "react-router-dom";
-import calendarYear from "./assets/calenderYear.png";
 import ApexCharts from 'apexcharts'
-import Sidebar from './Layout/Sidebar'; // Import Sidebar
-import Dropdown from "./Components/Dropdown"; // Import Dropdown
-import ProfileBar from "./Components/ProfileBar"; // Import ProfileBar
+import '../../CSS/Asset.css'; // Corrected CSS path
+import { useNavigate } from "react-router-dom";
+import calendarYear from "../../assets/calenderYear.png"; // Corrected image path
+import Sidebar from '../../Layout/Sidebar'; // Sidebar import is correct
+import Dropdown from "../../Components/Dropdown"; // Dropdown import is correct
+import ProfileBar from "../../Components/ProfileBar"; // ProfileBar import is correct
 
-// Import the data arrays
-import { assetData } from './AssetPage'; // Make sure to export assetData from AssetPage
-import { gedungData } from './Gedung'; // Make sure to export gedungData from Gedung
+// Corrected data imports
+import { assetData } from './AssetPage';
+import { gedungData } from './Gedung';
 
 function AssetHome() {
     const navigate = useNavigate();

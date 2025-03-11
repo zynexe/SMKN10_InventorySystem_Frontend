@@ -1,9 +1,9 @@
 // pages/ProfilePage.js
 import React from 'react';
-import PPBackground from './assets/PPBackground.png'; // Adjust path as needed
-import ProfilePic from './assets/ProfileImage.png'; // Place your profile pic in assets
-import Sidebar from './Layout/Sidebar';
-import './Asset.css'; // Import the CSS file
+import PPBackground from '../assets/PPBackground.png'; // Adjust path as needed
+import ProfilePic from '../assets/ProfileImage.png'; // Place your profile pic in assets
+import Sidebar from '../Layout/Sidebar';
+import '../CSS/Asset.css'; // Import the CSS file
 const ProfilePage = () => {
     return (
         <div className="asset-home-container">

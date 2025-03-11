@@ -1,11 +1,11 @@
 // GedungDetails.js
 import React, { useState, useEffect } from 'react';
-import './Asset.css';
+import '../../CSS/Asset.css';
 import Modal from 'react-modal';
-import Pagination from './Components/Pagination'; // Assuming Pagination component is in components folder
-import AssetTable from './Components/AssetTable'; // Import AssetTable component
-import InfoBA from './Components/InfoBA';    // Add this import
-import InfoAset from './Components/InfoAset'; // Add this import
+import Pagination from '../../Components/Pagination'; // Assuming Pagination component is in components folder
+import AssetTable from '../../Components/AssetTable'; // Import AssetTable component
+import InfoBA from '../../Components/InfoBA';    // Add this import
+import InfoAset from '../../Components/InfoAset'; // Add this import
 
 function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
     const [assetData, setAssetData] = useState([]);

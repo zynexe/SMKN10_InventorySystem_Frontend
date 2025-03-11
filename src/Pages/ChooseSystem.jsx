@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './ChooseSystem.css';
+import '../CSS/ChooseSystem.css';
 import { FaArrowLeft } from 'react-icons/fa';
-import logo1 from './assets/pencil-circle-fill.png';
-import logo1Hover from './assets/pencil-circle-fill-hover.png'; // Import hover image
-import logo2 from './assets/solar_safe-square-bold.png';
-import logo2Hover from './assets/solar_safe-square-bold-hover.png'; // Import hover image
+import logo1 from '../assets/pencil-circle-fill.png';
+import logo1Hover from '../assets/pencil-circle-fill-hover.png'; // Import hover image
+import logo2 from '../assets/solar_safe-square-bold.png';
+import logo2Hover from '../assets/solar_safe-square-bold-hover.png'; // Import hover image
 
 
 function ChooseSystem() {

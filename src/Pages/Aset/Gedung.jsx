@@ -1,11 +1,11 @@
 // Gedung.js
 import React, { useState } from 'react';
-import './Asset.css';
-import gedungImage from './assets/Gedung-image.png';
+import '../../CSS/Asset.css';
+import gedungImage from '../../assets/Gedung-image.png';
 import { useNavigate } from "react-router-dom";
 import GedungDetails from './GedungDetails';
-import GedungFormModal from './Components/GedungFormModal';
-import Sidebar from './Layout/Sidebar';
+import GedungFormModal from '../../Components/GedungFormModal';
+import Sidebar from '../../Layout/Sidebar';
 
 // Move the data array outside the component
 export const gedungData = [
