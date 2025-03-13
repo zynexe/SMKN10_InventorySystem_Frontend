@@ -11,6 +11,10 @@ import ProfileBar from "../../Components/ProfileBar"; // ProfileBar import is co
 import { assetData } from './AssetPage';
 import { gedungData } from './Gedung';
 
+// Import the data arrays
+
+
+
 function AssetHome() {
     const navigate = useNavigate();
 

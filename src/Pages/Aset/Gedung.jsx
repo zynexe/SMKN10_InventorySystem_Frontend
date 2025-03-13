@@ -1,11 +1,12 @@
-// Gedung.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../CSS/Asset.css';
 import gedungImage from '../../assets/Gedung-image.png';
 import { useNavigate } from "react-router-dom";
 import GedungDetails from './GedungDetails';
 import GedungFormModal from '../../Components/GedungFormModal';
 import Sidebar from '../../Layout/Sidebar';
+// Add API imports
+import { getGedungs, addGedung, updateGedung, deleteGedung } from '../../services/api';
 
 // Move the data array outside the component
 export const gedungData = [
@@ -26,8 +27,21 @@ function Gedung() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [selectedGedung, setSelectedGedung] = useState(null);
-    const [gedungs, setGedungs] = useState(gedungData);
-    const [formMode, setFormMode] = useState('add'); // 'add' or 'edit'
+    const [gedungs, setGedungs] = useState(gedungData); // Use gedungData as initial state
+    const [formMode, setFormMode] = useState('add');
+
+    useEffect(() => {
+        fetchGedungs();
+    }, []);
+
+    const fetchGedungs = async () => {
+        try {
+            const data = await getGedungs();
+            setGedungs(data);
+        } catch (error) {
+            console.error('Failed to fetch gedungs:', error);
+        }
+    };
 
     const handleCardClick = (gedung) => {
         setSelectedGedung(gedung);
@@ -47,28 +61,40 @@ function Gedung() {
         setIsFormModalOpen(true);
     };
 
-    const handleFormSubmit = (formData) => {
-        if (formMode === 'add') {
-            const newGedung = {
-                name: formData.name,
-                items: 0,
-                assets: 'Rp.0',
-                image: formData.image ? URL.createObjectURL(formData.image) : gedungImage,
-            };
-            setGedungs([...gedungs, newGedung]);
-        } else {
-            setGedungs(gedungs.map(g => 
-                g.name === selectedGedung.name
-                    ? { ...g, name: formData.name, image: formData.image ? URL.createObjectURL(formData.image) : g.image }
-                    : g
-            ));
+    const handleFormSubmit = async (formData) => {
+        try {
+            const formDataToSend = new FormData();
+            formDataToSend.append('nama_gedung', formData.name);
+            if (formData.image) {
+                formDataToSend.append('image', formData.image);
+            }
+
+            if (formMode === 'add') {
+                await addGedung(formDataToSend);
+            } else {
+                await updateGedung(selectedGedung.id, formDataToSend);
+            }
+            fetchGedungs();
+        } catch (error) {
+            console.error('Error saving gedung:', error);
+        }
+    };
+
+    const handleDelete = async (id, e) => {
+        e.stopPropagation();
+        if (window.confirm('Are you sure you want to delete this building?')) {
+            try {
+                await deleteGedung(id);
+                fetchGedungs();
+            } catch (error) {
+                console.error('Error deleting gedung:', error);
+            }
         }
     };
 
     return (
         <div className="asset-home-container">
             <Sidebar />
-
             <div className="main-content">
                 <div className="header">
                     <h2>Gedung</h2>
@@ -80,22 +106,32 @@ function Gedung() {
                 </div>
                 <div className="content">
                     <div className="gedung-grid">
-                        {gedungs.map((gedung, index) => (
+                        {gedungs.map((gedung) => (
                             <div
                                 className="gedung-card"
-                                key={index}
+                                key={gedung.id}
                                 onClick={() => handleCardClick(gedung)}
                             >
-                                <img src={gedung.image || gedungImage} alt={gedung.name} className="gedung-image" />
+                                <img 
+                                    src={gedung.image ? `http://127.0.0.1:8000/storage/${gedung.image}` : gedungImage} 
+                                    alt={gedung.nama_gedung} 
+                                    className="gedung-image" 
+                                />
                                 <div className="gedung-details">
-                                    <h3>{gedung.name}</h3>
-                                    <p>{gedung.items} Items</p>
-                                    <h4>{gedung.assets}</h4>
+                                    <h3>{gedung.nama_gedung}</h3>
+                                    <p>{gedung.items || 0} Items</p>
+                                    <h4>{gedung.assets || 'Rp.0'}</h4>
                                     <button 
                                         className="edit-button"
                                         onClick={(e) => handleEditClick(e, gedung)}
                                     >
                                         Edit
+                                    </button>
+                                    <button 
+                                        className="delete-button"
+                                        onClick={(e) => handleDelete(gedung.id, e)}
+                                    >
+                                        Delete
                                     </button>
                                 </div>
                             </div>

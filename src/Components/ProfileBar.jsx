@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import profileLogo from '../assets/profile.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-
+import { logout } from '../services/api';
 
 function ProfileBar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -15,14 +15,12 @@ function ProfileBar() {
     };
 
     const handleProfileClick = () => {
-        // Implement navigation to the profile page
-        console.log('Go to profile page');
         setIsOpen(false);
-        navigate('/ProfilePage'); // Redirect to the profile page
+        navigate('/ProfilePage');
     };
 
-    const handleLogoutClick = () => {
-        console.log('Logout');
+    const handleLogoutClick = async () => {
+        await logout();
         setIsOpen(false);
         navigate('/');
     };

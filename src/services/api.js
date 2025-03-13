@@ -1,69 +1,90 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
   },
-  withCredentials: true // Important for CORS
 });
 
-// Add request interceptor to include token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Add response interceptor to handle authentication errors
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/';
-        }
-        return Promise.reject(error);
-    }
-);
-
-export const loginUser = async (credentials) => {
+export const login = async (username, password) => {
   try {
-    const response = await api.post('/login', credentials);
+    const response = await api.post('/login', { username, password });
     return response.data;
   } catch (error) {
-    if (error.response) {
-      throw new Error(error.response.data.message || 'Login failed');
-    }
-    throw new Error('Network error occurred');
+    throw error.response?.data?.message || 'Login failed';
   }
 };
 
-export const logoutUser = async () => {
-    try {
-        const token = localStorage.getItem('token');
-        await api.post('/logout', {}, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        // Clear all auth related data from localStorage
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        return true;
-    } catch (error) {
-        console.error('Logout error:', error);
-        throw error.response?.data || { message: 'Logout failed' };
-    }
+export const logout = async () => {
+  try {
+      await api.post('/logout');
+  } catch (error) {
+      console.error('Logout failed:', error.response ? error.response.data : error);
+  } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+  }
+};
+
+export const getGedungs = async () => {
+  try {
+    const response = await api.get('/lokasi/index');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching buildings:', error);
+    throw error;
+  }
+};
+
+export const addGedung = async (formData) => {
+  try {
+    const response = await api.post('/lokasi', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding building:', error);
+    throw error;
+  }
+};
+
+export const updateGedung = async (id, formData) => {
+  try {
+    formData.append('_method', 'PUT');
+
+    const response = await api.post(`/lokasi/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating building:', error.response?.data || error);
+    throw error;
+  }
+};
+
+
+export const deleteGedung = async (id) => {
+  try {
+    await api.delete(`/lokasi/${id}`);
+  } catch (error) {
+    console.error('Error deleting building:', error);
+    throw error;
+  }
 };
 
 export default api;
