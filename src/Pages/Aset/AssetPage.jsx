@@ -11,10 +11,14 @@ import ModalAssetPage from "../../Components/ModalAssetPage";
 import Sidebar from '../../Layout/Sidebar';
 import SearchBar from '../../Components/SearchBar';
 import Dropdown from "../../Components/Dropdown";
-import InfoBA from "../../Components/InfoBA"; // Import InfoBA
-import InfoAset from "../../Components/InfoAset"; // Import InfoAset
+import InfoBA from "../../Components/InfoBA";
+import InfoAset from "../../Components/InfoAset";
 import AssetTable from '../../Components/AssetTable';
 
+// Import the API functions
+import { getAssets, addAsset, updateAsset, deleteAsset } from '../../services/api';
+
+// Keep the dummy data generation functions for fallback
 const generateRandomNamaBarang = () => {
   const prefixes = ["CANON", "NIKON", "SONY", "FUJIFILM", "OLYMPUS"];
   const models = ["EOS 3000D", "Alpha a7 III", "X100V", "OM-D E-M10 Mark IV", "D3500"];
@@ -40,6 +44,7 @@ const generateRandomDate = () => {
   });
 };
 
+// Fallback data
 export const assetData = Array.from({ length: 200 }, (_, i) => ({
   no: i + 1,
   kodeBarang: `1.3.2.06.01.02.${126 + i}`,
@@ -69,23 +74,62 @@ function AssetPage() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(assetData.length / itemsPerPage);
-
+  
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredData, setFilteredData] = useState(assetData);
+  const [filteredData, setFilteredData] = useState([]);
+  const [assets, setAssets] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(0);
+  const [selectedAsset, setSelectedAsset] = useState(null); // For edit functionality
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  const [assets, setAssets] = useState(assetData);
+  // Fetch assets from API
+  useEffect(() => {
+    fetchAssets();
+  }, []);
 
+  const fetchAssets = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getAssets();
+      
+      // If we got valid data, use it
+      if (response && response.data && Array.isArray(response.data)) {
+        setAssets(response.data);
+        setFilteredData(response.data);
+        setTotalPages(Math.ceil(response.data.length / itemsPerPage));
+      } else {
+        // Fallback to dummy data
+        console.warn("No valid data received from API, using fallback data");
+        setAssets(assetData);
+        setFilteredData(assetData);
+        setTotalPages(Math.ceil(assetData.length / itemsPerPage));
+      }
+    } catch (error) {
+      console.error("Error fetching assets:", error);
+      setError("Failed to load assets. Using fallback data.");
+      // Fallback to dummy data on error
+      setAssets(assetData);
+      setFilteredData(assetData);
+      setTotalPages(Math.ceil(assetData.length / itemsPerPage));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Search functionality
   useEffect(() => {
     const filtered = assets.filter((item) => {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
       return (
-        item.kodeBarang.toLowerCase().includes(lowerCaseSearchTerm) ||
-        item.namaBarang.toLowerCase().includes(lowerCaseSearchTerm) ||
-        item.merkBarang.toLowerCase().includes(lowerCaseSearchTerm)
+        item.kode_barang?.toLowerCase().includes(lowerCaseSearchTerm) ||
+        item.nama_barang?.toLowerCase().includes(lowerCaseSearchTerm) ||
+        item.merk_barang?.toLowerCase().includes(lowerCaseSearchTerm)
       );
     });
     setFilteredData(filtered);
+    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
   }, [searchTerm, assets]);
 
   const paginatedData = filteredData.slice(
@@ -93,72 +137,116 @@ function AssetPage() {
     currentPage * itemsPerPage
   );
 
+  // Calculate total value
   const [totalValue, setTotalValue] = useState(0);
 
   useEffect(() => {
     let overallTotal = 0;
     filteredData.forEach((item) => {
-      const price = parseFloat(item.harga.replace("Rp.", "").replace(/\./g, ""));
-      overallTotal += price * item.jumlah;
+      // Handle both backend and frontend data formats
+      let price = 0;
+      if (typeof item.harga === 'string' && item.harga.includes('Rp.')) {
+        price = parseFloat(item.harga.replace("Rp.", "").replace(/\./g, "").replace(/,/g, ""));
+      } else {
+        price = parseFloat(item.harga || 0);
+      }
+      
+      overallTotal += price * (item.jumlah || 1);
     });
     setTotalValue(overallTotal);
   }, [filteredData]);
 
+  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
-  const openModal = () => {
+  const openModal = (asset = null) => {
+    if (asset) {
+      setSelectedAsset(asset);
+      setIsEditMode(true);
+    } else {
+      setSelectedAsset(null);
+      setIsEditMode(false);
+    }
     setIsModalOpen(true);
     setCurrentStep(1);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setSelectedAsset(null);
+    setIsEditMode(false);
   };
 
-  const handleSubmit = (formData) => {
-    // Create new asset object
-    const newAsset = {
-      no: assets.length + 1,
-      kodeBarang: formData.kodeBarang,
-      namaBarang: formData.namaBarang,
-      merkBarang: formData.merkBarang,
-      jumlah: parseInt(formData.jumlah),
-      satuan: formData.satuan,
-      harga: `Rp. ${parseInt(formData.harga).toLocaleString('id-ID')}`,
-      lokasi: formData.lokasi,
-      tanggal: new Date(formData.Tanggal).toLocaleDateString('id-ID'),
+  // Handle form submission (both add and edit)
+  const handleSubmit = async (formData) => {
+    try {
+      // Convert form data to API format
+      const assetPayload = {
+        kode_barang: formData.kodeBarang,
+        nama_barang: formData.namaBarang,
+        merk_barang: formData.merkBarang,
+        jumlah: parseInt(formData.jumlah),
+        satuan: formData.satuan,
+        harga: parseInt(formData.harga),
+        lokasi: formData.lokasi,
+        tanggal: formData.Tanggal,
+        
+        // BPA data
+        sumber_perolehan: formData.SumberPerolehan,
+        kode_rekening_belanja: formData.KoderingBelanja,
+        no_spk: formData.No_SPKFakturKuitansi,
+        no_bast: formData.NoBAPenerimaan,
+        
+        // Aset data
+        kode_rekening_aset: formData.KodeRekeningAset,
+        nama_rekening_aset: formData.NamaRekeningAset,
+        umur_ekonomis: parseInt(formData.UmurEkonomis),
+        nilai_perolehan: parseInt(formData.NilaiPerolehan),
+        beban_penyusutan: parseInt(formData.BebanPenyusutan),
+      };
+
+      let response;
       
-      bpaData: {
-        sumberPerolehan: formData.SumberPerolehan,
-        kodeRekeningBelanja: formData.KoderingBelanja,
-        noSPK: formData.No_SPKFakturKuitansi,
-        noBAST: formData.NoBAPenerimaan,
-      },
+      if (isEditMode && selectedAsset) {
+        // Update existing asset
+        response = await updateAsset(selectedAsset.id, assetPayload);
+        console.log("Asset updated:", response);
+      } else {
+        // Add new asset
+        response = await addAsset(assetPayload);
+        console.log("Asset added:", response);
+      }
+
+      // Refresh the asset list
+      await fetchAssets();
       
-      asetData: {
-        kodeRekeningAset: formData.KodeRekeningAset,
-        namaRekeningAset: formData.NamaRekeningAset,
-        umurEkonomis: parseInt(formData.UmurEkonomis),
-        nilaiPerolehan: parseInt(formData.NilaiPerolehan),
-        bebanPenyusutan: parseInt(formData.BebanPenyusutan),
-      },
-    };
-  
-    // Update assets state
-    setAssets(prevAssets => [...prevAssets, newAsset]);
-    setFilteredData(prevFiltered => [...prevFiltered, newAsset]);
-    
-    // Save to localStorage
-    const updatedAssets = [...assets, newAsset];
-    localStorage.setItem('assets', JSON.stringify(updatedAssets));
-    
-    // Close modal
-    closeModal();
+      // Close modal
+      closeModal();
+    } catch (error) {
+      console.error("Error saving asset:", error);
+      alert(`Failed to ${isEditMode ? 'update' : 'add'} asset. Please try again.`);
+    }
   };
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+  // Handle edit button click in table
+  const handleEditClick = (asset) => {
+    openModal(asset);
+  };
+
+  // Handle delete button click in table
+  const handleDeleteClick = async (id) => {
+    if (window.confirm("Are you sure you want to delete this asset?")) {
+      try {
+        await deleteAsset(id);
+        console.log("Asset deleted successfully");
+        // Refresh the asset list
+        await fetchAssets();
+      } catch (error) {
+        console.error("Error deleting asset:", error);
+        alert("Failed to delete asset. Please try again.");
+      }
+    }
   };
 
   // State for dropdown visibility
@@ -230,76 +318,85 @@ function AssetPage() {
     setIsInfoAsetOpen(false);
   };
 
-
   return (
     <div className="asset-home-container">
       <Sidebar />
 
       <div className="main-content">
-        
-        <div className="header">
-          <h2 style={{ marginRight: "10px" }}>Asset</h2>
-          <div className="header-buttons">
-            {/* Use SearchBar */}
-            <SearchBar
-              searchTerm={searchTerm}
-              handleSearchChange={handleSearchChange}  ></SearchBar>
+        {isLoading ? (
+          <div className="loading">Loading assets...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : (
+          <>
+            <div className="header">
+              <h2 style={{ marginRight: "10px" }}>Asset</h2>
+              <div className="header-buttons">
+                <SearchBar
+                  searchTerm={searchTerm}
+                  handleSearchChange={handleSearchChange}  ></SearchBar>
 
-            <Dropdown
-              options={months}
-              isOpen={isMonthDropdownOpen}
-              toggleDropdown={toggleMonthDropdown}
-              handleSelect={handleMonthSelect}
-              buttonContent={<><img src={calendarMonth} alt="CalendarMonth" /> {selectedMonth || "Januari"}</>}
+                <Dropdown
+                  options={months}
+                  isOpen={isMonthDropdownOpen}
+                  toggleDropdown={toggleMonthDropdown}
+                  handleSelect={handleMonthSelect}
+                  buttonContent={<><img src={calendarMonth} alt="CalendarMonth" /> {selectedMonth || "Januari"}</>}
+                />
+
+                <Dropdown
+                  options={years}
+                  isOpen={isYearDropdownOpen}
+                  toggleDropdown={toggleYearDropdown}
+                  handleSelect={handleYearSelect}
+                  buttonContent={<><img src={calendarYear} alt="CalendarYear" /> {selectedYear || currentYear}</>}
+                />
+
+                <button className="main-button" onClick={() => openModal()}>
+                  <img src={addIcon} alt="Add" className="icon" /> Add
+                </button>
+              </div>
+            </div>
+
+            <AssetTable 
+              paginatedData={paginatedData}
+              openInfoBA={openInfoBA}
+              openInfoAset={openInfoAset}
+              onEditClick={handleEditClick}
+              onDeleteClick={handleDeleteClick}
             />
 
-            <Dropdown
-              options={years}
-              isOpen={isYearDropdownOpen}
-              toggleDropdown={toggleYearDropdown}
-              handleSelect={handleYearSelect}
-              buttonContent={<><img src={calendarYear} alt="CalendarYear" /> {selectedYear || currentYear}</>}
+            <div className="pagination-total-container">
+              <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
+              <div className="total-value">Total: Rp. {totalValue.toLocaleString("id-ID")}</div>
+            </div>
+
+            {/* Use the ModalAssetPage component with edit mode */}
+            <ModalAssetPage
+              isOpen={isModalOpen}
+              closeModal={closeModal}
+              currentStep={currentStep}
+              setCurrentStep={setCurrentStep}
+              handleSubmit={handleSubmit}
+              assetData={selectedAsset}
+              isEditMode={isEditMode}
             />
 
-            <button className="main-button" onClick={openModal}>
-              <img src={addIcon} alt="Add" className="icon" /> Add
-            </button>
-          </div>
-        </div>
+            {/* InfoBA Modal */}
+            <InfoBA
+              isOpen={isInfoBAOpen}
+              closeModal={closeInfoBA}
+              bpaData={selectedBPAData}
+            />
 
-        <AssetTable 
-          paginatedData={paginatedData}
-          openInfoBA={openInfoBA}
-          openInfoAset={openInfoAset}
-        />
-
-        <div className="pagination-total-container">
-          <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
-          <div className="total-value">Total: Rp. {totalValue.toLocaleString("id-ID")}</div>
-        </div>
-
-        {/* Use the ModalAssetPage component */}
-        <ModalAssetPage
-          isOpen={isModalOpen}
-          closeModal={closeModal}
-          currentStep={currentStep}
-          setCurrentStep={setCurrentStep}
-          handleSubmit={handleSubmit}
-        />
-
-        {/* InfoBA Modal */}
-        <InfoBA
-          isOpen={isInfoBAOpen}
-          closeModal={closeInfoBA}
-          bpaData={selectedBPAData}
-        />
-
-        {/* InfoAset Modal */}
-        <InfoAset
-          isOpen={isInfoAsetOpen}
-          closeModal={closeInfoAset}
-          asetData={selectedAsetData}
-        />
+            {/* InfoAset Modal */}
+            <InfoAset
+              isOpen={isInfoAsetOpen}
+              closeModal={closeInfoAset}
+              asetData={selectedAsetData}
+            />
+          </>
+        )}
       </div>
     </div>
   );

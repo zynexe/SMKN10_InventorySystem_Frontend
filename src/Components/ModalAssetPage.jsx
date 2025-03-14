@@ -2,9 +2,85 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 
-const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handleSubmit }) => {
-  // Add form state
-  const [formData, setFormData] = useState({});
+const ModalAssetPage = ({ 
+  isOpen, 
+  closeModal, 
+  currentStep, 
+  setCurrentStep, 
+  handleSubmit,
+  assetData = null,
+  isEditMode = false 
+}) => {
+  // Initialize form data with either existing asset data or empty values
+  const [formData, setFormData] = useState({
+    // Step 1 fields
+    kodeBarang: '',
+    namaBarang: '',
+    merkBarang: '',
+    jumlah: '',
+    satuan: '',
+    harga: '',
+    kondisi: 'Baru', // Default value for kondisi
+    lokasi: '',
+    Tanggal: new Date().toISOString().split('T')[0],
+
+    // Step 2 fields
+    SumberPerolehan: '',
+    KoderingBelanja: '',
+    No_SPKFakturKuitansi: '',
+    NoBAPenerimaan: '',
+
+    // Step 3 fields
+    KodeRekeningAset: '',
+    NamaRekeningAset: '',
+    UmurEkonomis: '',
+    NilaiPerolehan: '',
+    BebanPenyusutan: '',
+  });
+
+  // Use effect to populate form when editing an asset
+  useEffect(() => {
+    if (isEditMode && assetData) {
+      setFormData({
+        // Step 1 fields - handle both frontend and backend data formats
+        kodeBarang: assetData.kode_barang || assetData.kodeBarang || '',
+        namaBarang: assetData.nama_barang || assetData.namaBarang || '',
+        merkBarang: assetData.merk_barang || assetData.merkBarang || '',
+        jumlah: assetData.jumlah || '',
+        satuan: assetData.satuan || '',
+        harga: assetData.harga ? (
+          typeof assetData.harga === 'string' && assetData.harga.includes('Rp') ?
+          assetData.harga.replace('Rp.', '').replace(/\./g, '').trim() :
+          assetData.harga.toString()
+        ) : '',
+        kondisi: assetData.kondisi || 'Baru', // Add kondisi field
+        lokasi: assetData.lokasi || '',
+        Tanggal: assetData.tanggal || new Date().toISOString().split('T')[0],
+
+        // Step 2 fields
+        SumberPerolehan: assetData.sumber_perolehan || 
+                          (assetData.bpaData ? assetData.bpaData.sumberPerolehan : '') || '',
+        KoderingBelanja: assetData.kode_rekening_belanja || 
+                          (assetData.bpaData ? assetData.bpaData.kodeRekeningBelanja : '') || '',
+        No_SPKFakturKuitansi: assetData.no_spk || 
+                              (assetData.bpaData ? assetData.bpaData.noSPK : '') || '',
+        NoBAPenerimaan: assetData.no_bast || 
+                          (assetData.bpaData ? assetData.bpaData.noBAST : '') || '',
+
+        // Step 3 fields
+        KodeRekeningAset: assetData.kode_rekening_aset || 
+                          (assetData.asetData ? assetData.asetData.kodeRekeningAset : '') || '',
+        NamaRekeningAset: assetData.nama_rekening_aset || 
+                          (assetData.asetData ? assetData.asetData.namaRekeningAset : '') || '',
+        UmurEkonomis: assetData.umur_ekonomis || 
+                      (assetData.asetData ? assetData.asetData.umurEkonomis : '') || '',
+        NilaiPerolehan: assetData.nilai_perolehan || 
+                        (assetData.asetData ? assetData.asetData.nilaiPerolehan : '') || '',
+        BebanPenyusutan: assetData.beban_penyusutan || 
+                          (assetData.asetData ? assetData.asetData.bebanPenyusutan : '') || '',
+      });
+    }
+  }, [isEditMode, assetData]);
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -96,7 +172,7 @@ const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handl
       style={customStyles}
       contentLabel="Add Asset Modal"
     >
-      <h2 style={{ textAlign: "center" }}>Add Asset</h2>
+      <h2 style={{ textAlign: "center" }}>{isEditMode ? 'Edit Asset' : 'Add New Asset'}</h2>
       {renderBreadcrumbs()}
 
       <form onSubmit={handleFormSubmit}>
@@ -167,6 +243,21 @@ const ModalAssetPage = ({ isOpen, closeModal, currentStep, setCurrentStep, handl
                 onChange={handleInputChange}
                 required
               />
+            </div>
+            <div className="form-group">
+              <label htmlFor="kondisi">Kondisi</label>
+              <select
+                id="kondisi"
+                name="kondisi"
+                value={formData.kondisi || 'Baru'}
+                onChange={handleInputChange}
+                required
+                className="form-select"
+              >
+                <option value="Baru">Baru</option>
+                <option value="Pemakaian Ringan">Pemakaian Ringan</option>
+                <option value="Rusak">Rusak</option>
+              </select>
             </div>
             <div className="form-group">
               <label htmlFor="lokasi">Lokasi</label>

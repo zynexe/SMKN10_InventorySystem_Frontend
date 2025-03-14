@@ -5,8 +5,10 @@ import { useNavigate } from "react-router-dom";
 import GedungDetails from './GedungDetails';
 import GedungFormModal from '../../Components/GedungFormModal';
 import Sidebar from '../../Layout/Sidebar';
+import { FaDownload } from 'react-icons/fa';
 // Add API imports
 import { getGedungs, addGedung, updateGedung, deleteGedung } from '../../services/api';
+
 
 // Move the data array outside the component
 export const gedungData = [
@@ -99,6 +101,10 @@ function Gedung() {
                 <div className="header">
                     <h2>Gedung</h2>
                     <div className="header-buttons">
+            
+                        <button className="secondary-button" >
+                        <FaDownload /> Export 
+                        </button>
                         <button className="main-button" onClick={handleAddClick}>
                             + Add
                         </button>
@@ -121,18 +127,20 @@ function Gedung() {
                                     <h3>{gedung.nama_gedung}</h3>
                                     <p>{gedung.items || 0} Items</p>
                                     <h4>{gedung.assets || 'Rp.0'}</h4>
-                                    <button 
-                                        className="edit-button"
-                                        onClick={(e) => handleEditClick(e, gedung)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button 
-                                        className="delete-button"
-                                        onClick={(e) => handleDelete(gedung.id, e)}
-                                    >
-                                        Delete
-                                    </button>
+                                    <div className="button-container" style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
+                                        <button 
+                                            className="main-button"
+                                            onClick={(e) => handleEditClick(e, gedung)}
+                                        >
+                                            Edit
+                                        </button>
+                                        <button 
+                                            className="delete-button-gedung"
+                                            onClick={(e) => handleDelete(gedung.id, e)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}

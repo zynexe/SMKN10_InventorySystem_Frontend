@@ -39,7 +39,7 @@ body {
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  padding: px;
+  padding: 0px;
   z-index: -1;
   border-radius: 28px;
   animation : spin 3s linear infinite;

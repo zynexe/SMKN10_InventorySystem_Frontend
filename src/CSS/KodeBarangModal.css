@@ -1,0 +1,255 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background-color: white;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+ 
+}
+
+
+.modal-header h3 {
+  margin: auto;
+  color: #333;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal-tabs {
+  display: flex;
+  border-bottom: 1px solid #eee;
+}
+
+.tab-button {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.2s;
+}
+
+.tab-button.active {
+  border-bottom-color: #007bff;
+  color: #007bff;
+}
+
+.modal-content {
+  padding: 20px;
+  overflow-x: hidden; /* Prevent horizontal overflow */
+  max-width: 92%;    /* Ensure content doesn't exceed container */
+}
+
+.form-group {
+  margin-bottom: 15px;
+  width: 100%;        /* Ensure form groups take up full width */
+  box-sizing: border-box; /* Include padding and border in element's width */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box; /* Include padding and border in element's width */
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.cancel-button, .submit-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cancel-button {
+  background-color: #f2f2f2;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+.submit-button {
+  background-color: #007bff;
+  border: 1px solid #007bff;
+  color: white;
+}
+
+.submit-button:disabled {
+  background-color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+.import-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+  width: 100%;        /* Ensure container takes full width */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.excel-icon {
+  color: #1D6F42;
+  margin-bottom: 15px;
+}
+
+.file-format-note {
+  color: #666;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+
+.file-input-container {
+  width: 100%;
+  margin: 15px 0;
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.file-input-container input[type="file"] {
+  display: none;
+}
+
+.file-input-label {
+  display: block;
+  padding: 10px 15px;
+  background-color: #f2f2f2;
+  border: 1px dashed #ddd;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.file-input-label:hover {
+  background-color: #e9e9e9;
+  border-color: #ccc;
+}
+
+/* Add these styles to your existing Asset.css */
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-weight: bold;
+  color: #666;
+}
+
+.error-message {
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #ffebee;
+  color: #d32f2f;
+  border-radius: 4px;
+  border-left: 4px solid #d32f2f;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.file-info {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #666;
+}
+
+.file-input-label {
+  display: block;
+  padding: 10px 15px;
+  background-color: #f2f2f2;
+  border: 1px dashed #ddd;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.file-input-label:hover {
+  background-color: #e9e9e9;
+  border-color: #007bff;
+}
+
+/* Add animation for the loading state */
+.submit-button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.submit-button.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  margin-left: -8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spinload 0.8s linear infinite;
+}
+
+@keyframes spinload {
+  to {
+    transform: rotate(360deg);
+  }
+}
