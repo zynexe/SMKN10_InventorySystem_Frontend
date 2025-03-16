@@ -4,11 +4,13 @@ import profileLogo from '../assets/profile.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { logout } from '../services/api';
+import { useUser } from '../context/UserContext'; // Import the context hook
 
 function ProfileBar() {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+    const { user, loading } = useUser(); // Get user data from context
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -38,11 +40,19 @@ function ProfileBar() {
         };
     }, []);
 
+    // Display username from context, or fallback to localStorage or default
+    const displayName = user?.name || 
+                         (localStorage.getItem('user') ? 
+                          JSON.parse(localStorage.getItem('user'))?.name : 
+                          'User');
+
     return (
         <div className="profile-bar">
             <div className="profile-info" onClick={toggleDropdown}>
                 <img src={profileLogo} alt="Profile" className="profile-logo" />
-                <span className="profile-name">Mamank Asep</span>
+                <span className="profile-name">
+                    {loading ? 'Loading...' : displayName}
+                </span>
             </div>
 
             {isOpen && (

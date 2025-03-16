@@ -1238,3 +1238,76 @@ modal-overlay {
   border-radius: 0.25rem;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
+
+/* Add these styles to your existing Asset.css file */
+
+/* Success and error messages */
+.success-message, .error-message {
+  margin: 10px 0;
+  padding: 12px 20px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+  position: relative;
+  z-index: 3;
+}
+
+.close-message {
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Disable state styling for buttons */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Input field styles */
+.profile-page-input input,
+.password-page-inputs input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.profile-page-input,
+.password-page-inputs {
+  margin-top: 15px;
+}
+
+.change-name-button,
+.reset-password-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.change-name-button:hover:not(:disabled),
+.reset-password-button:hover:not(:disabled) {
+  background-color: #0069d9;
+}

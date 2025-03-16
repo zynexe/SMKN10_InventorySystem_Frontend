@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import '../CSS/App.css';
 import ChooseSystem from './ChooseSystem';
+import { UserProvider } from '../context/UserContext';
 
 // Asset imports
 import AssetHome from './Aset/AssetHome';
@@ -88,23 +89,26 @@ const ProtectedRoute = () => {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Public Route */}
-        <Route path="/" element={<LoginPage />} />
+    <UserProvider>
+        <Router>
+        <Routes>
+          {/* Public Route */}
+          <Route path="/" element={<LoginPage />} />
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/choose-system" element={<ChooseSystem />} />
-          <Route path="/asset-home" element={<AssetHome />} />
-          <Route path="/asset-page" element={<AssetPage />} />
-          <Route path="/bhp-home" element={<BHPHome />} />
-          <Route path="/gedung" element={<Gedung />} />
-          <Route path="/kode-barang" element={<KodeBarang />} />
-          <Route path="/ProfilePage" element={<ProfilePage />} />
-        </Route>
-      </Routes>
-    </Router>
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/choose-system" element={<ChooseSystem />} />
+            <Route path="/asset-home" element={<AssetHome />} />
+            <Route path="/asset-page" element={<AssetPage />} />
+            <Route path="/bhp-home" element={<BHPHome />} />
+            <Route path="/gedung" element={<Gedung />} />
+            <Route path="/kode-barang" element={<KodeBarang />} />
+            <Route path="/ProfilePage" element={<ProfilePage />} />
+          </Route>
+        </Routes>
+      </Router>
+    </UserProvider>
+      
   );
 }
 

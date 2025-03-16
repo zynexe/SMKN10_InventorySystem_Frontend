@@ -232,3 +232,43 @@ export const importKodeBarang = async (file) => {
 };
 
 export default api;
+
+
+// Add these functions to your api.js file
+
+// Change username
+export const changeUsername = async (newName) => {
+  try {
+    const response = await api.put('/user/change-name', { name: newName });
+    return response.data;
+  } catch (error) {
+    console.error('Error changing username:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Change password
+export const changePassword = async (currentPassword, newPassword, confirmPassword) => {
+  try {
+    const response = await api.put('/user/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword,           // Changed from 'password'
+      new_password_confirmation: confirmPassword  // Changed from 'password_confirmation'
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error changing password:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Get current user profile
+export const getCurrentUser = async () => {
+  try {
+    const response = await api.get('/user');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user profile:', error.response?.data || error.message);
+    throw error;
+  }
+};
