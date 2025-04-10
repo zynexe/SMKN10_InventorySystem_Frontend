@@ -1,4 +1,3 @@
-// pages/KodeBarangPage.js
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import SearchBar from '../../Components/SearchBar';

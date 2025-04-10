@@ -87,15 +87,15 @@ export const deleteGedung = async (id) => {
   }
 };
 
-// Asset API functions
+// AssetPage API functions
 export const getAssets = async () => {
   try {
-    console.log('Fetching assets from API...');
-    const response = await api.get('/aset');
-    console.log('API response:', response);
-    return response.data;
+    console.log('Making API request to fetch assets');
+    const response = await api.get('/aset/index');
+    console.log('API response received:', response.data);
+    return response.data; // Return just the data portion, not the whole response
   } catch (error) {
-    console.error('Error fetching assets:', error.response?.data || error.message);
+    console.error('Error in getAssets API call:', error);
     throw error;
   }
 };
@@ -130,6 +130,36 @@ export const deleteAsset = async (id) => {
   }
 };
 
+export const getAssetDetails = async (id) => {
+  try {
+    const response = await api.get(`/aset/${id}/show`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching asset details:', error);
+    throw error;
+  }
+};
+
+export const getTotalAssets = async () => {
+  try {
+    const response = await api.get('/aset/total');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching total assets:', error);
+    throw error;
+  }
+};
+
+export const getTotalPriceByYear = async (year) => {
+  try {
+    const response = await api.get(`/aset/total-harga/${year}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching total price by year:', error);
+    throw error;
+  }
+};
+
 // Kode Barang API functions
 export const getKodeBarangs = async () => {
   try {
@@ -157,6 +187,16 @@ export const getTotalKodeBarang = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching total kode barang:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const deleteAllKodeBarang = async () => {
+  try {
+    const response = await api.delete('/kode-barang/delete-all');
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting all kode barang:', error.response?.data || error.message);
     throw error;
   }
 };

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import logo from '../assets/logo.png'; // Corrected logo path
+import logo from '../assets/logo.png'; 
 import homeIcon from '../assets/home.png'; 
 import assetIcon from '../assets/asset.png'; 
 import kodeRekeningIcon from '../assets/kode-rekening.png'; 
 import gedungIcon from '../assets/gedung.png'; 
 import profileIcon from '../assets/profile.png'; 
 import switchIcon from '../assets/switch.png'; 
-import '../CSS/Asset.css'; // Corrected CSS path
+import '../CSS/Asset.css';
 
 function Sidebar() {
     const navigate = useNavigate();

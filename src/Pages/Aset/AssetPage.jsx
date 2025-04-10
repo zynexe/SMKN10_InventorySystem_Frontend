@@ -1,4 +1,3 @@
-// AssetPage.js
 import React, { useState, useEffect, useRef } from "react";
 import '../../CSS/Asset.css';
 import calendarMonth from "../../assets/calenderMonth.png";
@@ -7,15 +6,13 @@ import addIcon from "../../assets/add.png";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../Components/Pagination";
 import ModalAssetPage from "../../Components/ModalAssetPage";
-
 import Sidebar from '../../Layout/Sidebar';
 import SearchBar from '../../Components/SearchBar';
 import Dropdown from "../../Components/Dropdown";
 import InfoBA from "../../Components/InfoBA";
 import InfoAset from "../../Components/InfoAset";
 import AssetTable from '../../Components/AssetTable';
-
-// Import the API functions
+//api functions
 import { getAssets, addAsset, updateAsset, deleteAsset } from '../../services/api';
 
 // Keep the dummy data generation functions for fallback
@@ -92,23 +89,72 @@ function AssetPage() {
   const fetchAssets = async () => {
     try {
       setIsLoading(true);
+      
+      console.log('Attempting to fetch assets from:', `${import.meta.env.VITE_API_BASE_URL}/aset/index`);
+      
       const response = await getAssets();
       
-      // If we got valid data, use it
-      if (response && response.data && Array.isArray(response.data)) {
+      // Debug the response
+      console.log('API Response:', response);
+      
+      // Check if response is an array
+      if (response && Array.isArray(response)) {
+        console.log('Valid data received, items count:', response.length);
+        setAssets(response);
+        setFilteredData(response);
+        setTotalPages(Math.ceil(response.length / itemsPerPage));
+      } 
+      // If response is an object with a data property that's an array
+      else if (response && response.data && Array.isArray(response.data)) {
+        console.log('Valid data received from response.data, items count:', response.data.length);
         setAssets(response.data);
         setFilteredData(response.data);
         setTotalPages(Math.ceil(response.data.length / itemsPerPage));
-      } else {
-        // Fallback to dummy data
-        console.warn("No valid data received from API, using fallback data");
+      } 
+      // Fallback to dummy data
+      else {
+        console.warn("No valid data received from API:", response);
         setAssets(assetData);
         setFilteredData(assetData);
         setTotalPages(Math.ceil(assetData.length / itemsPerPage));
+        setError("API returned no usable data. Using fallback data.");
       }
     } catch (error) {
+      // More detailed error logging
       console.error("Error fetching assets:", error);
-      setError("Failed to load assets. Using fallback data.");
+      
+      // Check for specific error types
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+        console.error('Error response data:', error.response.data);
+        
+        // Handle specific status codes
+        if (error.response.status === 401) {
+          setError("Authentication failed. Please log in again.");
+          // Optionally redirect to login page
+          // navigate('/login');
+          return;
+        } else if (error.response.status === 403) {
+          setError("You don't have permission to access assets.");
+          return;
+        } else if (error.response.status === 404) {
+          setError("Assets endpoint not found. Please check API configuration.");
+        } else if (error.response.status >= 500) {
+          setError("Server error. Please try again later or contact support.");
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received:', error.request);
+        setError("No response from server. Please check your internet connection.");
+      } else {
+        
+        console.error('Request setup error:', error.message);
+        setError("Error setting up request: " + error.message);
+      }
+      
       // Fallback to dummy data on error
       setAssets(assetData);
       setFilteredData(assetData);
@@ -316,6 +362,11 @@ function AssetPage() {
   // Function to close InfoAset modal
   const closeInfoAset = () => {
     setIsInfoAsetOpen(false);
+  };
+
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   return (

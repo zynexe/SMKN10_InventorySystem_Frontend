@@ -6,7 +6,6 @@ import GedungDetails from './GedungDetails';
 import GedungFormModal from '../../Components/GedungFormModal';
 import Sidebar from '../../Layout/Sidebar';
 import { FaDownload } from 'react-icons/fa';
-// Add API imports
 import { getGedungs, addGedung, updateGedung, deleteGedung } from '../../services/api';
 
 
@@ -29,8 +28,9 @@ function Gedung() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [selectedGedung, setSelectedGedung] = useState(null);
-    const [gedungs, setGedungs] = useState(gedungData); // Use gedungData as initial state
+    const [gedungs, setGedungs] = useState([]); // Initialize with empty array instead of dummy data
     const [formMode, setFormMode] = useState('add');
+    const [isLoading, setIsLoading] = useState(true); // Add loading state
 
     useEffect(() => {
         fetchGedungs();
@@ -38,10 +38,15 @@ function Gedung() {
 
     const fetchGedungs = async () => {
         try {
+            setIsLoading(true); // Set loading to true before fetching
             const data = await getGedungs();
             setGedungs(data);
         } catch (error) {
             console.error('Failed to fetch gedungs:', error);
+            
+            // setGedungs(gedungData);
+        } finally {
+            setIsLoading(false); // Set loading to false after fetching (success or failure)
         }
     };
 
@@ -101,7 +106,6 @@ function Gedung() {
                 <div className="header">
                     <h2>Gedung</h2>
                     <div className="header-buttons">
-            
                         <button className="secondary-button" >
                         <FaDownload /> Export 
                         </button>
@@ -111,40 +115,47 @@ function Gedung() {
                     </div>
                 </div>
                 <div className="content">
-                    <div className="gedung-grid">
-                        {gedungs.map((gedung) => (
-                            <div
-                                className="gedung-card"
-                                key={gedung.id}
-                                onClick={() => handleCardClick(gedung)}
-                            >
-                                <img 
-                                    src={gedung.image ? `http://127.0.0.1:8000/storage/${gedung.image}` : gedungImage} 
-                                    alt={gedung.nama_gedung} 
-                                    className="gedung-image" 
-                                />
-                                <div className="gedung-details">
-                                    <h3>{gedung.nama_gedung}</h3>
-                                    <p>{gedung.items || 0} Items</p>
-                                    <h4>{gedung.assets || 'Rp.0'}</h4>
-                                    <div className="button-container" style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
-                                        <button 
-                                            className="main-button"
-                                            onClick={(e) => handleEditClick(e, gedung)}
-                                        >
-                                            Edit
-                                        </button>
-                                        <button 
-                                            className="delete-button-gedung"
-                                            onClick={(e) => handleDelete(gedung.id, e)}
-                                        >
-                                            Delete
-                                        </button>
+                    {isLoading ? (
+                        <div className="loading-container">
+                            <p>Loading gedung data...</p>
+                        </div>
+                    ) : (
+                        <div className="gedung-grid">
+                            {gedungs.map((gedung) => (
+                                <div
+                                    className="gedung-card"
+                                    key={gedung.id}
+                                    onClick={() => handleCardClick(gedung)}
+                                >
+                                    <img 
+                                        src={gedung.image ? `http://127.0.0.1:8000/storage/${gedung.image}` : gedungImage} 
+                                        alt={gedung.nama_gedung} 
+                                        className="gedung-image" 
+                                    />
+                                    <div className="gedung-details">
+                                        <h3>{gedung.nama_gedung}</h3>
+                                        <p>{gedung.items || 0} Items</p>
+                                        <h4>{gedung.assets || 'Rp.0'}</h4>
+                                        <div className="button-container" style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
+                                            <button 
+                                                className="main-button"
+                                                onClick={(e) => handleEditClick(e, gedung)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button 
+                                                className="delete-button-gedung"
+                                                onClick={(e) => handleDelete(gedung.id, e)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
+                    
                     <GedungDetails
                         isOpen={isModalOpen}
                         closeModal={() => setIsModalOpen(false)}

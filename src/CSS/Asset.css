@@ -13,17 +13,20 @@
   }
   
   .main-content {
-    flex: 1; /* Takes up remaining space */
+    flex: 1; 
     padding: 20px;
-    overflow-y: auto; /* Add scroll if content overflows */
+    overflow-y: auto; 
+    background-color: #F8F9FC;
   }
+
   .sidebar {
-    width: 250px;
+    width: 240px;
     background-color: #ffffff;
     padding: 20px;
     display: flex;
     flex-direction: column;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+    z-index: 100;
   }
 
    
@@ -38,7 +41,7 @@
       height: 100%;
       position: fixed;
       top: 0;
-      left: -350px; /* Hide the sidebar initially */
+      left: -350px; /* Start hidden off-screen */
       z-index: 100;
       padding: 20px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
@@ -163,8 +166,8 @@
     .search-container {
       margin-left: auto;
       margin-right: auto;
-      width: 80vw; /* Make search container full width */
-      margin-bottom: 10px; /* Add space below search */
+      width: 90vw; /* Make search container full width */
+      margin-bottom: 10px; 
       
     }
 
@@ -381,10 +384,16 @@
       background-color: #fff;
       border-radius: 14px;
       padding: 20px;
-     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.021); /* Soft shadow */
       flex: 1; /* Cards take equal width */
       text-align: left; /* Align text to the left */
-    cursor: pointer; /* Make card clickable */
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.089);
+  }
+
+  .card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.053);
+    color: #E0E0E0;
+    transition: all 0.3s;
   }
 
   .card h3{
@@ -396,14 +405,9 @@
   }
 
   .card:hover h3{
-    font-size: 1.0em;
-    font-weight: bold;
-    display: flex; /* Use flexbox for alignment */
-    justify-content: space-between; /* Space between title and arrow */
-    align-items: center; /* Vertically align items */
-    margin-bottom: 20px;
+   
     color: #000000;
-    transition: background-color 0.2s;
+    transition: color 0.2s;
   }
 
   .card p{
@@ -569,7 +573,7 @@
   background-color: #ffffff;
   color: rgb(103, 103, 103);
   border: #c8c8c8  1px solid;
-  padding: 8px 14px;
+  padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
@@ -1311,3 +1315,4 @@ button:disabled {
 .reset-password-button:hover:not(:disabled) {
   background-color: #0069d9;
 }
+

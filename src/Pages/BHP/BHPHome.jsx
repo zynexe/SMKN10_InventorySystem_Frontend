@@ -1,6 +1,6 @@
 import React from 'react';
-import './BHPHome.css'; // Create a separate CSS file if needed
-import logo from '../../assets/logo.png'; // Import logo
+import './BHPHome.css';
+import logo from '../../assets/logo.png'; 
 
 import homeIcon from "../../assets/home.png";
 import assetIcon from "../../assets/asset.png";
@@ -67,7 +67,7 @@ function BHPHome() {
           <h2>Home</h2>
         </div>
         <div className="content">
-          {/* Your main content for AssetHome goes here */}
+         
           <div className="dashboard-cards">
             <div className="card">
               <h3>Balance</h3>

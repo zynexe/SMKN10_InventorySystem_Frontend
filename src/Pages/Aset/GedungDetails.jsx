@@ -105,10 +105,10 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
             maxHeight: '800px',
             overflow: 'auto',
             borderRadius: '15px',
-            backgroundColor: 'rgba(255, 255, 255, 0.77)', // Glassmorphism background
-            backdropFilter: 'blur(8px)', // Blur effect
-            border: '1px solid rgba(255, 255, 255, 0.3)', // Subtle border
-            boxShadow: '0 8px 32px 0 rgba(148, 163, 201, 0.7)', // Add a subtle shadow
+            backgroundColor: 'rgba(255, 255, 255, 0.86)',
+            backdropFilter: 'blur(8px)', 
+            border: '1px solid rgba(255, 255, 255, 0.3)', 
+            boxShadow: '0 8px 32px 0 rgba(148, 163, 201, 0.7)', 
         },
         overlay: {
             backgroundColor: 'rgba(83, 83, 83, 0.23)',
@@ -118,7 +118,7 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
     
 
     if (!gedung) {
-        return null; // or return a loading spinner
+        return null; 
     }
 
     return (

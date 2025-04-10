@@ -1,11 +1,10 @@
-// pages/ProfilePage.js
 import React, { useState, useEffect } from 'react';
 import PPBackground from '../assets/PPBackground.png';
 import ProfilePic from '../assets/ProfileImage.png';
 import Sidebar from '../Layout/Sidebar';
 import '../CSS/Asset.css';
 import { changeUsername, changePassword } from '../services/api';
-import { useUser } from '../context/UserContext'; // Import the context hook
+import { useUser } from '../context/UserContext'; 
 
 const ProfilePage = () => {
     const { user, loading: userLoading, updateUserInfo, fetchUser } = useUser(); // Get user data and update function
@@ -86,7 +85,7 @@ const ProfilePage = () => {
         e.preventDefault();
         const { currentPassword, newPassword, confirmPassword } = passwordData;
 
-        // Basic validation
+        // Validation
         if (!currentPassword || !newPassword || !confirmPassword) {
             setError('All password fields are required');
             return;

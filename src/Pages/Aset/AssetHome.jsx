@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import ApexCharts from 'apexcharts'
-import '../../CSS/Asset.css'; // Corrected CSS path
+import '../../CSS/Asset.css'; 
 import { useNavigate } from "react-router-dom";
-import calendarYear from "../../assets/calenderYear.png"; // Corrected image path
-import Sidebar from '../../Layout/Sidebar'; // Sidebar import is correct
-import Dropdown from "../../Components/Dropdown"; // Dropdown import is correct
-import ProfileBar from "../../Components/ProfileBar"; // ProfileBar import is correct
-
-// Corrected data imports
+import calendarYear from "../../assets/calenderYear.png"; 
+import Sidebar from '../../Layout/Sidebar'; 
+import Dropdown from "../../Components/Dropdown"; 
+import ProfileBar from "../../Components/ProfileBar"; 
 import { assetData } from './AssetPage';
 import { gedungData } from './Gedung';
-
-// Import the data arrays
-
 
 
 function AssetHome() {
@@ -23,7 +18,7 @@ function AssetHome() {
     const totalGedung = gedungData.length;
 
     const handleCardClick = (route) => {
-        navigate(route); // Navigate to the specified route
+        navigate(route); 
     };
 
     const [allExpensesData] = useState({
@@ -219,7 +214,7 @@ function AssetHome() {
                     <h2>Home</h2>
                 </div>
                 <div className="content">
-                    {/* Your main content for AssetHome goes here */}
+                  
                     <div className="dashboard-cards">
                         <div className="card">
                             <h3>Balance</h3>
@@ -271,7 +266,7 @@ function AssetHome() {
                         </div>
                     </div>
 
-                    {/* ... chart ... */}
+                  
                 </div>
             </div>
         </div>
