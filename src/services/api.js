@@ -312,3 +312,84 @@ export const getCurrentUser = async () => {
     throw error;
   }
 };
+
+// Balance management API functions
+export const getBalance = async () => {
+  try {
+    console.log('Fetching balance...');
+    const response = await api.get('/balance');
+    console.log('Raw balance response:', response);
+    
+    // Check different possible formats of the response
+    let balanceValue;
+    
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      // If response is { data: value }
+      balanceValue = response.data.data;
+      console.log('Found balance in response.data.data:', balanceValue);
+    } else if (response.data && typeof response.data === 'object') {
+      // If response is an object with another structure
+      balanceValue = response.data.balance || response.data.amount || response.data.value;
+      console.log('Found balance in response.data object:', balanceValue);
+    } else {
+      // If response.data is the balance directly
+      balanceValue = response.data;
+      console.log('Using response.data directly as balance:', balanceValue);
+    }
+    
+    return { data: balanceValue };
+  } catch (error) {
+    console.error('Error fetching balance:', error);
+    throw error;
+  }
+};
+
+export const addBalance = async (amount) => {
+  try {
+    console.log(`Adding balance amount: ${amount}`);
+    const response = await api.post('/balance/add', { amount });
+    console.log('Raw add balance response:', response);
+    
+    // Check different possible formats of the response
+    let balanceValue;
+    
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      balanceValue = response.data.data;
+    } else if (response.data && typeof response.data === 'object') {
+      balanceValue = response.data.balance || response.data.amount || response.data.value || response.data;
+    } else {
+      balanceValue = response.data;
+    }
+    
+    console.log('Extracted balance value:', balanceValue);
+    return { data: balanceValue };
+  } catch (error) {
+    console.error('Error adding balance:', error);
+    throw error;
+  }
+};
+
+export const updateBalance = async (amount) => {
+  try {
+    console.log(`Updating balance amount: ${amount}`);
+    const response = await api.post('/balance/update', { amount });
+    console.log('Raw update balance response:', response);
+    
+    // Check different possible formats of the response
+    let balanceValue;
+    
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      balanceValue = response.data.data;
+    } else if (response.data && typeof response.data === 'object') {
+      balanceValue = response.data.balance || response.data.amount || response.data.value || response.data;
+    } else {
+      balanceValue = response.data;
+    }
+    
+    console.log('Extracted balance value:', balanceValue);
+    return { data: balanceValue };
+  } catch (error) {
+    console.error('Error updating balance:', error);
+    throw error;
+  }
+};
