@@ -227,43 +227,11 @@ function AssetPage() {
   // Handle form submission (both add and edit)
   const handleSubmit = async (formData) => {
     try {
-      // Convert form data to API format
-      const assetPayload = {
-        kode_barang: formData.kodeBarang,
-        nama_barang: formData.namaBarang,
-        merk_barang: formData.merkBarang,
-        jumlah: parseInt(formData.jumlah),
-        satuan: formData.satuan,
-        harga: parseInt(formData.harga),
-        lokasi: formData.lokasi,
-        tanggal: formData.Tanggal,
-        
-        // BPA data
-        sumber_perolehan: formData.SumberPerolehan,
-        kode_rekening_belanja: formData.KoderingBelanja,
-        no_spk: formData.No_SPKFakturKuitansi,
-        no_bast: formData.NoBAPenerimaan,
-        
-        // Aset data
-        kode_rekening_aset: formData.KodeRekeningAset,
-        nama_rekening_aset: formData.NamaRekeningAset,
-        umur_ekonomis: parseInt(formData.UmurEkonomis),
-        nilai_perolehan: parseInt(formData.NilaiPerolehan),
-        beban_penyusutan: parseInt(formData.BebanPenyusutan),
-      };
-
-      let response;
+      console.log('Submitting asset data:', formData);
+      const response = await addAsset(formData);
       
-      if (isEditMode && selectedAsset) {
-        // Update existing asset
-        response = await updateAsset(selectedAsset.id, assetPayload);
-        console.log("Asset updated:", response);
-      } else {
-        // Add new asset
-        response = await addAsset(assetPayload);
-        console.log("Asset added:", response);
-      }
-
+      // Rest of your success handling
+      console.log("Asset added:", response);
       // Refresh the asset list
       await fetchAssets();
       
@@ -271,7 +239,20 @@ function AssetPage() {
       closeModal();
     } catch (error) {
       console.error("Error saving asset:", error);
-      alert(`Failed to ${isEditMode ? 'update' : 'add'} asset. Please try again.`);
+      
+      if (error.response && error.response.status === 422) {
+        const validationErrors = error.response.data?.errors || {};
+        console.error('Validation errors:', validationErrors);
+        
+        // Create a formatted error message
+        const errorMessages = Object.entries(validationErrors)
+          .map(([field, errors]) => `${field}: ${errors.join(', ')}`)
+          .join('\n');
+        
+        alert(`Validation failed:\n${errorMessages || 'Please check your form data'}`);
+      } else {
+        alert(`Failed to ${isEditMode ? 'update' : 'add'} asset. Please try again.`);
+      }
     }
   };
 

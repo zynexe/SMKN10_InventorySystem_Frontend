@@ -1,6 +1,7 @@
 // ModalAssetPage.js
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
+import { getKodeBarangs } from "../services/api"; // Import the API function
 
 const ModalAssetPage = ({ 
   isOpen, 
@@ -17,33 +18,64 @@ const ModalAssetPage = ({
     kodeBarang: '',
     namaBarang: '',
     merkBarang: '',
-    jumlah: '',
+    jumlah: '1', 
     satuan: '',
     harga: '',
-    kondisi: 'Baru', // Default value for kondisi
+    kondisi: 'Baru', 
     lokasi: '',
-    Tanggal: new Date().toISOString().split('T')[0],
-
-    // Step 2 fields
+    Tanggal: new Date().toISOString().split('T')[0], 
+    
+    // Other fields...
     SumberPerolehan: '',
     KoderingBelanja: '',
-    No_SPKFakturKuitansi: '',
+    NoSPKFakturKuitansi: '',
     NoBAPenerimaan: '',
-
-    // Step 3 fields
     KodeRekeningAset: '',
     NamaRekeningAset: '',
     UmurEkonomis: '',
     NilaiPerolehan: '',
     BebanPenyusutan: '',
   });
+  
+  // Add state for kode barang options
+  const [kodeOptions, setKodeOptions] = useState([]);
+  const [filteredOptions, setFilteredOptions] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Fetch kode barang options when component mounts
+  useEffect(() => {
+    const fetchKodeBarangOptions = async () => {
+      try {
+        setLoading(true);
+        const response = await getKodeBarangs();
+        
+        // Process the response data to get the options
+        let options = [];
+        if (response && response.data) {
+          options = response.data;
+        } else if (Array.isArray(response)) {
+          options = response;
+        }
+        
+        setKodeOptions(options);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching kode barang options:", error);
+        setLoading(false);
+      }
+    };
+    
+    fetchKodeBarangOptions();
+  }, []);
 
   // Use effect to populate form when editing an asset
   useEffect(() => {
     if (isEditMode && assetData) {
       setFormData({
         // Step 1 fields - handle both frontend and backend data formats
-        kodeBarang: assetData.kode_barang || assetData.kodeBarang || '',
+        kodeBarang: assetData.kode_barang || assetData.kode || assetData.kodeBarang || '',
         namaBarang: assetData.nama_barang || assetData.namaBarang || '',
         merkBarang: assetData.merk_barang || assetData.merkBarang || '',
         jumlah: assetData.jumlah || '',
@@ -53,7 +85,7 @@ const ModalAssetPage = ({
           assetData.harga.replace('Rp.', '').replace(/\./g, '').trim() :
           assetData.harga.toString()
         ) : '',
-        kondisi: assetData.kondisi || 'Baru', // Add kondisi field
+        kondisi: assetData.kondisi || 'Baru',
         lokasi: assetData.lokasi || '',
         Tanggal: assetData.tanggal || new Date().toISOString().split('T')[0],
 
@@ -62,7 +94,7 @@ const ModalAssetPage = ({
                           (assetData.bpaData ? assetData.bpaData.sumberPerolehan : '') || '',
         KoderingBelanja: assetData.kode_rekening_belanja || 
                           (assetData.bpaData ? assetData.bpaData.kodeRekeningBelanja : '') || '',
-        No_SPKFakturKuitansi: assetData.no_spk || 
+        NoSPKFakturKuitansi: assetData.no_spk || 
                               (assetData.bpaData ? assetData.bpaData.noSPK : '') || '',
         NoBAPenerimaan: assetData.no_bast || 
                           (assetData.bpaData ? assetData.bpaData.noBAST : '') || '',
@@ -79,34 +111,136 @@ const ModalAssetPage = ({
         BebanPenyusutan: assetData.beban_penyusutan || 
                           (assetData.asetData ? assetData.asetData.bebanPenyusutan : '') || '',
       });
+      
+      // If editing, set the search term to current kode for filtering
+      if (assetData.kode_barang || assetData.kode || assetData.kodeBarang) {
+        setSearchTerm(assetData.kode_barang || assetData.kode || assetData.kodeBarang);
+      }
     }
   }, [isEditMode, assetData]);
+
+  // Filter options based on search term - update to only search by kode
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = kodeOptions.filter(option => 
+        option.kode.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredOptions(filtered);
+    } else {
+      setFilteredOptions(kodeOptions);
+    }
+  }, [searchTerm, kodeOptions]);
 
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    if (name === 'kodeBarang') {
+      setSearchTerm(value);
+      setShowDropdown(true);
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
-
-  // Update the handleFormSubmit function
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    handleSubmit(formData);
-    setFormData({}); // Reset form
+  
+  // Handle option selection from dropdown - remove the namaBarang auto-fill
+  const handleOptionSelect = (option) => {
+    setFormData(prev => ({
+      ...prev,
+      kodeBarang: option.kode
+    }));
+    setSearchTerm(option.kode);
+    setShowDropdown(false);
   };
 
-  // Handle step navigation
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    
+    // Format date from YYYY-MM-DD to DD-MM-YYYY for backend
+    const formatDateForBackend = (dateString) => {
+      if (!dateString) return '';
+      
+      const date = new Date(dateString);
+      if (isNaN(date)) return '';
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}-${month}-${year}`;
+    };
+    
+    const defaultDate = new Date();
+    const defaultFormattedDate = formatDateForBackend(defaultDate.toISOString().split('T')[0]);
+    
+    const processedFormData = {
+      kode: String(formData.kodeBarang || ''),
+      nama_gedung: String(formData.lokasi || ''),
+      merk_barang: String(formData.merkBarang || ''),
+      jumlah: Number(formData.jumlah || 0),
+      satuan: String(formData.satuan || ''),
+      harga: Number(formData.harga || 0),
+      kondisi: String(formData.kondisi || 'Baru'),
+      tanggal_pembelian: formatDateForBackend(formData.Tanggal) || defaultFormattedDate,
+      kode_rekening_belanja: String(formData.KoderingBelanja || ''),
+      no_spk_faktur_kuitansi: String(formData.NoSPKFakturKuitansi || ''),
+      no_bast: String(formData.NoBAPenerimaan || ''),
+      umur_ekonomis: Number(formData.UmurEkonomis || 0),
+      nilai_perolehan: Number(formData.NilaiPerolehan || 0),
+      beban_penyusutan: Number(formData.BebanPenyusutan || 0)
+    };
+    
+    const requiredFields = [
+      { key: 'kode', label: 'Kode Barang' },
+      { key: 'nama_gedung', label: 'Lokasi' },
+      { key: 'merk_barang', label: 'Merk Barang' },
+      { key: 'satuan', label: 'Satuan' },
+      { key: 'tanggal_pembelian', label: 'Tanggal' },
+      { key: 'no_spk_faktur_kuitansi', label: 'No. SPK/Faktur/Kuitansi' },
+      { key: 'kode_rekening_belanja', label: 'Kodering Belanja' },
+      { key: 'no_bast', label: 'No BA Penerimaan' },
+      { key: 'kondisi', label: 'Kondisi' },
+      { key: 'umur_ekonomis', label: 'Umur Ekonomis' },
+      { key: 'nilai_perolehan', label: 'Nilai Perolehan' },
+      { key: 'beban_penyusutan', label: 'Beban Penyusutan' }
+    ];
+    
+    const emptyFields = requiredFields.filter(field => {
+      if (typeof processedFormData[field.key] === 'string') {
+        return !processedFormData[field.key];
+      }
+      return false;
+    });
+    
+    if (emptyFields.length > 0) {
+      const fieldLabels = emptyFields.map(f => f.label).join(', ');
+      alert(`Please fill in all required fields: ${fieldLabels}`);
+      return;
+    }
+    
+    handleSubmit(processedFormData);
+  };
+
+  const validateStep = (step) => {
+    if (step === 1) {
+      if (!formData.kodeBarang || !formData.lokasi || !formData.merkBarang) {
+        alert('Please fill in all required fields before continuing.');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleNext = (e) => {
     e.preventDefault();
-    if (currentStep < 3) {
+    if (validateStep(currentStep) && currentStep < 3) {
       setCurrentStep(currentStep + 1);
     }
   };
 
-  // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       setFormData({});
@@ -148,9 +282,9 @@ const ModalAssetPage = ({
       transform: "translate(-50%, -50%)",
       width: "580px",
       maxWidth: "90vw",
-      maxHeight: "90vh", // Add max height
+      maxHeight: "90vh",
       padding: "20px",
-      overflow: "auto", // Enable scrolling
+      overflow: "auto",
       display: "flex",
       flexDirection: "column",
       "@media (max-width: 768px)": {
@@ -164,7 +298,6 @@ const ModalAssetPage = ({
     },
   };
 
-  // Update the form submission handling in the JSX
   return (
     <Modal
       isOpen={isOpen}
@@ -180,14 +313,37 @@ const ModalAssetPage = ({
           <div className="step-content">
             <div className="form-group">
               <label htmlFor="kodeBarang">Kode Barang (ID)</label>
-              <input
-                type="text"
-                id="kodeBarang"
-                name="kodeBarang"
-                value={formData.kodeBarang || ''}
-                onChange={handleInputChange}
-                required
-              />
+              <div className="dropdown-container">
+                <input
+                  type="text"
+                  id="kodeBarang"
+                  name="kodeBarang"
+                  value={searchTerm}
+                  onChange={handleInputChange}
+                  onClick={() => setShowDropdown(true)}
+                  autoComplete="off"
+                  required
+                  placeholder="Search by code only..."
+                />
+                {loading && <div className="loading-indicator">Loading codes...</div>}
+                {showDropdown && filteredOptions.length > 0 && (
+                  <ul className="dropdown-list">
+                    {filteredOptions.map((option, index) => (
+                      <li 
+                        key={index} 
+                        onClick={() => handleOptionSelect(option)}
+                        className="dropdown-item"
+                      >
+                        <strong>{option.kode}</strong>
+                        {option.uraian || option.nama ? ` - ${option.uraian || option.nama}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {showDropdown && filteredOptions.length === 0 && !loading && (
+                  <div className="no-options">No matching codes found</div>
+                )}
+              </div>
             </div>
             <div className="form-group">
               <label htmlFor="namaBarang">Nama Barang</label>
@@ -269,24 +425,22 @@ const ModalAssetPage = ({
                 onChange={handleInputChange}
                 required
               />
-             
             </div>
             <div className="form-group">
-                <label htmlFor="Tanggal">Tanggal</label>
-                <input
-                  type="date"
-                  id="Tanggal"
-                  name="Tanggal"
-                  value={formData.Tanggal || ''}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
+              <label htmlFor="Tanggal">Tanggal (DD-MM-YYYY)</label>
+              <input
+                type="date"
+                id="Tanggal"
+                name="Tanggal"
+                value={formData.Tanggal || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
           </div>
         )}
         {currentStep === 2 && (
           <div className="step-content">
-           
             <div className="form-group">
               <label htmlFor="SumberPerolehan">Sumber Perolehan</label>
               <input

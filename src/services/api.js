@@ -102,10 +102,18 @@ export const getAssets = async () => {
 
 export const addAsset = async (assetData) => {
   try {
+    console.log('Sending asset data to API:', assetData);
+    
     const response = await api.post('/aset', assetData);
+    console.log('API response for add asset:', response);
     return response.data;
   } catch (error) {
     console.error('Error adding asset:', error);
+    console.error('Request payload:', assetData);
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
     throw error;
   }
 };
