@@ -6,7 +6,9 @@ import GedungDetails from './GedungDetails';
 import GedungFormModal from '../../Components/GedungFormModal';
 import Sidebar from '../../Layout/Sidebar';
 import { FaDownload } from 'react-icons/fa';
-import { getGedungs, addGedung, updateGedung, deleteGedung, getGedungStats } from '../../services/api';
+import { getGedungs, addGedung, updateGedung, deleteGedung } from '../../services/api';
+
+
 
 export const gedungData = [
     { name: 'Gedung A', items: 12, assets: 'Rp.200.000.000' },
@@ -26,10 +28,9 @@ function Gedung() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [selectedGedung, setSelectedGedung] = useState(null);
-    const [gedungs, setGedungs] = useState([]);
-    const [gedungStats, setGedungStats] = useState({});
+    const [gedungs, setGedungs] = useState([]); // Initialize with empty array instead of dummy data
     const [formMode, setFormMode] = useState('add');
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true); // Add loading state
 
     useEffect(() => {
         fetchGedungs();
@@ -37,32 +38,16 @@ function Gedung() {
 
     const fetchGedungs = async () => {
         try {
-            setIsLoading(true);
+            setIsLoading(true); // Set loading to true before fetching
             const data = await getGedungs();
             setGedungs(data);
-            
-            const statsPromises = data.map(gedung => getGedungStats(gedung.id));
-            const statsResults = await Promise.all(statsPromises);
-            
-            const statsMap = {};
-            data.forEach((gedung, index) => {
-                statsMap[gedung.id] = statsResults[index] || { itemCount: 0, totalValue: 0 };
-            });
-            
-            setGedungStats(statsMap);
         } catch (error) {
-            console.error('Failed to fetch gedungs or stats:', error);
+            console.error('Failed to fetch gedungs:', error);
+            
+            // setGedungs(gedungData);
         } finally {
-            setIsLoading(false);
+            setIsLoading(false); // Set loading to false after fetching (success or failure)
         }
-    };
-
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(value);
     };
 
     const handleCardClick = (gedung) => {
@@ -149,8 +134,8 @@ function Gedung() {
                                     />
                                     <div className="gedung-details">
                                         <h3>{gedung.nama_gedung}</h3>
-                                        <p>{gedungStats[gedung.id]?.itemCount || 0} Items</p>
-                                        <h4>{formatCurrency(gedungStats[gedung.id]?.totalValue || 0)}</h4>
+                                        <p>{gedung.items || 0} Items</p>
+                                        <h4>{gedung.assets || 'Rp.0'}</h4>
                                         <div className="button-container" style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
                                             <button 
                                                 className="main-button"

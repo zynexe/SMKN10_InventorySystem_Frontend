@@ -130,7 +130,7 @@ function AssetHome() {
             }));
           });
           
-          // Populate with real data - FIX: multiply price by quantity
+         
           assets.forEach(asset => {
             const purchaseDate = new Date(asset.tanggal || asset.tanggal_pembelian);
             const year = purchaseDate.getFullYear();

@@ -121,19 +121,24 @@ const KodeBarangPage = () => {
             if (isEditing && currentItem) {
                 // Update existing item
                 const response = await updateKodeBarang(currentItem.id, newItem);
+                
+                // Update the item in the local state without refreshing the entire list
                 setItems(items.map(item => 
-                    item.id === currentItem.id ? { ...response.data } : item
+                    item.id === currentItem.id ? { ...item, ...response.data } : item
                 ));
+                
                 alert('Item updated successfully');
             } else {
                 // Add new item
                 const response = await addKodeBarang(newItem);
                 setItems([...items, response.data]);
                 alert('Item added successfully');
+                
+                // For new items, we can refresh to ensure proper sorting
+                fetchItems();
             }
             
             setIsModalOpen(false);
-            fetchItems(); // Refresh data after add/update
         } catch (err) {
             console.error('Error saving item:', err);
             
@@ -267,6 +272,7 @@ const KodeBarangPage = () => {
                 onAdd={handleAddFromModal}
                 isEditing={isEditing}
                 currentItem={currentItem}
+                onImportSuccess={fetchItems}  // Pass the fetchItems function to refresh after import
             />
         </div>
     );

@@ -74,6 +74,7 @@ const AssetTable = ({
                                             kodeRekeningBelanja: item.kode_rekening_belanja || item.bpaData?.kodeRekeningBelanja,
                                             noSPK: item.no_spk_faktur_kuitansi || item.bpaData?.noSPK,
                                             noBAST: item.no_bast || item.bpaData?.noBAST,
+                                            sumberPerolehan: item.sumber_perolehan || item.bpaData?.sumberPerolehan || 'N/A',
                                         })}
                                         disabled={!item.kode_rekening_belanja && !item.bpaData}
                                     >

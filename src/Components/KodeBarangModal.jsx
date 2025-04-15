@@ -3,7 +3,7 @@ import { FaFileExcel } from 'react-icons/fa';
 import { importKodeBarang } from '../services/api';
 import '../CSS/KodeBarangModal.css';
 
-const KodeBarangModal = ({ isOpen, onClose, onAdd, isEditing = false, currentItem = null }) => {
+const KodeBarangModal = ({ isOpen, onClose, onAdd, isEditing = false, currentItem = null, onImportSuccess }) => {
   const [activeTab, setActiveTab] = useState('manual');
   const [kodeBarang, setKodeBarang] = useState('');
   const [namaBarang, setNamaBarang] = useState('');
@@ -78,6 +78,11 @@ const KodeBarangModal = ({ isOpen, onClose, onAdd, isEditing = false, currentIte
       
       setFile(null);
       onClose();
+      
+      // Call onImportSuccess to refresh data in the parent component
+      if (onImportSuccess) {
+        onImportSuccess();
+      }
       
       // Show success message
       alert('File imported successfully');

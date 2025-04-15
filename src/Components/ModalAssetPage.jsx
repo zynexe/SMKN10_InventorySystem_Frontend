@@ -239,7 +239,8 @@ const ModalAssetPage = ({
       no_bast: String(formData.NoBAPenerimaan || ''),
       umur_ekonomis: Number(formData.UmurEkonomis || 0),
       nilai_perolehan: Number(formData.NilaiPerolehan || 0),
-      beban_penyusutan: Number(formData.BebanPenyusutan || 0)
+      beban_penyusutan: Number(formData.BebanPenyusutan || 0),
+      sumber_perolehan: String(formData.SumberPerolehan || '')  // Add this line to include sumber_perolehan
     };
     
     const requiredFields = [
@@ -254,7 +255,8 @@ const ModalAssetPage = ({
       { key: 'kondisi', label: 'Kondisi' },
       { key: 'umur_ekonomis', label: 'Umur Ekonomis' },
       { key: 'nilai_perolehan', label: 'Nilai Perolehan' },
-      { key: 'beban_penyusutan', label: 'Beban Penyusutan' }
+      { key: 'beban_penyusutan', label: 'Beban Penyusutan' },
+      { key: 'sumber_perolehan', label: 'Sumber Perolehan' }  // Add this line to include in validation
     ];
     
     const emptyFields = requiredFields.filter(field => {
