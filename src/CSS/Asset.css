@@ -1432,3 +1432,17 @@ button:disabled {
 .error-text {
   color: #cc0000;
 }
+
+.export-button {
+  background-color: #28a745;
+  margin-right: 10px;
+}
+
+.export-button:hover {
+  background-color: #218838;
+}
+
+.export-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}

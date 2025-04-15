@@ -14,9 +14,9 @@ import {
   addBalance, 
   updateBalance, 
   getAssets,
-  getCurrentTotals,  // New import
-  getTotalAssetCount, // New import
-  getTotalGedungCount, // New import
+  getCurrentTotals,  
+  getTotalAssetCount, 
+  getTotalGedungCount, 
   getTotalPriceByYear
 } from "../../services/api";
 
@@ -31,8 +31,8 @@ function AssetHome() {
     // State for statistics
     const [rekapTahunan, setRekapTahunan] = useState(0);
     const [rekapBulanan, setRekapBulanan] = useState(0);
-    const [totalGedung, setTotalGedung] = useState(0);
-    const [totalItems, setTotalItems] = useState(0);
+    const [totalLokasi, setTotalLokasi] = useState(0);  // Changed from totalGedung
+    const [totalAssets, setTotalAssets] = useState(0);  // Changed from totalItems
     
     // State for loading indicators
     const [loadingStats, setLoadingStats] = useState(true);
@@ -68,26 +68,27 @@ function AssetHome() {
           // Fetch monthly and yearly totals using the new endpoint
           const currentTotalsResponse = await getCurrentTotals();
           if (currentTotalsResponse) {
-            setRekapTahunan(Number(currentTotalsResponse.yearly || 0));
-            setRekapBulanan(Number(currentTotalsResponse.monthly || 0));
+            setRekapTahunan(Number(currentTotalsResponse.total_harga_current_year || 0));
+            setRekapBulanan(Number(currentTotalsResponse.total_harga_current_month || 0));
             console.log("Current totals loaded:", {
-              yearly: currentTotalsResponse.yearly,
-              monthly: currentTotalsResponse.monthly
+              yearly: currentTotalsResponse.total_harga_current_year,
+              monthly: currentTotalsResponse.total_harga_current_month
             });
           }
           
           // Fetch total asset count
           const totalAssetsResponse = await getTotalAssetCount();
-          if (totalAssetsResponse && totalAssetsResponse.data !== undefined) {
-            setTotalItems(Number(totalAssetsResponse.data || 0));
-            console.log("Total assets loaded:", totalAssetsResponse.data);
+          if (totalAssetsResponse && totalAssetsResponse.total_assets !== undefined) {
+            setTotalAssets(Number(totalAssetsResponse.total_assets || 0));  // Changed from setTotalItems
+            console.log("Total assets loaded:", totalAssetsResponse.total_assets);
           }
           
-          // Fetch total gedung count
-          const totalGedungResponse = await getTotalGedungCount();
-          if (totalGedungResponse && totalGedungResponse.data !== undefined) {
-            setTotalGedung(Number(totalGedungResponse.data || 0));
-            console.log("Total gedung loaded:", totalGedungResponse.data);
+          // Fetch total location count - extract total_lokasi from the response
+          const totalLokasiResponse = await getTotalGedungCount();
+          console.log("Total lokasi response:", totalLokasiResponse);
+          if (totalLokasiResponse && totalLokasiResponse.total_lokasi !== undefined) {
+            setTotalLokasi(Number(totalLokasiResponse.total_lokasi || 0));  // Changed to match API response
+            console.log("Total lokasi loaded:", totalLokasiResponse.total_lokasi);
           }
           
         } catch (error) {
@@ -99,7 +100,7 @@ function AssetHome() {
       };
       
       fetchAllStats();
-    }, [refreshTrigger]);
+    }, [refreshTrigger]); // Adding refreshTrigger ensures it refreshes when balance updates
     
     // Fetch expense data for chart
     useEffect(() => {
@@ -387,26 +388,26 @@ function AssetHome() {
                     <div className="dashboard-cards">
                         <div className="card-statistic" onClick={() => handleCardClick("/gedung")}>
                             <h3>
-                                Total Gedung <span className="card-arrow">→</span>
+                                Total Lokasi <span className="card-arrow">→</span> {/* Changed from Total Gedung */}
                             </h3>
                             {loadingStats ? (
                                 <h2>Loading...</h2>
                             ) : statsError ? (
                                 <h2 className="error-text">Error</h2>
                             ) : (
-                                <h2>{totalGedung}</h2>
+                                <h2>{totalLokasi}</h2> 
                             )}
                         </div>
                         <div className="card-statistic" onClick={() => handleCardClick("/asset-page")}>
                             <h3>
-                                Total Item <span className="card-arrow">→</span>
+                                Total Assets <span className="card-arrow">→</span> {/* Changed from Total Item */}
                             </h3>
                             {loadingStats ? (
                                 <h2>Loading...</h2>
                             ) : statsError ? (
                                 <h2 className="error-text">Error</h2>
                             ) : (
-                                <h2>{totalItems}</h2>
+                                <h2>{totalAssets}</h2> 
                             )}
                         </div>
                     </div>

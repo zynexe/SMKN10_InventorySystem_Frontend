@@ -12,6 +12,7 @@ import Dropdown from "../../Components/Dropdown";
 import InfoBA from "../../Components/InfoBA";
 import InfoAset from "../../Components/InfoAset";
 import AssetTable from '../../Components/AssetTable';
+import * as XLSX from 'xlsx'; // Add this import at the top with your other imports
 //api functions
 import { getAssets, addAsset, updateAsset, deleteAsset, getBalance, updateBalance } from '../../services/api';
 
@@ -390,6 +391,79 @@ function AssetPage() {
     setIsInfoAsetOpen(false);
   };
 
+  const exportToExcel = () => {
+    // Create a workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Prepare the data for export
+    const exportData = filteredData.map((item, index) => {
+      // Format the price for export
+      let price = typeof item.harga === 'string' && item.harga.includes('Rp.') 
+        ? item.harga 
+        : `Rp. ${parseInt(item.harga || 0).toLocaleString('id-ID')}`;
+      
+      return {
+        'No': (index + 1),
+        'Kode Barang': item.kode_barang || item.kodeBarang || '',
+        'Nama Barang': item.nama_barang || item.namaBarang || '',
+        'Merk Barang': item.merk_barang || item.merkBarang || '',
+        'Jumlah': item.jumlah || 0,
+        'Satuan': item.satuan || '',
+        'Harga': price,
+        'Kondisi': item.kondisi || 'Tidak diketahui',
+        'Lokasi': item.lokasi || '',
+        'Tanggal': item.tanggal_pembelian || item.tanggal || '',
+        'Kode Rekening Belanja': item.kode_rekening_belanja || item.bpaData?.kodeRekeningBelanja || '',
+        'No SPK/Faktur/Kuitansi': item.no_spk_faktur_kuitansi || item.bpaData?.noSPK || '',
+        'No BAST': item.no_bast || item.bpaData?.noBAST || '',
+        'Sumber Perolehan': item.sumber_perolehan || item.bpaData?.sumberPerolehan || 'N/A',
+        'Kode Rekening Aset': item.kode_rekening_aset || item.asetData?.kodeRekeningAset || '',
+        'Nama Rekening Aset': item.nama_rekening_aset || item.asetData?.namaRekeningAset || '',
+        'Umur Ekonomis': item.umur_ekonomis || item.asetData?.umurEkonomis || '',
+        'Nilai Perolehan': item.nilai_perolehan || item.asetData?.nilaiPerolehan || '',
+        'Beban Penyusutan': item.beban_penyusutan || item.asetData?.bebanPenyusutan || ''
+      };
+    });
+    
+    // Convert data to worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Set column widths for better readability
+    const colWidths = [
+      { wch: 5 },   // No
+      { wch: 20 },  // Kode Barang
+      { wch: 30 },  // Nama Barang
+      { wch: 20 },  // Merk Barang
+      { wch: 10 },  // Jumlah
+      { wch: 10 },  // Satuan
+      { wch: 20 },  // Harga
+      { wch: 15 },  // Kondisi
+      { wch: 15 },  // Lokasi
+      { wch: 12 },  // Tanggal
+      { wch: 20 },  // Kode Rekening Belanja
+      { wch: 20 },  // No SPK/Faktur/Kuitansi
+      { wch: 15 },  // No BAST
+      { wch: 20 },  // Sumber Perolehan
+      { wch: 20 },  // Kode Rekening Aset
+      { wch: 25 },  // Nama Rekening Aset
+      { wch: 15 },  // Umur Ekonomis
+      { wch: 15 },  // Nilai Perolehan
+      { wch: 15 },  // Beban Penyusutan
+    ];
+    ws['!cols'] = colWidths;
+    
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Asset Report');
+    
+    // Generate a timestamp for the filename
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    
+    // Create an export filename
+    const fileName = `asset_report_${timestamp}.xlsx`;
+    
+    // Export the file
+    XLSX.writeFile(wb, fileName);
+  };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -413,7 +487,7 @@ function AssetPage() {
               <div className="header-buttons">
                 <SearchBar
                   searchTerm={searchTerm}
-                  handleSearchChange={handleSearchChange}  ></SearchBar>
+                  handleSearchChange={handleSearchChange}  />
 
                 <Dropdown
                   options={months}
@@ -430,6 +504,14 @@ function AssetPage() {
                   handleSelect={handleYearSelect}
                   buttonContent={<><img src={calendarYear} alt="CalendarYear" /> {selectedYear || currentYear}</>}
                 />
+
+                <button 
+                  className="main-button export-button" 
+                  onClick={exportToExcel}
+                  disabled={isLoading || filteredData.length === 0}
+                >
+                  <i className="fas fa-file-export"></i> Export Excel
+                </button>
 
                 <button className="main-button" onClick={() => openModal()}>
                   <img src={addIcon} alt="Add" className="icon" /> Add
