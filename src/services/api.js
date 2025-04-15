@@ -160,10 +160,10 @@ export const getTotalAssets = async () => {
 
 export const getTotalPriceByYear = async (year) => {
   try {
-    const response = await api.get(`/aset/total-harga/${year}`);
+    const response = await api.get(`/aset/total-price-by-year/${year}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching total price by year:', error);
+    console.error(`Error fetching total price for year ${year}:`, error);
     throw error;
   }
 };
@@ -398,6 +398,59 @@ export const updateBalance = async (amount) => {
     return { data: balanceValue };
   } catch (error) {
     console.error('Error updating balance:', error);
+    throw error;
+  }
+};
+
+// Add these API functions for dashboard statistics
+
+// Get rekap bulanan & tahunan combined
+export const getCurrentTotals = async () => {
+  try {
+    console.log('Fetching current monthly and yearly totals...');
+    const response = await api.get('/aset/total-harga/current');
+    console.log('Current totals response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching current totals:', error);
+    throw error;
+  }
+};
+
+// Get total assets count
+export const getTotalAssetCount = async () => {
+  try {
+    console.log('Fetching total asset count...');
+    const response = await api.get('/aset/total');
+    console.log('Total asset count response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching total asset count:', error);
+    throw error;
+  }
+};
+
+// Get total gedung count
+export const getTotalGedungCount = async () => {
+  try {
+    console.log('Fetching total gedung count...');
+    const response = await api.get('/lokasi/total');
+    console.log('Total gedung count response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching total gedung count:', error);
+    throw error;
+  }
+};
+
+// Add this function to your existing API service
+
+export const getGedungStats = async (gedungId) => {
+  try {
+    const response = await axios.get(`${API_URL}/gedung/${gedungId}/stats`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching gedung stats:', error);
     throw error;
   }
 };

@@ -2,68 +2,111 @@
 import React, { useState, useEffect } from 'react';
 import '../../CSS/Asset.css';
 import Modal from 'react-modal';
-import Pagination from '../../Components/Pagination'; // Assuming Pagination component is in components folder
-import AssetTable from '../../Components/AssetTable'; // Import AssetTable component
-import InfoBA from '../../Components/InfoBA';    // Add this import
-import InfoAset from '../../Components/InfoAset'; // Add this import
+import Pagination from '../../Components/Pagination';
+import AssetTable from '../../Components/AssetTable';
+import InfoBA from '../../Components/InfoBA';
+import InfoAset from '../../Components/InfoAset';
+import { getAssets } from '../../services/api'; // Import the API function
 
-function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
+function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown', nama_gedung: 'Unknown', id: null } }) {
     const [assetData, setAssetData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10); // Set items per page
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [totalValue, setTotalValue] = useState(0);
-    // Add states for InfoBA and InfoAset modals
     const [isInfoBAOpen, setIsInfoBAOpen] = useState(false);
     const [isInfoAsetOpen, setIsInfoAsetOpen] = useState(false);
     const [selectedBPAData, setSelectedBPAData] = useState(null);
     const [selectedAsetData, setSelectedAsetData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Get the gedung name, accounting for different property names
+    const gedungName = gedung?.nama_gedung || gedung?.name || 'Unknown';
 
     useEffect(() => {
-        // Fetch or simulate fetching asset data for the selected gedung
+        // Fetch asset data for the selected gedung
         const fetchAssetData = async () => {
-            // Replace this with your actual data fetching logic (API call, etc.)
-            // For now, let's use some dummy data based on the gedung name
-            const dummyData = Array.from({ length: 635 }, (_, i) => ({
-                no: i + 1,
-                kodeBarang: `1.3.2.06.01.02.${126 + i}`,
-                namaBarang: `CANON EOS 3000D KIT 18-55MM (Gedung ${gedung.name})`, // Include gedung name
-                merkBarang: "Canon Eos",
-                satuan: "Pcs",
-                jumlah: 1,
-                harga: "Rp. 9.743.000",
-                lokasi: gedung.name, // Add location field
-                // Add dummy data for modals
-                bpaData: {
-                    // Add your BPA data structure here
-                    noBAPenerimaan: `BPA-${i + 1}`,
-                    tanggal: "2024-02-24",
-                    sumberPerolehan: "Pembelian"
-                },
-                asetData: {
-                    // Add your Asset data structure here
-                    kondisi: "Baik",
-                    tahunPerolehan: "2024",
-                    keterangan: "Kamera DSLR"
-                }
-            }));
+            if (!isOpen || !gedung || (!gedung.id && !gedung.nama_gedung)) return;
 
-            setAssetData(dummyData);
-            setTotalItems(dummyData.length);
-            // Calculate total value (replace with your actual logic)
-            const total = dummyData.reduce((sum, item) => {
-                const price = parseFloat(item.harga.replace(/[^0-9]/g, '')); // Remove non-numeric chars
-                return sum + price;
-            }, 0);
-            setTotalValue(total);
+            try {
+                setLoading(true);
+                setError(null);
+
+                // Get all assets
+                const response = await getAssets();
+
+                // Filter assets by the selected gedung name or ID
+                let filteredData = [];
+                if (Array.isArray(response)) {
+                    filteredData = response.filter(asset =>
+                        asset.nama_gedung === gedungName ||
+                        asset.lokasi === gedungName
+                    );
+                } else if (response && Array.isArray(response.data)) {
+                    filteredData = response.data.filter(asset =>
+                        asset.nama_gedung === gedungName ||
+                        asset.lokasi === gedungName
+                    );
+                }
+
+                console.log(`Filtered ${filteredData.length} assets for gedung: ${gedungName}`);
+
+                // Format the data for the table
+                const formattedData = filteredData.map((asset, index) => ({
+                    no: index + 1,
+                    id: asset.id,
+                    kodeBarang: asset.kode || asset.kode_barang || '',
+                    namaBarang: asset.nama_barang || '',
+                    merkBarang: asset.merk_barang || '',
+                    satuan: asset.satuan || '',
+                    jumlah: asset.jumlah || 0,
+                    harga: asset.harga ? `Rp. ${Number(asset.harga).toLocaleString('id-ID')}` : 'Rp. 0',
+                    lokasi: asset.nama_gedung || asset.lokasi || '',
+                    // BPA data
+                    bpaData: {
+                        noBAPenerimaan: asset.no_bast || '',
+                        tanggal: asset.tanggal_pembelian || '',
+                        sumberPerolehan: asset.sumber_perolehan || '',
+                        no_spk_faktur_kuitansi: asset.no_spk_faktur_kuitansi || '',
+                        kodeRekeningBelanja: asset.kode_rekening_belanja || ''
+                    },
+                    // Asset data
+                    asetData: {
+                        kondisi: asset.kondisi || '',
+                        umurEkonomis: asset.umur_ekonomis || '',
+                        nilaiPerolehan: asset.nilai_perolehan || '',
+                        bebanPenyusutan: asset.beban_penyusutan || '',
+                        kodeRekeningAset: asset.kode_rekening_aset || '',
+                        namaRekeningAset: asset.nama_rekening_aset || ''
+                    }
+                }));
+
+                setAssetData(formattedData);
+                setTotalItems(formattedData.length);
+
+                // Calculate total value
+                const total = formattedData.reduce((sum, item) => {
+                    const price = typeof item.harga === 'string' ?
+                        parseFloat(item.harga.replace(/[^\d]/g, '')) :
+                        (item.harga || 0);
+                    return sum + price;
+                }, 0);
+
+                setTotalValue(total);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching asset data:', error);
+                setError('Failed to load asset data. Please try again later.');
+                setLoading(false);
+            }
         };
 
-        if (isOpen) { // Fetch only when the modal is open
+        if (isOpen) {
             fetchAssetData();
         }
-    }, [isOpen, gedung]);
+    }, [isOpen, gedung, gedungName]);
 
-    // Update the handler functions
     const openInfoBA = (bpaData) => {
         setSelectedBPAData(bpaData);
         setIsInfoBAOpen(true);
@@ -87,9 +130,7 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = assetData.slice(indexOfFirstItem, indexOfLastItem);
-
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-
 
     const customStyles = {
         content: {
@@ -109,16 +150,16 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
             backdropFilter: 'blur(8px)', 
             border: '1px solid rgba(255, 255, 255, 0.3)', 
             boxShadow: '0 8px 32px 0 rgba(148, 163, 201, 0.7)', 
+            zIndex: 1501, // Add this line
         },
         overlay: {
             backgroundColor: 'rgba(83, 83, 83, 0.23)',
-
+            zIndex: 1500, // Add this line
         },
     };
-    
 
     if (!gedung) {
-        return null; 
+        return null;
     }
 
     return (
@@ -128,31 +169,46 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown' }  }) {
             style={customStyles}
             contentLabel="Gedung Details Modal"
         >
-           <div className="modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h2>{gedung.name} Details</h2> {/* Title on the left */}
+            <div className="modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h2>{gedungName} Details</h2>
                 <button onClick={closeModal} className="close-button">
-                    &times; {/* Close icon */}
+                    &times;
                 </button>
             </div>
 
-            <AssetTable
-                paginatedData={currentItems}
-                openInfoBA={openInfoBA}
-                openInfoAset={openInfoAset}
-            />
-
-            <div className="pagination-total-container">
-                <Pagination
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    totalPages={totalPages}
-                />
-                <div className="total-value">
-                    Total: Rp. {totalValue.toLocaleString('id-ID')}
+            {loading ? (
+                <div className="loading-container">
+                    <p>Loading assets...</p>
                 </div>
-            </div>
+            ) : error ? (
+                <div className="error-container">
+                    <p>{error}</p>
+                </div>
+            ) : assetData.length === 0 ? (
+                <div className="no-data-container">
+                    <p>No assets found for this building.</p>
+                </div>
+            ) : (
+                <>
+                    <AssetTable
+                        paginatedData={currentItems}
+                        openInfoBA={openInfoBA}
+                        openInfoAset={openInfoAset}
+                    />
 
-            {/* Add InfoBA and InfoAset components */}
+                    <div className="pagination-total-container">
+                        <Pagination
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                            totalPages={totalPages}
+                        />
+                        <div className="total-value">
+                            Total: Rp. {totalValue.toLocaleString('id-ID')}
+                        </div>
+                    </div>
+                </>
+            )}
+
             <InfoBA
                 isOpen={isInfoBAOpen}
                 closeModal={closeInfoBA}

@@ -6,7 +6,9 @@ const AssetTable = ({
     openInfoBA, 
     openInfoAset,
     onEditClick,
-    onDeleteClick
+    onDeleteClick,
+    currentPage = 1,
+    itemsPerPage = 25
 }) => {
     // Helper function to determine badge class based on condition
     const getKondisiBadgeClass = (kondisi) => {
@@ -43,70 +45,75 @@ const AssetTable = ({
                     </tr>
                 </thead>
                 <tbody>
-                    {paginatedData.map((item) => (
-                        <tr key={item.id || item.no}>
-                            <td>{item.no || item.id}</td>
-                            <td>{item.kode_barang || item.kodeBarang}</td>
-                            <td>{item.nama_barang || item.namaBarang}</td>
-                            <td>{item.merk_barang || item.merkBarang}</td>
-                            <td>{item.jumlah}</td>
-                            <td>{item.satuan}</td>
-                            <td>{typeof item.harga === 'string' && item.harga.includes('Rp') ? 
-                                 item.harga : 
-                                 `Rp. ${parseInt(item.harga).toLocaleString('id-ID')}`}</td>
-                            <td>
-                                <span className={getKondisiBadgeClass(item.kondisi)}>
-                                    {item.kondisi || 'Tidak diketahui'}
-                                </span>
-                            </td>
-                            <td>{item.lokasi}</td>
-                            <td>{item.tanggal}</td>
-                            <td>
-                                <button 
-                                    className="more-info" 
-                                    onClick={() => openInfoBA({
-                                        kodeRekeningBelanja: item.kode_rekening_belanja || item.bpaData?.kodeRekeningBelanja,
-                                        noSPK: item.no_spk || item.bpaData?.noSPK,
-                                        noBAST: item.no_bast || item.bpaData?.noBAST,
-                                    })}
-                                    disabled={!item.kode_rekening_belanja && !item.bpaData}
-                                >
-                                    More Info
-                                </button>
-                            </td>
-                            <td>
-                                <button 
-                                    className="more-info" 
-                                    onClick={() => openInfoAset({
-                                        kodeRekeningAset: item.kode_rekening_aset || item.asetData?.kodeRekeningAset,
-                                        namaRekeningAset: item.nama_rekening_aset || item.asetData?.namaRekeningAset,
-                                        umurEkonomis: item.umur_ekonomis || item.asetData?.umurEkonomis,
-                                        nilaiPerolehan: item.nilai_perolehan || item.asetData?.nilaiPerolehan,
-                                        bebanPenyusutan: item.beban_penyusutan || item.asetData?.bebanPenyusutan,
-                                    })}
-                                    disabled={!item.kode_rekening_aset && !item.asetData}
-                                >
-                                    More Info
-                                </button>
-                            </td>
-                            <td>
-                                <div className="actions-container">
+                    {paginatedData.map((item, index) => {
+                        // Calculate row number based on current page and index
+                        const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                        
+                        return (
+                            <tr key={item.id || item.no || index}>
+                                <td>{rowNumber}</td>
+                                <td>{item.kode_barang || item.kodeBarang}</td>
+                                <td>{item.nama_barang || item.namaBarang}</td>
+                                <td>{item.merk_barang || item.merkBarang}</td>
+                                <td>{item.jumlah}</td>
+                                <td>{item.satuan}</td>
+                                <td>{typeof item.harga === 'string' && item.harga.includes('Rp') ? 
+                                     item.harga : 
+                                     `Rp. ${parseInt(item.harga).toLocaleString('id-ID')}`}</td>
+                                <td>
+                                    <span className={getKondisiBadgeClass(item.kondisi)}>
+                                        {item.kondisi || 'Tidak diketahui'}
+                                    </span>
+                                </td>
+                                <td>{item.lokasi}</td>
+                                <td>{item.tanggal_pembelian || item.tanggal}</td>
+                                <td>
                                     <button 
-                                        className="icon-button edit-button"
-                                        onClick={() => onEditClick(item)}
+                                        className="more-info" 
+                                        onClick={() => openInfoBA({
+                                            kodeRekeningBelanja: item.kode_rekening_belanja || item.bpaData?.kodeRekeningBelanja,
+                                            noSPK: item.no_spk_faktur_kuitansi || item.bpaData?.noSPK,
+                                            noBAST: item.no_bast || item.bpaData?.noBAST,
+                                        })}
+                                        disabled={!item.kode_rekening_belanja && !item.bpaData}
                                     >
-                                        <FaEdit />
+                                        More Info
                                     </button>
+                                </td>
+                                <td>
                                     <button 
-                                        className="icon-button delete-button"
-                                        onClick={() => onDeleteClick(item.id || item.no)}
+                                        className="more-info" 
+                                        onClick={() => openInfoAset({
+                                            kodeRekeningAset: item.kode_rekening_aset || item.asetData?.kodeRekeningAset,
+                                            namaRekeningAset: item.nama_rekening_aset || item.asetData?.namaRekeningAset,
+                                            umurEkonomis: item.umur_ekonomis || item.asetData?.umurEkonomis,
+                                            nilaiPerolehan: item.nilai_perolehan || item.asetData?.nilaiPerolehan,
+                                            bebanPenyusutan: item.beban_penyusutan || item.asetData?.bebanPenyusutan,
+                                        })}
+                                        disabled={!item.kode_rekening_aset && !item.asetData}
                                     >
-                                        <FaTrashAlt />
+                                        More Info
                                     </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
+                                </td>
+                                <td>
+                                    <div className="actions-container">
+                                        <button 
+                                            className="icon-button edit-button"
+                                            onClick={() => onEditClick(item)}
+                                        >
+                                            <FaEdit />
+                                        </button>
+                                        <button 
+                                            className="icon-button delete-button"
+                                            onClick={() => onDeleteClick(item.id || item.no)}
+                                        >
+                                            <FaTrashAlt />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>

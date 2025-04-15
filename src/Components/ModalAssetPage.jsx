@@ -1,7 +1,7 @@
 // ModalAssetPage.js
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
-import { getKodeBarangs } from "../services/api"; // Import the API function
+import { getKodeBarangs, getGedungs } from "../services/api"; // Add getGedungs import
 
 const ModalAssetPage = ({ 
   isOpen, 
@@ -25,7 +25,7 @@ const ModalAssetPage = ({
     lokasi: '',
     Tanggal: new Date().toISOString().split('T')[0], 
     
-    // Other fields...
+    //Step 2 Fields
     SumberPerolehan: '',
     KoderingBelanja: '',
     NoSPKFakturKuitansi: '',
@@ -43,6 +43,13 @@ const ModalAssetPage = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Replace hardcoded lokasi options with empty array
+  const [lokasiOptions, setLokasiOptions] = useState([]);
+  const [filteredLokasiOptions, setFilteredLokasiOptions] = useState([]);
+  const [showLokasiDropdown, setShowLokasiDropdown] = useState(false);
+  const [lokasiSearchTerm, setLokasiSearchTerm] = useState('');
+  const [loadingLokasi, setLoadingLokasi] = useState(false);
 
   // Fetch kode barang options when component mounts
   useEffect(() => {
@@ -70,6 +77,37 @@ const ModalAssetPage = ({
     fetchKodeBarangOptions();
   }, []);
 
+  // Fetch location options from gedungs when component mounts
+  useEffect(() => {
+    const fetchLokasiOptions = async () => {
+      try {
+        setLoadingLokasi(true);
+        const response = await getGedungs();
+        
+        // Process the response data to get the options
+        let options = [];
+        if (response && response.data) {
+          // Extract the name property from each gedung object
+          options = response.data.map(gedung => gedung.name || gedung.nama_gedung);
+        } else if (Array.isArray(response)) {
+          // Extract the name property from each gedung object
+          options = response.map(gedung => gedung.name || gedung.nama_gedung);
+        }
+        
+        setLokasiOptions(options.filter(Boolean)); // Filter out any undefined or null values
+        setFilteredLokasiOptions(options.filter(Boolean));
+        setLoadingLokasi(false);
+      } catch (error) {
+        console.error("Error fetching lokasi options:", error);
+        setLokasiOptions([]);
+        setFilteredLokasiOptions([]);
+        setLoadingLokasi(false);
+      }
+    };
+    
+    fetchLokasiOptions();
+  }, []);
+
   // Use effect to populate form when editing an asset
   useEffect(() => {
     if (isEditMode && assetData) {
@@ -94,8 +132,8 @@ const ModalAssetPage = ({
                           (assetData.bpaData ? assetData.bpaData.sumberPerolehan : '') || '',
         KoderingBelanja: assetData.kode_rekening_belanja || 
                           (assetData.bpaData ? assetData.bpaData.kodeRekeningBelanja : '') || '',
-        NoSPKFakturKuitansi: assetData.no_spk || 
-                              (assetData.bpaData ? assetData.bpaData.noSPK : '') || '',
+        NoSPKFakturKuitansi: assetData.no_spk_faktur_kuitansi || 
+                              (assetData.bpaData ? assetData.bpaData.no_spk_faktur_kuitansi : '') || '',
         NoBAPenerimaan: assetData.no_bast || 
                           (assetData.bpaData ? assetData.bpaData.noBAST : '') || '',
 
@@ -119,17 +157,31 @@ const ModalAssetPage = ({
     }
   }, [isEditMode, assetData]);
 
-  // Filter options based on search term - update to only search by kode
+  // Filter options based on search term - update to search by both kode and name
   useEffect(() => {
     if (searchTerm) {
       const filtered = kodeOptions.filter(option => 
-        option.kode.toLowerCase().includes(searchTerm.toLowerCase())
+        option.kode.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        (option.uraian && option.uraian.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (option.nama && option.nama.toLowerCase().includes(searchTerm.toLowerCase()))
       );
       setFilteredOptions(filtered);
     } else {
       setFilteredOptions(kodeOptions);
     }
   }, [searchTerm, kodeOptions]);
+
+  // Filter lokasi options based on search term
+  useEffect(() => {
+    if (lokasiSearchTerm && lokasiOptions.length > 0) {
+      const filtered = lokasiOptions.filter(option => 
+        option && option.toLowerCase().includes(lokasiSearchTerm.toLowerCase())
+      );
+      setFilteredLokasiOptions(filtered);
+    } else {
+      setFilteredLokasiOptions(lokasiOptions);
+    }
+  }, [lokasiSearchTerm, lokasiOptions]);
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -138,6 +190,9 @@ const ModalAssetPage = ({
     if (name === 'kodeBarang') {
       setSearchTerm(value);
       setShowDropdown(true);
+    } else if (name === 'lokasi') {
+      setLokasiSearchTerm(value);
+      setShowLokasiDropdown(true);
     }
     
     setFormData(prev => ({
@@ -146,45 +201,39 @@ const ModalAssetPage = ({
     }));
   };
   
-  // Handle option selection from dropdown - remove the namaBarang auto-fill
+  // Handle option selection from dropdown - populate both kode and nama
   const handleOptionSelect = (option) => {
     setFormData(prev => ({
       ...prev,
-      kodeBarang: option.kode
+      kodeBarang: option.kode,
+      namaBarang: option.uraian || option.nama || ''
     }));
     setSearchTerm(option.kode);
     setShowDropdown(false);
   };
 
+  // Add function to handle lokasi selection
+  const handleLokasiSelect = (lokasi) => {
+    setFormData(prev => ({
+      ...prev,
+      lokasi: lokasi
+    }));
+    setLokasiSearchTerm(lokasi);
+    setShowLokasiDropdown(false);
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
     
-    // Format date from YYYY-MM-DD to DD-MM-YYYY for backend
-    const formatDateForBackend = (dateString) => {
-      if (!dateString) return '';
-      
-      const date = new Date(dateString);
-      if (isNaN(date)) return '';
-      
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      
-      return `${day}-${month}-${year}`;
-    };
-    
-    const defaultDate = new Date();
-    const defaultFormattedDate = formatDateForBackend(defaultDate.toISOString().split('T')[0]);
-    
     const processedFormData = {
       kode: String(formData.kodeBarang || ''),
-      nama_gedung: String(formData.lokasi || ''),
+      nama_gedung: String(formData.lokasi || ''), // keep the backend field name for compatibility
       merk_barang: String(formData.merkBarang || ''),
       jumlah: Number(formData.jumlah || 0),
       satuan: String(formData.satuan || ''),
       harga: Number(formData.harga || 0),
       kondisi: String(formData.kondisi || 'Baru'),
-      tanggal_pembelian: formatDateForBackend(formData.Tanggal) || defaultFormattedDate,
+      tanggal_pembelian: String(formData.Tanggal) || defaultFormattedDate,
       kode_rekening_belanja: String(formData.KoderingBelanja || ''),
       no_spk_faktur_kuitansi: String(formData.NoSPKFakturKuitansi || ''),
       no_bast: String(formData.NoBAPenerimaan || ''),
@@ -313,7 +362,7 @@ const ModalAssetPage = ({
           <div className="step-content">
             <div className="form-group">
               <label htmlFor="kodeBarang">Kode Barang (ID)</label>
-              <div className="dropdown-container">
+              <div className="dropdown-container-form">
                 <input
                   type="text"
                   id="kodeBarang"
@@ -417,15 +466,37 @@ const ModalAssetPage = ({
             </div>
             <div className="form-group">
               <label htmlFor="lokasi">Lokasi</label>
-              <input
-                type="text"
-                id="lokasi"
-                name="lokasi"
-                value={formData.lokasi || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
+              <div className="dropdown-container-form">
+                <input
+                  type="text"
+                  id="lokasi"
+                  name="lokasi"
+                  value={formData.lokasi || lokasiSearchTerm}
+                  onChange={handleInputChange}
+                  onClick={() => setShowLokasiDropdown(true)}
+                  autoComplete="off"
+                  required
+                  placeholder="Search location..."
+                />
+                {loadingLokasi && <div className="loading-indicator">Loading locations...</div>}
+                {showLokasiDropdown && filteredLokasiOptions && filteredLokasiOptions.length > 0 && (
+                  <ul className="dropdown-list">
+                    {filteredLokasiOptions.map((option, index) => (
+                      <li 
+                        key={index} 
+                        onClick={() => handleLokasiSelect(option)}
+                        className="dropdown-item"
+                      >
+                        {option}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {showLokasiDropdown && (!filteredLokasiOptions || filteredLokasiOptions.length === 0) && !loadingLokasi && (
+                  <div className="no-options">No matching locations found</div>
+                )}
+              </div>
+              </div>
             <div className="form-group">
               <label htmlFor="Tanggal">Tanggal (DD-MM-YYYY)</label>
               <input

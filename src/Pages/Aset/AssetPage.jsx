@@ -13,7 +13,7 @@ import InfoBA from "../../Components/InfoBA";
 import InfoAset from "../../Components/InfoAset";
 import AssetTable from '../../Components/AssetTable';
 //api functions
-import { getAssets, addAsset, updateAsset, deleteAsset } from '../../services/api';
+import { getAssets, addAsset, updateAsset, deleteAsset, getBalance, updateBalance } from '../../services/api';
 
 // Keep the dummy data generation functions for fallback
 const generateRandomNamaBarang = () => {
@@ -70,7 +70,7 @@ export const assetData = Array.from({ length: 200 }, (_, i) => ({
 function AssetPage() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 25; // Number of items per page
   
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
@@ -80,6 +80,9 @@ function AssetPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [selectedAsset, setSelectedAsset] = useState(null); // For edit functionality
   const [isEditMode, setIsEditMode] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
+  const [balanceError, setBalanceError] = useState(null);
 
   // Fetch assets from API
   useEffect(() => {
@@ -164,6 +167,29 @@ function AssetPage() {
     }
   };
 
+  // Fetch balance when component mounts
+  useEffect(() => {
+    fetchBalance();
+  }, []);
+  
+  // Function to fetch current balance
+  const fetchBalance = async () => {
+    try {
+      setIsLoadingBalance(true);
+      const response = await getBalance();
+      
+      if (response && response.data !== undefined) {
+        setBalance(Number(response.data));
+      }
+      setBalanceError(null);
+    } catch (error) {
+      console.error('Failed to fetch balance:', error);
+      setBalanceError('Failed to load balance data');
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  };
+
   // Search functionality
   useEffect(() => {
     const filtered = assets.filter((item) => {
@@ -228,15 +254,34 @@ function AssetPage() {
   const handleSubmit = async (formData) => {
     try {
       console.log('Submitting asset data:', formData);
-      const response = await addAsset(formData);
       
-      // Rest of your success handling
+      // Calculate the total cost of the asset(s)
+      const assetCost = Number(formData.harga || 0) * Number(formData.jumlah || 1);
+      
+      // Check if there's enough balance
+      if (assetCost > balance) {
+        alert(`Insufficient balance. Current balance: Rp ${balance.toLocaleString('id-ID')}, Required: Rp ${assetCost.toLocaleString('id-ID')}`);
+        return;
+      }
+      
+      // First add the asset
+      const response = await addAsset(formData);
       console.log("Asset added:", response);
+      
+      // Then update the balance
+      const newBalance = balance - assetCost;
+      await updateBalance(newBalance);
+      setBalance(newBalance);
+      
       // Refresh the asset list
       await fetchAssets();
       
       // Close modal
       closeModal();
+      
+      // Show success message with updated balance
+      alert(`Asset added successfully. New balance: Rp ${newBalance.toLocaleString('id-ID')}`);
+      
     } catch (error) {
       console.error("Error saving asset:", error);
       
@@ -363,6 +408,8 @@ function AssetPage() {
           <>
             <div className="header">
               <h2 style={{ marginRight: "10px" }}>Asset</h2>
+              {/* Add balance display */}
+              
               <div className="header-buttons">
                 <SearchBar
                   searchTerm={searchTerm}
@@ -396,6 +443,8 @@ function AssetPage() {
               openInfoAset={openInfoAset}
               onEditClick={handleEditClick}
               onDeleteClick={handleDeleteClick}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage} // Make sure itemsPerPage is defined in your component state
             />
 
             <div className="pagination-total-container">
