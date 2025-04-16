@@ -1,4 +1,4 @@
-// Pagination.js (Create a new file named Pagination.js)
+
 import React from 'react';
 
 function Pagination({ currentPage, setCurrentPage, totalPages }) {
