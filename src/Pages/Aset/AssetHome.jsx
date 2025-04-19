@@ -31,8 +31,8 @@ function AssetHome() {
     // State for statistics
     const [rekapTahunan, setRekapTahunan] = useState(0);
     const [rekapBulanan, setRekapBulanan] = useState(0);
-    const [totalLokasi, setTotalLokasi] = useState(0);  // Changed from totalGedung
-    const [totalAssets, setTotalAssets] = useState(0);  // Changed from totalItems
+    const [totalLokasi, setTotalLokasi] = useState(0); 
+    const [totalAssets, setTotalAssets] = useState(0);  
     
     // State for loading indicators
     const [loadingStats, setLoadingStats] = useState(true);
@@ -65,30 +65,25 @@ function AssetHome() {
           setLoadingStats(true);
           setStatsError(null);
           
-          // Fetch monthly and yearly totals using the new endpoint
-          const currentTotalsResponse = await getCurrentTotals();
+          // Run all API calls in parallel
+          const [currentTotalsResponse, totalAssetsResponse, totalLokasiResponse] = await Promise.all([
+            getCurrentTotals(),
+            getTotalAssetCount(),
+            getTotalGedungCount()
+          ]);
+          
+          // Process results after all requests complete
           if (currentTotalsResponse) {
             setRekapTahunan(Number(currentTotalsResponse.total_harga_current_year || 0));
             setRekapBulanan(Number(currentTotalsResponse.total_harga_current_month || 0));
-            console.log("Current totals loaded:", {
-              yearly: currentTotalsResponse.total_harga_current_year,
-              monthly: currentTotalsResponse.total_harga_current_month
-            });
           }
           
-          // Fetch total asset count
-          const totalAssetsResponse = await getTotalAssetCount();
           if (totalAssetsResponse && totalAssetsResponse.total_assets !== undefined) {
-            setTotalAssets(Number(totalAssetsResponse.total_assets || 0));  // Changed from setTotalItems
-            console.log("Total assets loaded:", totalAssetsResponse.total_assets);
+            setTotalAssets(Number(totalAssetsResponse.total_assets || 0));
           }
           
-          // Fetch total location count - extract total_lokasi from the response
-          const totalLokasiResponse = await getTotalGedungCount();
-          console.log("Total lokasi response:", totalLokasiResponse);
           if (totalLokasiResponse && totalLokasiResponse.total_lokasi !== undefined) {
-            setTotalLokasi(Number(totalLokasiResponse.total_lokasi || 0));  // Changed to match API response
-            console.log("Total lokasi loaded:", totalLokasiResponse.total_lokasi);
+            setTotalLokasi(Number(totalLokasiResponse.total_lokasi || 0));
           }
           
         } catch (error) {
@@ -120,45 +115,52 @@ function AssetHome() {
             assets = assetsResponse.data;
           }
           
-          // Calculate monthly expenses for each year
-          const expenses = {};
+          // Optimize: Create a more efficient data structure
+          const expensesByYear = {};
           
-          // Create data structure for years
-          years.forEach(year => {
-            expenses[year] = months.map(month => ({
-              month,
-              expenses: 0
-            }));
-          });
-          
-         
+          // Process assets in a single pass
           assets.forEach(asset => {
+            // Skip invalid dates
+            if (!asset.tanggal && !asset.tanggal_pembelian) return;
+            
             const purchaseDate = new Date(asset.tanggal || asset.tanggal_pembelian);
             const year = purchaseDate.getFullYear();
             const month = purchaseDate.getMonth();
             
-            // Get price, handling different formats and parsing
+            // Parse price more efficiently
             let price = 0;
             if (typeof asset.harga === 'string') {
-              // Remove non-numeric characters if price is string format like "Rp. 9.743.000"
               price = parseFloat(asset.harga.replace(/[^\d]/g, ''));
             } else {
               price = Number(asset.harga) || 0;
             }
             
-            // Get quantity, default to 1 if not specified
             const quantity = Number(asset.jumlah) || 1;
-            
-            // Calculate total expense for this asset
             const totalExpense = price * quantity;
             
-            if (expenses[year] && expenses[year][month]) {
-              expenses[year][month].expenses += totalExpense;
+            // Initialize year data if needed
+            if (!expensesByYear[year]) {
+              expensesByYear[year] = Array(12).fill(0);
+            }
+            
+            // Add expense to the right month
+            expensesByYear[year][month] += totalExpense;
+          });
+          
+          // Convert to the required format for the chart
+          const expenses = {};
+          years.forEach(year => {
+            if (expensesByYear[year]) {
+              expenses[year] = months.map((month, index) => ({
+                month,
+                expenses: expensesByYear[year][index] || 0
+              }));
+            } else {
+              expenses[year] = months.map(month => ({ month, expenses: 0 }));
             }
           });
           
           setExpensesData(expenses);
-          console.log('Updated expenses data:', expenses);
           
         } catch (error) {
           console.error("Error fetching expenses data:", error);

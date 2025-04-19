@@ -6,31 +6,17 @@ import GedungDetails from './GedungDetails';
 import GedungFormModal from '../../Components/GedungFormModal';
 import Sidebar from '../../Layout/Sidebar';
 import { FaDownload } from 'react-icons/fa';
-import { getGedungs, addGedung, updateGedung, deleteGedung } from '../../services/api';
-
-
-
-export const gedungData = [
-    { name: 'Gedung A', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung B', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung C', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung D', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung E', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung F', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung G', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung H', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung I', items: 12, assets: 'Rp.200.000.000' },
-    { name: 'Gedung J', items: 12, assets: 'Rp.200.000.000' },
-];
+import { getGedungs, addGedung, updateGedung, deleteGedung, getAssets } from '../../services/api';
 
 function Gedung() {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [selectedGedung, setSelectedGedung] = useState(null);
-    const [gedungs, setGedungs] = useState([]); // Initialize with empty array instead of dummy data
+    const [gedungs, setGedungs] = useState([]); 
     const [formMode, setFormMode] = useState('add');
-    const [isLoading, setIsLoading] = useState(true); // Add loading state
+    const [isLoading, setIsLoading] = useState(true);
+    const [gedungStats, setGedungStats] = useState({}); // Store stats for each gedung
 
     useEffect(() => {
         fetchGedungs();
@@ -38,15 +24,58 @@ function Gedung() {
 
     const fetchGedungs = async () => {
         try {
-            setIsLoading(true); // Set loading to true before fetching
+            setIsLoading(true);
             const data = await getGedungs();
             setGedungs(data);
+            
+            // After fetching buildings, get stats for each
+            fetchGedungStats(data);
         } catch (error) {
             console.error('Failed to fetch gedungs:', error);
-            
-            // setGedungs(gedungData);
         } finally {
-            setIsLoading(false); // Set loading to false after fetching (success or failure)
+            setIsLoading(false);
+        }
+    };
+
+    const fetchGedungStats = async (gedungsList) => {
+        try {
+            // Get all assets
+            const assets = await getAssets();
+            const assetData = Array.isArray(assets) ? assets : (assets?.data || []);
+            
+            // Process stats for each gedung
+            const stats = {};
+            
+            gedungsList.forEach(gedung => {
+                const gedungName = gedung.nama_gedung;
+                
+                // Filter assets for this gedung
+                const gedungAssets = assetData.filter(asset => 
+                    asset.nama_gedung === gedungName || asset.lokasi === gedungName
+                );
+                
+                // Calculate total items
+                const itemCount = gedungAssets.length;
+                
+                // Calculate total value
+                const totalValue = gedungAssets.reduce((sum, asset) => {
+                    const price = typeof asset.harga === 'string' 
+                        ? parseFloat(asset.harga.replace(/[^\d]/g, '')) 
+                        : (asset.harga || 0);
+                    return sum + price;
+                }, 0);
+                
+                // Store stats
+                stats[gedung.id] = {
+                    itemCount,
+                    totalValue: `Rp.${totalValue.toLocaleString('id-ID')}`
+                };
+            });
+            
+            setGedungStats(stats);
+            
+        } catch (error) {
+            console.error('Error fetching gedung stats:', error);
         }
     };
 
@@ -106,9 +135,6 @@ function Gedung() {
                 <div className="header">
                     <h2>Gedung</h2>
                     <div className="header-buttons">
-                        <button className="secondary-button" >
-                        <FaDownload /> Export 
-                        </button>
                         <button className="main-button" onClick={handleAddClick}>
                             + Add
                         </button>
@@ -134,8 +160,8 @@ function Gedung() {
                                     />
                                     <div className="gedung-details">
                                         <h3>{gedung.nama_gedung}</h3>
-                                        <p>{gedung.items || 0} Items</p>
-                                        <h4>{gedung.assets || 'Rp.0'}</h4>
+                                        <p>{gedungStats[gedung.id]?.itemCount || 0} Items</p>
+                                        <h4>{gedungStats[gedung.id]?.totalValue || 'Rp.0'}</h4>
                                         <div className="button-container" style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
                                             <button 
                                                 className="main-button"

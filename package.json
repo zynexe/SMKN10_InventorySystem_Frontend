@@ -18,7 +18,8 @@
     "react-modal": "^3.16.3",
     "react-router-dom": "^7.1.5",
     "web-vitals": "^4.2.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "xlsx-style": "^0.8.13"
   },
   "scripts": {
     "dev": "vite",

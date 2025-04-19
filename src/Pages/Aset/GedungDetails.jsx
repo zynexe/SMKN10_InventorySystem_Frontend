@@ -63,6 +63,8 @@ function GedungDetails({ isOpen, closeModal, gedung = { name: 'Unknown', nama_ge
                     jumlah: asset.jumlah || 0,
                     harga: asset.harga ? `Rp. ${Number(asset.harga).toLocaleString('id-ID')}` : 'Rp. 0',
                     lokasi: asset.nama_gedung || asset.lokasi || '',
+                    tanggal: asset.tanggal_pembelian || '',  // Add the tanggal field
+                    kondisi: asset.kondisi || 'Tidak diketahui',  // Add the kondisi field
                     // BPA data
                     bpaData: {
                         noBAPenerimaan: asset.no_bast || '',

@@ -12,6 +12,7 @@ import InfoBA from "../../Components/InfoBA";
 import InfoAset from "../../Components/InfoAset";
 import AssetTable from '../../Components/AssetTable';
 import * as XLSX from 'xlsx'; 
+import { FaDownload } from 'react-icons/fa';
 //api functions
 import { getAssets, addAsset, updateAsset, deleteAsset, getBalance, updateBalance } from '../../services/api';
 
@@ -585,7 +586,7 @@ function AssetPage() {
                   onClick={exportToExcel}
                   disabled={isLoading || filteredData.length === 0}
                 >
-                  <i className="fas fa-file-export"></i> Export 
+                  <FaDownload style={{ marginRight: '5px' }} /> Export 
                 </button>
 
                 <button className="main-button" onClick={() => openModal()}>
