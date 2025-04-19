@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import '../../CSS/Asset.css';
-import calendarMonth from "../../assets/calenderMonth.png";
-import calendarYear from "../../assets/calenderYear.png";
+import filterIcon from "../../assets/filter_icon.svg";
 import addIcon from "../../assets/add.png";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../Components/Pagination";
 import ModalAssetPage from "../../Components/ModalAssetPage";
 import Sidebar from '../../Layout/Sidebar';
 import SearchBar from '../../Components/SearchBar';
-import Dropdown from "../../Components/Dropdown";
+import FilterModal from "../../Components/FilterModal";
 import InfoBA from "../../Components/InfoBA";
 import InfoAset from "../../Components/InfoAset";
 import AssetTable from '../../Components/AssetTable';
-import * as XLSX from 'xlsx'; // Add this import at the top with your other imports
+import * as XLSX from 'xlsx'; 
 //api functions
 import { getAssets, addAsset, updateAsset, deleteAsset, getBalance, updateBalance } from '../../services/api';
 
@@ -23,8 +22,8 @@ const generateRandomNamaBarang = () => {
   const suffixes = ["KIT 18-55MM", "KIT 16-50MM", "BODY ONLY", "WITH LENS", "LENS 50MM"];
 
   const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-  const randomModel = models[Math.floor(Math.random() * models.length)];
-  const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+  const randomModel = models[Math.floor(Math.random() * prefixes.length)];
+  const randomSuffix = suffixes[Math.floor(Math.random() * prefixes.length)];
 
   return `${randomPrefix} ${randomModel} ${randomSuffix}`;
 };
@@ -84,6 +83,30 @@ function AssetPage() {
   const [balance, setBalance] = useState(0);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [balanceError, setBalanceError] = useState(null);
+
+  // Months array with "All" as the first option
+  const months = ["All", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  // Years array with "All" as the first option
+  const currentYear = new Date().getFullYear();
+  const years = ["All", ...Array.from({ length: 30 }, (_, index) => currentYear - index)];
+
+  // State for selected month and year - set "All" as default
+  const [selectedMonth, setSelectedMonth] = useState("All");
+  const [selectedYear, setSelectedYear] = useState("All");
+
+  // New state for FilterModal
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(0);
+
+  // Update the useEffect when filters change
+  useEffect(() => {
+    // Count active filters (excluding "All")
+    let count = 0;
+    if (selectedMonth !== "All") count++;
+    if (selectedYear !== "All") count++;
+    setActiveFilters(count);
+  }, [selectedMonth, selectedYear]);
 
   // Fetch assets from API
   useEffect(() => {
@@ -195,15 +218,64 @@ function AssetPage() {
   useEffect(() => {
     const filtered = assets.filter((item) => {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      return (
-        item.kode_barang?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        item.nama_barang?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        item.merk_barang?.toLowerCase().includes(lowerCaseSearchTerm)
-      );
+      
+      // First apply the text search filter
+      const matchesSearchTerm = 
+        (item.kode_barang?.toLowerCase() || item.kodeBarang?.toLowerCase() || '').includes(lowerCaseSearchTerm) ||
+        (item.nama_barang?.toLowerCase() || item.namaBarang?.toLowerCase() || '').includes(lowerCaseSearchTerm) ||
+        (item.merk_barang?.toLowerCase() || item.merkBarang?.toLowerCase() || '').includes(lowerCaseSearchTerm);
+      
+      if (!matchesSearchTerm) return false;
+      
+      // Parse date from various formats
+      let itemDate;
+      const dateString = item.tanggal_pembelian || item.tanggal || '';
+      
+      if (!dateString) return true; // Include items with no date when filtering
+      
+      try {
+        // Try to parse DD/MM/YYYY format (common in Indonesia)
+        if (dateString.includes('/')) {
+          const [day, month, year] = dateString.split('/').map(Number);
+          itemDate = new Date(year, month - 1, day); // month is 0-indexed in JS Date
+        } 
+        // Try to parse 'YYYY-MM-DD' format 
+        else if (dateString.includes('-')) {
+          itemDate = new Date(dateString);
+        } 
+        // Default date parser
+        else {
+          itemDate = new Date(dateString);
+        }
+        
+        // Check if date is valid
+        if (isNaN(itemDate.getTime())) {
+          console.warn('Invalid date:', dateString);
+          return true; // Include items with invalid dates when filtering
+        }
+      } catch (error) {
+        console.error('Error parsing date:', dateString, error);
+        return true; // Include items with unparseable dates when filtering
+      }
+      
+      // Get month name
+      const monthName = months[itemDate.getMonth() + 1]; // +1 because our array has "All" at index 0
+      const yearValue = itemDate.getFullYear();
+      
+      console.log(`Item: ${item.nama_barang || item.namaBarang}, Date: ${dateString}, Parsed: ${itemDate.toLocaleDateString()}, Month: ${monthName}, Year: ${yearValue}`);
+      
+      // Apply month filter if not "All"
+      const matchesMonth = selectedMonth === "All" || monthName === selectedMonth;
+      
+      // Apply year filter if not "All"
+      const matchesYear = selectedYear === "All" || yearValue === parseInt(selectedYear);
+      
+      return matchesMonth && matchesYear;
     });
+    
     setFilteredData(filtered);
     setTotalPages(Math.ceil(filtered.length / itemsPerPage));
-  }, [searchTerm, assets]);
+  }, [searchTerm, selectedMonth, selectedYear, assets]);
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -339,43 +411,19 @@ function AssetPage() {
     }
   };
 
-  // State for dropdown visibility
-  const [isMonthDropdownOpen, setIsMonthDropdownOpen] = useState(false);
-  const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
-
-  // Months array
-  const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
-    "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-  // Years array (adjust as needed)
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 30 }, (_, index) => currentYear - index);
-
-  // State for selected month and year
-  const [selectedMonth, setSelectedMonth] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-
-  // Function to toggle month dropdown
-  const toggleMonthDropdown = (isOpen) => {
-    setIsMonthDropdownOpen(isOpen !== undefined ? isOpen : !isMonthDropdownOpen);
-    setIsYearDropdownOpen(false); // Close year dropdown when month is opened
+  // Functions to handle filter modal
+  const openFilterModal = () => {
+    setIsFilterModalOpen(true);
   };
 
-  // Function to toggle year dropdown
-  const toggleYearDropdown = (isOpen) => {
-    setIsYearDropdownOpen(isOpen !== undefined ? isOpen : !isYearDropdownOpen);
-    setIsMonthDropdownOpen(false); // Close month dropdown when year is opened
+  const closeFilterModal = () => {
+    setIsFilterModalOpen(false);
   };
 
-  // Function to handle month selection
-  const handleMonthSelect = (month) => {
-    setSelectedMonth(month);
-    console.log("Selected month:", month);
-  };
-
-  // Function to handle year selection
-  const handleYearSelect = (year) => {
-    setSelectedYear(year);
-    console.log("Selected year:", year);
+  const applyFilters = () => {
+    // Reset to first page when filters are applied
+    setCurrentPage(1);
+    // Filtering logic is already handled by the useEffect
   };
 
   // State for InfoBA modal
@@ -486,6 +534,22 @@ function AssetPage() {
     setSearchTerm(e.target.value);
   };
 
+  // Function to handle month selection
+  const handleMonthSelect = (month) => {
+    console.log("Selected month:", month);
+    setSelectedMonth(month);
+    // Reset to first page when filter changes
+    setCurrentPage(1);
+  };
+
+  // Function to handle year selection
+  const handleYearSelect = (year) => {
+    console.log("Selected year:", year);
+    setSelectedYear(year);
+    // Reset to first page when filter changes
+    setCurrentPage(1);
+  };
+
   return (
     <div className="asset-home-container">
       <Sidebar />
@@ -499,35 +563,29 @@ function AssetPage() {
           <>
             <div className="header">
               <h2 style={{ marginRight: "10px" }}>Asset</h2>
-              {/* Add balance display */}
               
               <div className="header-buttons">
                 <SearchBar
                   searchTerm={searchTerm}
-                  handleSearchChange={handleSearchChange}  />
+                  handleSearchChange={handleSearchChange} />
 
-                <Dropdown
-                  options={months}
-                  isOpen={isMonthDropdownOpen}
-                  toggleDropdown={toggleMonthDropdown}
-                  handleSelect={handleMonthSelect}
-                  buttonContent={<><img src={calendarMonth} alt="CalendarMonth" /> {selectedMonth || "Januari"}</>}
-                />
-
-                <Dropdown
-                  options={years}
-                  isOpen={isYearDropdownOpen}
-                  toggleDropdown={toggleYearDropdown}
-                  handleSelect={handleYearSelect}
-                  buttonContent={<><img src={calendarYear} alt="CalendarYear" /> {selectedYear || currentYear}</>}
-                />
+                <button 
+                  className={`filter-button ${activeFilters > 0 ? 'active' : ''}`} 
+                  onClick={openFilterModal}
+                >
+                  <img src={filterIcon} alt="Filter" />
+                  Filter
+                  {activeFilters > 0 && (
+                    <span className="filter-badge">{activeFilters}</span>
+                  )}
+                </button>
 
                 <button 
                   className="main-button export-button" 
                   onClick={exportToExcel}
                   disabled={isLoading || filteredData.length === 0}
                 >
-                  <i className="fas fa-file-export"></i> Export Excel
+                  <i className="fas fa-file-export"></i> Export 
                 </button>
 
                 <button className="main-button" onClick={() => openModal()}>
@@ -551,7 +609,6 @@ function AssetPage() {
               <div className="total-value">Total: Rp. {totalValue.toLocaleString("id-ID")}</div>
             </div>
 
-            {/* Use the ModalAssetPage component with edit mode */}
             <ModalAssetPage
               isOpen={isModalOpen}
               closeModal={closeModal}
@@ -562,14 +619,24 @@ function AssetPage() {
               isEditMode={isEditMode}
             />
 
-            {/* InfoBA Modal */}
+            <FilterModal
+              isOpen={isFilterModalOpen}
+              closeModal={closeFilterModal}
+              months={months}
+              years={years}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              handleMonthSelect={handleMonthSelect}
+              handleYearSelect={handleYearSelect}
+              applyFilters={applyFilters}
+            />
+
             <InfoBA
               isOpen={isInfoBAOpen}
               closeModal={closeInfoBA}
               bpaData={selectedBPAData}
             />
 
-            {/* InfoAset Modal */}
             <InfoAset
               isOpen={isInfoAsetOpen}
               closeModal={closeInfoAset}

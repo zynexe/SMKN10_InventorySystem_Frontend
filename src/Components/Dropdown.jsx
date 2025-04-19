@@ -27,7 +27,8 @@ function Dropdown({
         <div className="dropdown-container" ref={dropdownRef}>
             <button 
               className={`secondary-button ${selected ? 'active' : ''}`} 
-              onClick={toggleDropdown}
+              onClick={() => toggleDropdown()}
+              type="button"
             >
                 {buttonContent}
             </button>
@@ -36,8 +37,12 @@ function Dropdown({
                     {options.map((option) => (
                         <button
                             key={option}
-                            onClick={() => { handleSelect(option); toggleDropdown(false); }}
+                            onClick={() => { 
+                              handleSelect(option); 
+                              toggleDropdown(false); 
+                            }}
                             className={`dropdown-item ${option === selected ? 'selected' : ''}`}
+                            type="button"
                         >
                             {option}
                         </button>

@@ -83,8 +83,9 @@ function Sidebar() {
                             Gedung
                         </a>
                     </li>
-                
                 </ul>
+              
+                <div style={{ flexGrow: 1 }}></div>
                 <div className="switch-system">
                     <button onClick={() => { navigate("/choose-system"); toggleSidebar(); }}>
                         <img src={switchIcon} alt="Switch System" className="icon" />
