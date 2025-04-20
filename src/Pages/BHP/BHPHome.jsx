@@ -14,9 +14,9 @@ import {
   addBalance, 
   updateBalance, 
   getAssets,
-  getCurrentTotals,  // New import
-  getTotalAssetCount, // New import
-  getTotalGedungCount, // New import
+  getCurrentTotals,
+  getTotalAssetCount,
+  getTotalGedungCount,
   getTotalPriceByYear
 } from "../../services/api";
 
@@ -310,50 +310,48 @@ function AssetHome() {
     };
 
     return (
-        <div className="asset-home-container">
+        <div className="flex h-screen w-screen m-0 font-['DM_Sans']">
             {/* Sidebar/Navbar */}
             <SidebarBHP />
             <ProfileBar />
             {/* Main Content */}
-            <div className="main-content">
-
-                <div className="header">
-                    <h2>Home</h2>
+            <div className="flex-1 p-5 overflow-y-auto bg-[#f5f8ff]">
+                <div className="flex justify-between items-center mb-3">
+                    <h2 className="text-xl font-semibold">Home</h2>
                 </div>
-                <div className="content">
-                  
-                    <div className="dashboard-cards">
+                <div>
+                    <div className="flex gap-1">
                         <div 
-                            className="card clickable" 
+                            className="bg-white rounded-xl border border-[#e2e2e2] p-5 flex-1 text-left cursor-pointer transition-all hover:text-[#E0E0E0]"
                             onClick={() => setIsBalanceModalOpen(true)}
                         >
-                            <h3>Balance</h3>
+                            <h3 className="text-base font-bold mb-5 text-[#939393] transition-colors hover:text-black">Balance</h3>
                             {isLoadingBalance ? (
-                                <p>Loading...</p>
+                                <p className="animate-pulse text-gray-500">Loading...</p>
                             ) : balanceError ? (
-                                <p className="error-text">Error loading balance</p>
+                                <p className="text-red-600">Error loading balance</p>
                             ) : (
-                                <p>Rp. {balance.toLocaleString('id-ID')}</p>
+                                <p className="text-base font-bold mb-5 text-black">Rp. {balance.toLocaleString('id-ID')}</p>
                             )}
                         </div>
-                        <div className="card non-clickable">
-                            <h3>Rekap Tahunan</h3>
+                        <div className="bg-white rounded-xl border border-[#e2e2e2] p-5 flex-1 text-left">
+                            <h3 className="text-base font-bold mb-5 text-[#939393]">Rekap Tahunan</h3>
                             {loadingStats ? (
-                                <p>Loading...</p>
+                                <p className="animate-pulse text-gray-500">Loading...</p>
                             ) : statsError ? (
-                                <p className="error-text">Error loading data</p>
+                                <p className="text-red-600">Error loading data</p>
                             ) : (
-                                <p>Rp. {rekapTahunan.toLocaleString('id-ID')}</p>
+                                <p className="text-base font-bold mb-5 text-black">Rp. {rekapTahunan.toLocaleString('id-ID')}</p>
                             )}
                         </div>
-                        <div className="card non-clickable">
-                            <h3>Rekap Bulanan</h3>
+                        <div className="bg-white rounded-xl border border-[#e2e2e2] p-5 flex-1 text-left">
+                            <h3 className="text-base font-bold mb-5 text-[#939393]">Rekap Bulanan</h3>
                             {loadingStats ? (
-                                <p>Loading...</p>
+                                <p className="animate-pulse text-gray-500">Loading...</p>
                             ) : statsError ? (
-                                <p className="error-text">Error loading data</p>
+                                <p className="text-red-600">Error loading data</p>
                             ) : (
-                                <p>Rp. {rekapBulanan.toLocaleString('id-ID')}</p>
+                                <p className="text-base font-bold mb-5 text-black">Rp. {rekapBulanan.toLocaleString('id-ID')}</p>
                             )}
                         </div>
                     </div>
@@ -367,46 +365,53 @@ function AssetHome() {
                         isLoading={isLoadingBalance}
                     />
 
-                    <div className="chart-container">
-                        <div className="chart-header">
-                            <h3>Monthly Expenses</h3>
+                    <div className="mb-5">
+                        <div className="flex justify-between items-center mb-2.5">
+                            <h3 className="font-semibold">Monthly Expenses</h3>
                             <Dropdown
                                 options={years}
                                 isOpen={isYearDropdownOpen}
                                 toggleDropdown={toggleYearDropdown}
                                 handleSelect={handleYearSelect}
-                                buttonContent={<><img src={calendarYear} alt="CalendarYear" /> {selectedYear || currentYear}</>}
+                                buttonContent={<>
+                                    <img src={calendarYear} alt="CalendarYear" className="w-5 h-5" /> 
+                                    {selectedYear || currentYear}
+                                </>}
                             />
                         </div>
-                        <div ref={chartRef} className="apex-chart-wrapper"></div>
+                        <div ref={chartRef} className="rounded-2xl shadow-md overflow-hidden bg-white p-6"></div>
                     </div>
                     
-                    <div className="header">
-                        <h3>Asset Statistics</h3>
+                    <div className="mb-3">
+                        <h3 className="font-semibold">Asset Statistics</h3>
                     </div>
-                    <div className="dashboard-cards">
-                        <div className="card-statistic" onClick={() => handleCardClick("/gedung")}>
-                            <h3>
-                                Total Gedung <span className="card-arrow">→</span>
+                    <div className="flex gap-1">
+                        <div className="border border-[#e2e2e2] bg-white p-8 rounded-xl flex-1 text-left cursor-pointer transition-bg hover:bg-[#fafafa]" 
+                             onClick={() => handleCardClick("/gedung")}>
+                            <h3 className="flex justify-between items-center m-1 text-[#686868]">
+                                Total Gedung 
+                                <span className="text-lg ml-2.5 transition-transform duration-200">→</span>
                             </h3>
                             {loadingStats ? (
-                                <h2>Loading...</h2>
+                                <h2 className="animate-pulse text-gray-500">Loading...</h2>
                             ) : statsError ? (
-                                <h2 className="error-text">Error</h2>
+                                <h2 className="text-red-600">Error</h2>
                             ) : (
-                                <h2>{totalGedung}</h2>
+                                <h2 className="m-1">{totalGedung}</h2>
                             )}
                         </div>
-                        <div className="card-statistic" onClick={() => handleCardClick("/asset-page")}>
-                            <h3>
-                                Total Item <span className="card-arrow">→</span>
+                        <div className="border border-[#e2e2e2] bg-white p-8 rounded-xl flex-1 text-left cursor-pointer transition-bg hover:bg-[#fafafa]"
+                             onClick={() => handleCardClick("/asset-page")}>
+                            <h3 className="flex justify-between items-center m-1 text-[#686868]">
+                                Total Item
+                                <span className="text-lg ml-2.5 transition-transform duration-200">→</span>
                             </h3>
                             {loadingStats ? (
-                                <h2>Loading...</h2>
+                                <h2 className="animate-pulse text-gray-500">Loading...</h2>
                             ) : statsError ? (
-                                <h2 className="error-text">Error</h2>
+                                <h2 className="text-red-600">Error</h2>
                             ) : (
-                                <h2>{totalItems}</h2>
+                                <h2 className="m-1">{totalItems}</h2>
                             )}
                         </div>
                     </div>
