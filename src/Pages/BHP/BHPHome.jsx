@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ApexCharts from 'apexcharts'
-import '../../CSS/Asset.css'; 
+
 import { useNavigate } from "react-router-dom";
 import calendarYear from "../../assets/calenderYear.png"; 
 import SidebarBHP from '../../Layout/SidebarBHP'; 

@@ -64,6 +64,7 @@
   .switch-system {
     margin-top: auto; /* Push to bottom of sidebar */
     padding: 10px;
+    justify-content: end;
   }
   
   
