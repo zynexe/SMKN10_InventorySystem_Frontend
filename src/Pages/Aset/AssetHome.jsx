@@ -339,7 +339,8 @@ function AssetHome() {
                                 <p>Rp. {balance.toLocaleString('id-ID')}</p>
                             )}
                         </div>
-                        <div className="card non-clickable">
+                        <div className="card non-clickable tooltip-container">
+                            <div className="tooltip">Total expenses for {currentYear}</div>
                             <h3>Rekap Tahunan</h3>
                             {loadingStats ? (
                                 <p>Loading...</p>
@@ -349,7 +350,10 @@ function AssetHome() {
                                 <p>Rp. {rekapTahunan.toLocaleString('id-ID')}</p>
                             )}
                         </div>
-                        <div className="card non-clickable">
+                        <div className="card non-clickable tooltip-container">
+                            <div className="tooltip">
+                                Total expenses for {new Date().toLocaleString('default', { month: 'long' })} {currentYear}
+                            </div>
                             <h3>Rekap Bulanan</h3>
                             {loadingStats ? (
                                 <p>Loading...</p>

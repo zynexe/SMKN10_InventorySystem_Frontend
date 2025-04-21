@@ -425,7 +425,49 @@
     color: #000000;
   }
 
-  .card-statistic { /* Changed class name here */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.tooltip-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  z-index: 10;
+  background-color:#063a88;
+  color: white;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  width: max-content;
+  max-width: 200px;
+  pointer-events: none;
+}
+
+/* Arrow for tooltip */
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #063a88 transparent transparent transparent;
+}
+  .card-statistic { 
     border: 1px solid #e2e2e2;
     background-color: #ffffff;
     padding: 32px 24px;
@@ -436,19 +478,19 @@
     transition: background-color 0.2s;
 }
 
-.card-statistic:hover { /* Changed class name here */
+.card-statistic:hover {
     background-color: #fafafa;
   
 }
 
-.card-statistic h3 { /* Changed class name here */
+.card-statistic h3 { 
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 4px 0;
     color: #686868;
 }
-.card-statistic h2 { /* Changed class name here */
+.card-statistic h2 { 
 
   margin: 4px 0;
 }
@@ -459,14 +501,14 @@
     transition: transform 0.2s ease;
 }
 
-.card-statistic:hover .card-arrow { /* Changed class name here */
+.card-statistic:hover .card-arrow { 
     transform: translateX(5px);
     
 }
 
   
 .chart-container {
-  margin-bottom: 20px; /* Space below the chart */
+  margin-bottom: 20px; 
 }
 
 .chart-header {
@@ -478,8 +520,8 @@
 }
 
 .apex-chart-wrapper {
-  border-radius: 16px; /* Rounded corners */
-  overflow: hidden; /* Ensure fill color doesn't overflow rounded corners */
+  border-radius: 16px; 
+  overflow: hidden; 
   background-color: #fff;
   padding: 24px 16px;
   border: #e2e2e2 1px solid;
