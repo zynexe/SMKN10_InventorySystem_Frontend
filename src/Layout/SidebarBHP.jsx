@@ -76,11 +76,11 @@ function Sidebar() {
                     <li>
                         <a
                             href="#"
-                            onClick={() => { navigate("/lacak"); toggleSidebar(); }}
-                            className={location.pathname === "/lacak" ? "active" : ""}
+                            onClick={() => { navigate("/riwayat"); toggleSidebar(); }}
+                            className={location.pathname === "/riwayat" ? "active" : ""}
                         >
                             <img src={gedungIcon} alt="Gedung" className="icon" />
-                            Lacak Barang
+                            Riwayat
                         </a>
                     </li>
                 

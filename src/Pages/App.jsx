@@ -11,7 +11,7 @@ import AssetPage from './Aset/AssetPage';
 // BHP imports
 import BHPHome from './BHP/BHPHome';
 import BHPPage from './BHP/BHPPage';
-import Lacak from './BHP/Lacak';
+import Riwayat from './BHP/Riwayat';
 import Rekening from './BHP/Rekening';
 
 // Other page imports
@@ -108,7 +108,7 @@ function App() {
             <Route path="/kode-barang" element={<KodeBarang />} />
             <Route path="/ProfilePage" element={<ProfilePage />} />
             <Route path="/bhp-page" element={<BHPPage />} />
-            <Route path="/lacak" element={<Lacak />} />
+            <Route path="/riwayat" element={<Riwayat />} />
             <Route path="/kode-rekening" element={<Rekening />} />
           </Route>
         </Routes>
