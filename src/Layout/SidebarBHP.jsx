@@ -4,8 +4,7 @@ import logo from '../assets/logo.png';
 import homeIcon from '../assets/home.png'; 
 import assetIcon from '../assets/asset.png'; 
 import kodeRekeningIcon from '../assets/kode-rekening.png'; 
-import gedungIcon from '../assets/gedung.png'; 
-import profileIcon from '../assets/profile.png'; 
+import RiwayatIcon from '../assets/riwayat.svg';
 import switchIcon from '../assets/switch.png'; 
 import '../CSS/Asset.css';
 
@@ -79,7 +78,7 @@ function Sidebar() {
                             onClick={() => { navigate("/riwayat"); toggleSidebar(); }}
                             className={location.pathname === "/riwayat" ? "active" : ""}
                         >
-                            <img src={gedungIcon} alt="Gedung" className="icon" />
+                            <img src={RiwayatIcon} alt="Riwayat" className="icon" />
                             Riwayat
                         </a>
                     </li>
