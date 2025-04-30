@@ -62,8 +62,9 @@
   }
   
   .switch-system {
-    margin-top: auto; /* Push to bottom of sidebar */
+    margin-top: auto; 
     padding: 10px;
+    display: flex;
   }
   
   

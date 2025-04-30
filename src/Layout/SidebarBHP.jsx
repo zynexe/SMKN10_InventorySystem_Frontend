@@ -6,7 +6,7 @@ import assetIcon from '../assets/asset.png';
 import kodeRekeningIcon from '../assets/kode-rekening.png'; 
 import RiwayatIcon from '../assets/riwayat.svg';
 import switchIcon from '../assets/switch.png'; 
-import '../CSS/Asset.css';
+
 
 function Sidebar() {
     const navigate = useNavigate();
@@ -84,6 +84,7 @@ function Sidebar() {
                     </li>
                 
                 </ul>
+                <div style={{ flexGrow: 1 }}></div>
                 <div className="switch-system">
                     <button onClick={() => { navigate("/choose-system"); toggleSidebar(); }}>
                         <img src={switchIcon} alt="Switch System" className="icon" />
