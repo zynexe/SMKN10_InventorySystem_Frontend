@@ -279,10 +279,78 @@ export const importKodeBarang = async (file) => {
   }
 };
 
+// Kode Rekening API functions
+export const getKodeRekenings = async () => {
+  try {
+    const response = await api.get('/kode-rekening/index');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching kode rekening:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const addKodeRekening = async (kodeRekeningData) => {
+  try {
+    const payload = {
+      kode: kodeRekeningData.kode,
+      uraian: kodeRekeningData.uraian
+    };
+    
+    const response = await api.post('/kode-rekening', payload);
+    return response.data;
+  } catch (error) {
+    logApiError(error, 'Adding kode rekening');
+    throw error;
+  }
+};
+
+export const updateKodeRekening = async (id, kodeRekeningData) => {
+  try {
+    const payload = {
+      kode: kodeRekeningData.kode,
+      uraian: kodeRekeningData.uraian
+    };
+    
+    const response = await api.put(`/kode-rekening/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating kode rekening:', error);
+    throw error;
+  }
+};
+
+export const deleteKodeRekening = async (id) => {
+  try {
+    const response = await api.delete(`/kode-rekening/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting kode rekening:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const importKodeRekening = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file); // Changed from 'xlsx_file' to 'file'
+    
+    const response = await api.post('/kode-rekening/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error importing kode rekening:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
 export default api;
 
 
-// Add these functions to your api.js file
+
 
 // Change username
 export const changeUsername = async (newName) => {
@@ -402,8 +470,6 @@ export const updateBalance = async (amount) => {
   }
 };
 
-// Add these API functions for dashboard statistics
-
 // Get rekap bulanan & tahunan combined
 export const getCurrentTotals = async () => {
   try {
@@ -442,8 +508,6 @@ export const getTotalGedungCount = async () => {
     throw error;
   }
 };
-
-// Add this function to your existing API service
 
 export const getGedungStats = async (gedungId) => {
   try {
