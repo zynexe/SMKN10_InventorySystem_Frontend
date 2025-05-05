@@ -7,6 +7,7 @@ import SidebarBHP from '../../Layout/SidebarBHP';
 import Dropdown from "../../Components/Dropdown"; 
 import ProfileBar from "../../Components/ProfileBar"; 
 import BalanceModal from "../../Components/BalanceModal";
+import api from '../../services/api'; 
 
 function BHPHome() {
     const navigate = useNavigate();
@@ -22,12 +23,13 @@ function BHPHome() {
     const [totalPeminjam, setTotalPeminjam] = useState(42);
     const [totalItems, setTotalItems] = useState(156);
     
-    // No loading state needed for dummy data
     const [loadingStats, setLoadingStats] = useState(false);
     const [statsError, setStatsError] = useState(null);
     
-    // Dummy data for expenses chart
-    const [expensesData, setExpensesData] = useState({});
+    // Expense data from API
+    const [monthlyExpenses, setMonthlyExpenses] = useState({});
+    const [loadingChart, setLoadingChart] = useState(false);
+    const [chartError, setChartError] = useState(null);
     
     // Dummy balance
     const [balance, setBalance] = useState(5000000);
@@ -35,35 +37,57 @@ function BHPHome() {
     const [isLoadingBalance, setIsLoadingBalance] = useState(false);
     const [balanceError, setBalanceError] = useState(null);
     
-    // Generate dummy expenses data
+    // Fetch monthly expenses data from the API
     useEffect(() => {
-        // Create dummy expenses data for all years
-        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", 
-                       "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const fetchMonthlyExpenses = async () => {
+            setLoadingChart(true);
+            setChartError(null);
+            
+            try {
+                // Use the api service instead of axios directly
+                const response = await api.get(`/bhp/total-harga/${selectedYear}`);
+                console.log('API Response:', response.data); // Debug log
+                
+                // No need to check if it's an array since we know it's an object
+                setMonthlyExpenses(response.data);
+            } catch (error) {
+                console.error("Error fetching monthly expenses:", error);
+                setChartError("Failed to load expense data");
+                setMonthlyExpenses({});
+            } finally {
+                setLoadingChart(false);
+            }
+        };
         
-        const expenses = {};
-        
-        // Generate random data for each year and month
-        years.forEach(year => {
-            expenses[year] = months.map(month => {
-                // Generate higher values for the current year
-                let baseValue = year === currentYear ? 5000000 : 3000000;
-                // Random variation between 0.5x and 1.5x of base value
-                let randomFactor = 0.5 + Math.random();
-                return {
-                    month,
-                    expenses: Math.round(baseValue * randomFactor)
-                };
-            });
-        });
-        
-        setExpensesData(expenses);
-    }, []);
+        fetchMonthlyExpenses();
+    }, [selectedYear]);
 
     // Render chart when expenses data or selected year changes
     useEffect(() => {
-        if (chartRef.current && expensesData[selectedYear]) {
-            const yearData = expensesData[selectedYear] || [];
+        if (chartRef.current && !loadingChart && !chartError) {
+            // Clear previous chart
+            while (chartRef.current.firstChild) {
+                chartRef.current.removeChild(chartRef.current.firstChild);
+            }
+            
+            // Format monthly data for the chart based on the object structure
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            
+            // Extract values from the monthlyExpenses object using padded month numbers (01, 02, etc.)
+            const monthlyData = months.map((month, index) => {
+                // Create padded month number (01, 02, etc.)
+                const paddedMonth = String(index + 1).padStart(2, '0');
+                
+                // Get value from the API response or use 0 if not found
+                const expenseValue = monthlyExpenses?.monthly_totals?.[paddedMonth] || 0;
+                
+                return {
+                    month,
+                    expenses: parseFloat(expenseValue)
+                };
+            });
+            
+            console.log('Processed monthly data:', monthlyData);
             
             const chart = new ApexCharts(chartRef.current, {
                 chart: {
@@ -80,7 +104,7 @@ function BHPHome() {
                     curve: 'smooth'
                 },
                 xaxis: {
-                    categories: yearData.map(item => item.month)
+                    categories: months
                 },
                 yaxis: {
                     title: {
@@ -88,7 +112,7 @@ function BHPHome() {
                     },
                     labels: {
                         formatter: function (value) {
-                            return "Rp. " + (value / 1000000).toFixed(0) + "M";
+                            return "Rp. " + (value / 1000000).toFixed(1) + "M";
                         }
                     }
                 },
@@ -102,7 +126,7 @@ function BHPHome() {
                 series: [
                     {
                         name: `Monthly Expenses ${selectedYear}`,
-                        data: yearData.map(item => item.expenses)
+                        data: monthlyData.map(item => item.expenses)
                     }
                 ]
             });
@@ -113,7 +137,7 @@ function BHPHome() {
                 chart.destroy();
             };
         }
-    }, [selectedYear, expensesData]);
+    }, [monthlyExpenses, loadingChart, chartError]);
 
     // Function to toggle year dropdown
     const toggleYearDropdown = (isOpen) => {
@@ -216,7 +240,13 @@ function BHPHome() {
                                 buttonContent={<><img src={calendarYear} alt="CalendarYear" /> {selectedYear || currentYear}</>}
                             />
                         </div>
-                        <div ref={chartRef} className="apex-chart-wrapper"></div>
+                        {loadingChart ? (
+                            <div className="chart-loading">Loading expense data...</div>
+                        ) : chartError ? (
+                            <div className="chart-error">{chartError}</div>
+                        ) : (
+                            <div ref={chartRef} className="apex-chart-wrapper"></div>
+                        )}
                     </div>
                     
                     <div className="header">

@@ -204,35 +204,72 @@ function BHPPage() {
   // Update your search effect to preserve filter behavior
   useEffect(() => {
     if (assets.length > 0) {
-      // If there's no search term and filters are "All", just use the assets
+      console.log('Search term changed to:', searchTerm);
+      
+      // If there's no search term, just apply existing filters
       if (!searchTerm.trim()) {
         applyFiltersWithData(assets);
         return;
       }
       
       // Otherwise, apply search first
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
       const searchFiltered = assets.filter((item) => {
-        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        // Check multiple field names with fallbacks
+        const namaBarang = (item.nama_barang || item['Nama Barang'] || '').toLowerCase();
+        const kodeRekening = (item.kode_rekening || item['Kode Rekening'] || '').toLowerCase();
+        const merk = (item.merk || item.Merk || '').toLowerCase();
+        
+        // Log what we're searching in
+        console.log(`Searching "${lowerCaseSearchTerm}" in: ${namaBarang}, ${kodeRekening}, ${merk}`);
+        
         return (
-          (item.nama_barang?.toLowerCase() || '').includes(lowerCaseSearchTerm) ||
-          (item.kode_rekening?.toLowerCase() || '').includes(lowerCaseSearchTerm) ||
-          (item.merk?.toLowerCase() || '').includes(lowerCaseSearchTerm)
+          namaBarang.includes(lowerCaseSearchTerm) ||
+          kodeRekening.includes(lowerCaseSearchTerm) ||
+          merk.includes(lowerCaseSearchTerm)
         );
       });
+      
+      console.log(`Search found ${searchFiltered.length} items from ${assets.length} total`);
       
       // Then apply date filters to the search results
       applyFiltersWithData(searchFiltered);
     }
   }, [searchTerm, assets]);
 
+  // Update the handleSearchChange function
+  const handleSearchChange = (e) => {
+    console.log('Search input changed:', e.target.value);
+    setSearchTerm(e.target.value);
+    // Reset to the first page when searching
+    setCurrentPage(1);
+  };
+
   // Calculate total value
   useEffect(() => {
     let overallTotal = 0;
+    
     filteredData.forEach((item) => {
-      const stockAkhir = item.stock_akhir || item.stockAkhir || item.stock_awal || 0;
-      const hargaSatuan = item.harga_satuan || 0;
-      overallTotal += hargaSatuan * stockAkhir;
+      // Get stock akhir - use the highest value available
+      const stockAkhir = Math.max(
+        parseInt(item.stock_akhir || 0), 
+        parseInt(item['Stock Akhir'] || 0)
+      );
+      
+      // Get harga satuan with fallbacks
+      const hargaSatuan = parseInt(item.harga_satuan || item['Harga Satuan'] || 0);
+      
+      // Calculate total value for this item
+      const itemTotal = stockAkhir * hargaSatuan;
+      
+      // Add to overall total
+      overallTotal += itemTotal;
+      
+      // Debug log to see what's being calculated
+      console.log(`Item: ${item.nama_barang}, Stock: ${stockAkhir}, Harga: ${hargaSatuan}, Total: ${itemTotal}`);
     });
+    
+    console.log('Total value calculated:', overallTotal);
     setTotalValue(overallTotal);
   }, [filteredData]);
 
@@ -414,11 +451,6 @@ function BHPPage() {
     if (selectedYear !== "All") count++;
     setActiveFilters(count);
   }, [selectedMonth, selectedYear]);
-
-  // Handle search change
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
 
   // Export to Excel function
   const exportToExcel = () => {

@@ -78,35 +78,36 @@ function Riwayat() {
   // Search functionality
   useEffect(() => {
     if (riwayat.length > 0) {
+      console.log('Filtering with search term:', searchTerm);
+      
+      // If search term is empty, show all data
+      if (!searchTerm.trim()) {
+        setFilteredData(riwayat);
+        setTotalPages(Math.ceil(riwayat.length / itemsPerPage));
+        return;
+      }
+      
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      
       const filtered = riwayat.filter((item) => {
-        if (!searchTerm.trim()) return true;
-        
-        const lowerCaseSearchTerm = searchTerm.toLowerCase();
-        
-        // Search across all possible text fields
-        const searchFields = [
-          item.nama_barang, 
-          item.bhp?.nama_barang,
-          item.name,
-          item.kode_rekening, 
-          item.bhp?.kode_rekening,
-          item.code,
-          item.merk, 
-          item.bhp?.merk,
-          item.taker_name, 
-          item.peminjam,
-          item.user,
-          item.username
-        ];
-        
-        return searchFields.some(field => 
-          field && field.toString().toLowerCase().includes(lowerCaseSearchTerm)
+        // Check all relevant fields in the item 
+        // Use the field names that match your API response
+        return (
+          // Search in Nama Barang
+          (item['Nama Barang']?.toLowerCase().includes(lowerCaseSearchTerm) || false) ||
+          // Search in Kode Rekening
+          (item['Kode Rekening']?.toLowerCase().includes(lowerCaseSearchTerm) || false) ||
+          // Search in Merk
+          (item.Merk?.toLowerCase().includes(lowerCaseSearchTerm) || false) ||
+          // Search in Peminjam
+          (item.Peminjam?.toLowerCase().includes(lowerCaseSearchTerm) || false)
         );
       });
       
+      console.log('Filtered data count:', filtered.length);
       setFilteredData(filtered);
       setTotalPages(Math.ceil(filtered.length / itemsPerPage));
-      setCurrentPage(1); // Reset to page 1 when search changes
+      setCurrentPage(1); // Reset to first page when search changes
     }
   }, [searchTerm, riwayat, itemsPerPage]);
 
@@ -115,15 +116,23 @@ function Riwayat() {
 
   useEffect(() => {
     let overallTotal = 0;
+    
     filteredData.forEach((item) => {
-      // Get Total value directly from API response
-      const totalValue = parseInt(item.Total || 0);
-      overallTotal += totalValue;
+      // Look for the jumlah akhir value from the API response
+      // This could be named "Total", but we want to make sure we get the actual value
+      const itemTotal = parseInt(item.Total || 0);
+      
+      if (!isNaN(itemTotal)) {
+        overallTotal += itemTotal;
+      }
     });
+    
+    console.log('Calculated total value:', overallTotal);
     setTotalValue(overallTotal);
   }, [filteredData]);
 
   const handleSearchChange = (e) => {
+    console.log('Search term changed:', e.target.value);
     setSearchTerm(e.target.value);
   };
 
