@@ -13,6 +13,7 @@ import BHPHome from './BHP/BHPHome';
 import BHPPage from './BHP/BHPPage';
 import Riwayat from './BHP/Riwayat';
 import Rekening from './BHP/Rekening';
+import BHPProfilePage from './BHP/BHPProfilePage';
 
 // Other page imports
 import Gedung from './Aset/Gedung'; 
@@ -110,6 +111,7 @@ function App() {
             <Route path="/bhp-page" element={<BHPPage />} />
             <Route path="/riwayat" element={<Riwayat />} />
             <Route path="/kode-rekening" element={<Rekening />} />
+            <Route path="/bhp-profile" element={<BHPProfilePage />} />
           </Route>
         </Routes>
       </Router>

@@ -349,8 +349,137 @@ export const importKodeRekening = async (file) => {
 
 export default api;
 
+// BHP API functions
+export const getBHPs = async () => {
+  try {
+    console.log('Fetching BHP items...');
+    const response = await api.get('/bhp/index');
+    
+    console.log('BHP API Response:', response);
+    
+    let bhpItems = [];
+    
+    // Process data to normalize fields
+    if (response.data && Array.isArray(response.data)) {
+      bhpItems = response.data.map(item => ({
+        ...item,
+        // Use Volume field if available for stock_awal 
+        stock_awal: item.Volume || item.volume || item.initial_volume || 0,
+        // Make stock_akhir match stock_awal initially unless explicitly set
+        stock_akhir: item.total_volume || item.Volume || item.volume || item.initial_volume || 0,
+      }));
+    } else if (Array.isArray(response)) {
+      bhpItems = response.map(item => ({
+        ...item,
+        stock_awal: item.Volume || item.volume || item.initial_volume || 0,
+        stock_akhir: item.total_volume || item.Volume || item.volume || item.initial_volume || 0,
+      }));
+    }
+    
+    console.log('Processed BHP items:', bhpItems);
+    return bhpItems;
+  } catch (error) {
+    console.error('Error fetching BHP items:', error);
+    throw error;
+  }
+};
 
+export const addBHPManually = async (bhpData) => {
+  try {
+    console.log('Adding BHP item manually:', bhpData);
+    
+    // Prepare the payload according to the API requirements
+    const payload = {
+      nama_barang: bhpData.nama_barang,
+      kode_rekening: bhpData.kode_rekening,
+      merk: bhpData.merk,
+      volume: parseInt(bhpData.stock_awal) || 0,
+      satuan: bhpData.satuan || 'Pcs',
+      harga: parseInt(bhpData.harga_satuan) || 0
+    };
+    
+    console.log('API payload:', payload);
+    
+    // Call the actual API endpoint
+    const response = await api.post('/bhp', payload);
+    console.log('API response:', response);
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error adding BHP manually:', error);
+    throw error;
+  }
+};
 
+export const removeBHP = async (id, data = {}) => {
+  try {
+    console.log(`Removing BHP item with ID: ${id}`, data);
+    
+    const payload = {};
+    if (data.volume) payload.volume = data.volume;
+    if (data.taker_name) payload.taker_name = data.taker_name;
+    
+    const response = await api.post(`/bhp/remove/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('Error removing BHP item:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const importBHP = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await api.post('/bhp/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
+    console.log("Import BHP response:", response);
+    
+    // The backend returns a success message but not the data
+    // We need to fetch the updated data after import
+    if (response.data && response.data.message && response.data.message.includes('success')) {
+      // Fetch fresh data after successful import
+      const freshData = await getBHPs();
+      return freshData;
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error importing BHP items:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+//get BHP history
+export const getBHPRiwayat = async () => {
+  try {
+    console.log('Fetching BHP riwayat...');
+    const response = await api.get('/bhp/riwayat');
+    console.log('BHP Riwayat Response:', response);
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching BHP riwayat:', error);
+    throw error;
+  }
+};
+
+// Undo BHP removal (return items to inventory)
+export const undoBHPRemoval = async (id) => {
+  try {
+    console.log(`Undoing BHP removal with ID: ${id}`);
+    const response = await api.post(`/bhp/undo-remove/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error undoing BHP removal:', error);
+    throw error;
+  }
+};
 
 // Change username
 export const changeUsername = async (newName) => {

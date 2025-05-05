@@ -1608,3 +1608,84 @@ button:disabled {
   font-size: 12px;
   margin-left: 4px;
 }
+/* Add this to your existing Asset.css file */
+
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.no-data-message p {
+  margin-bottom: 20px;
+  color: #666;
+  font-size: 16px;
+}
+
+.retry-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+  background-color: #e0e0e0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff0f0;
+  border: 1px solid #ffcccc;
+  border-radius: 4px;
+  color: #cc0000;
+  margin: 20px 0;
+}
+
+.decrement-column {
+  text-align: center;
+}
+
+.action-button.decrement {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.action-button.decrement:hover {
+  background-color: #f57c00;
+}
+
+.action-button.decrement:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Add some spacing to the table header */
+.table th, .table td {
+  padding: 10px 8px;
+}

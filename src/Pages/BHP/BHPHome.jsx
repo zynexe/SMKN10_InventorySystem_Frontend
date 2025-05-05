@@ -151,7 +151,7 @@ function BHPHome() {
         <div className="asset-home-container">
             {/* Sidebar/Navbar */}
             <SidebarBHP />
-            <ProfileBar />
+            <ProfileBar isBHP={true} />
             {/* Main Content */}
             <div className="main-content">
 

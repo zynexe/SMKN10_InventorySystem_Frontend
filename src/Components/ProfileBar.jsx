@@ -4,13 +4,13 @@ import profileLogo from '../assets/profile.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { logout } from '../services/api';
-import { useUser } from '../context/UserContext'; // Import the context hook
+import { useUser } from '../context/UserContext';
 
-function ProfileBar() {
+function ProfileBar({ isBHP = false }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
-    const { user, loading } = useUser(); // Get user data from context
+    const { user, loading } = useUser();
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -18,7 +18,8 @@ function ProfileBar() {
 
     const handleProfileClick = () => {
         setIsOpen(false);
-        navigate('/ProfilePage');
+        // Navigate to the appropriate profile page based on system
+        navigate(isBHP ? '/bhp-profile' : '/ProfilePage');
     };
 
     const handleLogoutClick = async () => {

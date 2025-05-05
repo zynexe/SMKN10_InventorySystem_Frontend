@@ -6,53 +6,7 @@ import Pagination from "../../Components/Pagination";
 import { FaDownload } from 'react-icons/fa';
 import SearchBar from '../../Components/SearchBar';
 import * as XLSX from 'xlsx';
-
-// Generate random peminjam names
-const generateRandomName = () => {
-  const firstNames = ["Budi", "Siti", "Ahmad", "Dewi", "Joko", "Nina", "Agus", "Rina", "Dodi", "Lina"];
-  const lastNames = ["Santoso", "Wijaya", "Kusuma", "Putra", "Sari", "Hidayat", "Nugraha", "Pratama", "Wati", "Susanto"];
-  
-  return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
-};
-
-// Generate dummy data for Riwayat (history) of borrowed BHP items
-const generateRiwayatData = (count = 50) => {
-  // Common items for BHP (Barang Habis Pakai)
-  const bhpItems = [
-    { name: "Kertas HVS A4", kodeRekening: "5.2.2.01", merk: "Sinar Dunia" },
-    { name: "Tinta Printer", kodeRekening: "5.2.2.06", merk: "Epson" },
-    { name: "Bolpoin", kodeRekening: "5.2.2.01", merk: "Snowman" },
-    { name: "Pensil 2B", kodeRekening: "5.2.2.01", merk: "Faber-Castell" },
-    { name: "Spidol Boardmarker", kodeRekening: "5.2.2.01", merk: "Snowman" },
-    { name: "CD-R", kodeRekening: "5.2.2.11", merk: "Sony" },
-    { name: "Penghapus", kodeRekening: "5.2.2.01", merk: "Joyko" },
-    { name: "Isi Staples", kodeRekening: "5.2.2.01", merk: "Kenko" },
-    { name: "Toner Printer", kodeRekening: "5.2.2.06", merk: "HP" },
-    { name: "Amplop", kodeRekening: "5.2.2.01", merk: "Paperline" }
-  ];
-  
-  const units = ["Pcs", "Box", "Rim", "Pack", "Set"];
-  
-  return Array.from({ length: count }, (_, i) => {
-    const randomItem = bhpItems[Math.floor(Math.random() * bhpItems.length)];
-    const jumlah = Math.floor(Math.random() * 5) + 1; // Random quantity between 1-5
-    const unit = units[Math.floor(Math.random() * units.length)];
-    const hargaSatuan = (Math.floor(Math.random() * 20) + 1) * 5000; // Random price between 5K-100K
-    
-    return {
-      id: i + 1,
-      nama_barang: randomItem.name,
-      kode_rekening: randomItem.kodeRekening,
-      merk: randomItem.merk,
-      peminjam: generateRandomName(),
-      jumlah_barang: `${jumlah} ${unit}`,
-      total: jumlah * hargaSatuan
-    };
-  });
-};
-
-// Create dummy riwayat data
-const riwayatDummyData = generateRiwayatData();
+import { getBHPRiwayat, undoBHPRemoval } from '../../services/api';
 
 function Riwayat() {
   const navigate = useNavigate();
@@ -60,25 +14,101 @@ function Riwayat() {
   const itemsPerPage = 10;
   
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredData, setFilteredData] = useState(riwayatDummyData);
-  const [riwayat, setRiwayat] = useState(riwayatDummyData);
-  const [isLoading, setIsLoading] = useState(false);
-  const [totalPages, setTotalPages] = useState(Math.ceil(riwayatDummyData.length / itemsPerPage));
+  const [filteredData, setFilteredData] = useState([]);
+  const [riwayat, setRiwayat] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
   
+  // Fetch BHP riwayat data from API
+  const fetchRiwayat = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getBHPRiwayat();
+      console.log('API Response - BHP History:', response);
+      
+      // Process and normalize the data
+      let riwayatData = [];
+      
+      // Handle different API response structures
+      if (Array.isArray(response)) {
+        // If the response itself is an array
+        riwayatData = response;
+      } else if (response && response.data && Array.isArray(response.data)) {
+        // If the response has data property that is an array
+        riwayatData = response.data;
+      } else if (response && typeof response === 'object') {
+        // If it's an object with unknown structure, try to find an array property
+        for (const key in response) {
+          if (Array.isArray(response[key])) {
+            riwayatData = response[key];
+            break;
+          }
+        }
+      }
+      
+      console.log('Normalized riwayat data:', riwayatData);
+      
+      if (riwayatData.length > 0) {
+        setRiwayat(riwayatData);
+        setFilteredData(riwayatData);
+        setTotalPages(Math.ceil(riwayatData.length / itemsPerPage));
+        setError(null);
+      } else {
+        console.warn('No history data found in the API response');
+        setRiwayat([]);
+        setFilteredData([]);
+        setTotalPages(1);
+      }
+    } catch (err) {
+      console.error('Error fetching BHP history:', err);
+      setError('Failed to load BHP history. Please try again later.');
+      setRiwayat([]);
+      setFilteredData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Initial data fetch
+  useEffect(() => {
+    fetchRiwayat();
+  }, []);
+
   // Search functionality
   useEffect(() => {
-    const filtered = riwayat.filter((item) => {
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      return (
-        item.nama_barang?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        item.kode_rekening?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        item.merk?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        item.peminjam?.toLowerCase().includes(lowerCaseSearchTerm)
-      );
-    });
-    setFilteredData(filtered);
-    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
-  }, [searchTerm, riwayat]);
+    if (riwayat.length > 0) {
+      const filtered = riwayat.filter((item) => {
+        if (!searchTerm.trim()) return true;
+        
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        
+        // Search across all possible text fields
+        const searchFields = [
+          item.nama_barang, 
+          item.bhp?.nama_barang,
+          item.name,
+          item.kode_rekening, 
+          item.bhp?.kode_rekening,
+          item.code,
+          item.merk, 
+          item.bhp?.merk,
+          item.taker_name, 
+          item.peminjam,
+          item.user,
+          item.username
+        ];
+        
+        return searchFields.some(field => 
+          field && field.toString().toLowerCase().includes(lowerCaseSearchTerm)
+        );
+      });
+      
+      setFilteredData(filtered);
+      setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+      setCurrentPage(1); // Reset to page 1 when search changes
+    }
+  }, [searchTerm, riwayat, itemsPerPage]);
 
   // Calculate total value
   const [totalValue, setTotalValue] = useState(0);
@@ -86,7 +116,9 @@ function Riwayat() {
   useEffect(() => {
     let overallTotal = 0;
     filteredData.forEach((item) => {
-      overallTotal += item.total;
+      // Get Total value directly from API response
+      const totalValue = parseInt(item.Total || 0);
+      overallTotal += totalValue;
     });
     setTotalValue(overallTotal);
   }, [filteredData]);
@@ -95,11 +127,25 @@ function Riwayat() {
     setSearchTerm(e.target.value);
   };
 
-  const handleUndo = (id) => {
-    // For dummy data, just remove the item from the list
-    const updatedRiwayat = riwayat.filter(item => item.id !== id);
-    setRiwayat(updatedRiwayat);
-    alert(`Item with ID ${id} has been removed from history`);
+  const handleUndo = async (id) => {
+    if (window.confirm("Are you sure you want to undo this transaction? Items will be returned to inventory.")) {
+      try {
+        setIsLoading(true);
+        // Call the API to undo the removal
+        await undoBHPRemoval(id);
+        
+        // Refresh the data
+        await fetchRiwayat();
+        
+        // Show success message
+        alert('Transaction successfully undone. Items have been returned to inventory.');
+      } catch (error) {
+        console.error('Error undoing BHP removal:', error);
+        alert(`Failed to undo transaction: ${error.message || 'Unknown error'}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   // Export to Excel function
@@ -107,16 +153,24 @@ function Riwayat() {
     // Create a workbook
     const wb = XLSX.utils.book_new();
     
-    // Prepare the data for export
+    // Prepare the data for export using the correct field names
     const exportData = filteredData.map((item, index) => {
+      // Use the exact field names from the API
+      const namaBarang = item['Nama Barang'] || item.nama_barang || 'N/A';
+      const kodeRekening = item['Kode Rekening'] || item.kode_rekening || 'N/A';
+      const merk = item.Merk || item.merk || 'N/A';
+      const peminjam = item.Peminjam || item.taker_name || 'N/A';
+      const jumlahBarang = item['Jumlah Barang'] ? `${item['Jumlah Barang']} Pcs` : '0 Pcs';
+      const total = parseInt(item.Total || 0);
+      
       return {
         'No': (index + 1),
-        'Nama Barang': item.nama_barang || '',
-        'Kode Rekening': item.kode_rekening || '',
-        'Merk': item.merk || '',
-        'Peminjam': item.peminjam || '',
-        'Jumlah Barang': item.jumlah_barang || '',
-        'Total': `Rp. ${parseInt(item.total || 0).toLocaleString('id-ID')}`,
+        'Nama Barang': namaBarang,
+        'Kode Rekening': kodeRekening,
+        'Merk': merk,
+        'Peminjam': peminjam,
+        'Jumlah Barang': jumlahBarang,
+        'Total': `Rp. ${total.toLocaleString('id-ID')}`,
       };
     });
     
@@ -180,6 +234,13 @@ function Riwayat() {
             <div className="loading-container">
               <p>Loading riwayat data...</p>
             </div>
+          ) : error ? (
+            <div className="error-container">
+              <p className="error-message">{error}</p>
+              <button className="retry-button" onClick={fetchRiwayat}>
+                Try Again
+              </button>
+            </div>
           ) : (
             <>
               <div className="table-container">
@@ -197,30 +258,50 @@ function Riwayat() {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedData.map((item, index) => {
-                      // Calculate row number based on current page and index
-                      const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
-                      
-                      return (
-                        <tr key={item.id}>
-                          <td>{rowNumber}</td>
-                          <td>{item.nama_barang}</td>
-                          <td>{item.kode_rekening}</td>
-                          <td>{item.merk}</td>
-                          <td>{item.peminjam}</td>
-                          <td>{item.jumlah_barang}</td>
-                          <td>{`Rp. ${item.total.toLocaleString('id-ID')}`}</td>
-                          <td>
-                            <button 
-                              className="main-button"
-                              onClick={() => handleUndo(item.id)}
-                            >
-                              Undo
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {paginatedData.length > 0 ? (
+                      paginatedData.map((item, index) => {
+                        console.log('Displaying item:', item); // Keep this debug line
+                        
+                        // Calculate row number based on current page and index
+                        const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                        
+                        // Use the exact field names from the API response
+                        // Your API is returning PascalCase field names - use those directly
+                        const namaBarang = item['Nama Barang'] || item.nama_barang || 'N/A';
+                        const kodeRekening = item['Kode Rekening'] || item.kode_rekening || 'N/A';
+                        const merk = item.Merk || item.merk || 'N/A';
+                        const peminjam = item.Peminjam || item.taker_name || 'N/A';
+                        const volume = parseInt(item['Jumlah Barang'] || 0);
+                        const satuan = 'Pcs'; // Default unit if not provided
+                        const jumlahBarang = item['Jumlah Barang'] ? `${volume} ${satuan}` : '0 Pcs';
+                        const total = parseInt(item.Total || 0);
+                        
+                        return (
+                          <tr key={item.Id || item.id || index}>
+                            <td>{rowNumber}</td>
+                            <td>{namaBarang}</td>
+                            <td>{kodeRekening}</td>
+                            <td>{merk}</td>
+                            <td>{peminjam}</td>
+                            <td>{jumlahBarang}</td>
+                            <td>{`Rp. ${total.toLocaleString('id-ID')}`}</td>
+                            <td>
+                              <button 
+                                className="main-button"
+                                onClick={() => handleUndo(item.Id || item.id)}
+                                disabled={!(item.Id || item.id)}
+                              >
+                                Undo
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan="8" className="no-data-cell">No history data available</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
