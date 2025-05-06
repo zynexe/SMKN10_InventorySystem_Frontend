@@ -9,9 +9,13 @@ import SidebarBHP from '../../Layout/SidebarBHP';
 import SearchBar from '../../Components/SearchBar';
 import FilterModal from "../../Components/FilterModal";
 import BHPTable from '../../Components/BHPTable';
-import * as XLSX from 'xlsx';
 import { FaDownload } from 'react-icons/fa';
-import { getBHPs, addBHPManually, removeBHP } from "../../services/api";
+import { 
+  getBHPs, 
+  addBHPManually, 
+  removeBHP, 
+  exportBHP 
+} from "../../services/api";
 import DecrementStockModal from '../../Components/DecrementStockModal';
 
 function BHPPage() {
@@ -59,7 +63,6 @@ function BHPPage() {
       const response = await getBHPs();
       console.log('Raw API Response:', response);
       
-      // Process the data based on the API response structure
       let bhpItems = [];
       if (response && response.data) {
         console.log('Using response.data, length:', response.data.length);
@@ -73,27 +76,21 @@ function BHPPage() {
       
       console.log('Final bhpItems:', bhpItems);
       
-      // Normalize stock values
       const normalizedBHPs = bhpItems.map(item => {
-        // Get the highest stock value between both representations
         const stockAkhir = Math.max(
           parseInt(item.stock_akhir || 0),
           parseInt(item['Stock Akhir'] || 0)
         );
         
-        // Update both representations to be consistent
         item.stock_akhir = stockAkhir;
         item['Stock Akhir'] = stockAkhir;
         
         return item;
       });
 
-      // Always set assets to normalizedBHPs
       setAssets(normalizedBHPs);
       
-      // Instead of directly setting filteredData, apply filters to ensure data formatting
       if (normalizedBHPs.length > 0) {
-        // This is crucial - automatically apply filters on initial load
         setTimeout(() => applyFiltersWithData(normalizedBHPs), 0);
       } else {
         setFilteredData([]);
@@ -111,47 +108,33 @@ function BHPPage() {
     }
   };
 
-  // Create a helper function to apply filters with any data source
   const applyFiltersWithData = (dataToFilter) => {
-    // Add debugging to see what's in the data
     console.log('Filtering data:', dataToFilter);
     
-    // Apply date filters to the data
     const filtered = dataToFilter.filter(item => {
-      // Skip filtering if both filters are set to "All"
       if (selectedMonth === "All" && selectedYear === "All") {
         return true;
       }
       
-      // Debug the item's date field
       console.log('Item date field:', item.tanggal);
       
-      // Extract date components from the item's tanggal
       let itemDate;
       try {
-        // Handle different date formats
         if (item.tanggal) {
-          // Try to parse date in different formats
           if (typeof item.tanggal === 'string' && item.tanggal.includes('/')) {
-            // DD/MM/YYYY format
             const [day, month, year] = item.tanggal.split('/');
             itemDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
           } else if (typeof item.tanggal === 'string' && item.tanggal.includes('-')) {
-            // YYYY-MM-DD format
             itemDate = new Date(item.tanggal);
           } else {
-            // Fallback - try direct parsing
             itemDate = new Date(item.tanggal);
           }
         } else if (item.created_at) {
-          // Fallback to created_at if tanggal not available
           itemDate = new Date(item.created_at);
         } else {
-          // No date available, include in results when not filtering
           return selectedMonth === "All" && selectedYear === "All";
         }
         
-        // DEBUG: Log the parsed date
         console.log('Parsed date:', itemDate);
         
         if (isNaN(itemDate.getTime())) {
@@ -161,24 +144,19 @@ function BHPPage() {
         
       } catch (err) {
         console.error('Error parsing date:', item.tanggal, err);
-        // Include items with unparseable dates when not filtering
         return selectedMonth === "All" && selectedYear === "All";
       }
       
-      // Get month name in Indonesian
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
         "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const itemMonth = monthNames[itemDate.getMonth()];
       const itemYear = itemDate.getFullYear();
       
-      // DEBUG: Log the extracted month and year
       console.log(`Item date: ${itemMonth} ${itemYear}, Selected: ${selectedMonth} ${selectedYear}`);
       
-      // Apply filters
       const monthMatch = selectedMonth === "All" || itemMonth === selectedMonth;
       const yearMatch = selectedYear === "All" || itemYear === parseInt(selectedYear);
       
-      // DEBUG: Log the match results
       console.log(`Month match: ${monthMatch}, Year match: ${yearMatch}`);
       
       return monthMatch && yearMatch;
@@ -189,38 +167,31 @@ function BHPPage() {
     setTotalPages(Math.ceil(filtered.length / itemsPerPage));
   };
 
-  // Initial data fetch
   useEffect(() => {
     fetchBHPItems();
   }, []);
 
-  // Update the applyFilters function to use the helper
   const applyFilters = () => {
     setCurrentPage(1);
     closeFilterModal();
     applyFiltersWithData(assets);
   };
 
-  // Update your search effect to preserve filter behavior
   useEffect(() => {
     if (assets.length > 0) {
       console.log('Search term changed to:', searchTerm);
       
-      // If there's no search term, just apply existing filters
       if (!searchTerm.trim()) {
         applyFiltersWithData(assets);
         return;
       }
       
-      // Otherwise, apply search first
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
       const searchFiltered = assets.filter((item) => {
-        // Check multiple field names with fallbacks
         const namaBarang = (item.nama_barang || item['Nama Barang'] || '').toLowerCase();
         const kodeRekening = (item.kode_rekening || item['Kode Rekening'] || '').toLowerCase();
         const merk = (item.merk || item.Merk || '').toLowerCase();
         
-        // Log what we're searching in
         console.log(`Searching "${lowerCaseSearchTerm}" in: ${namaBarang}, ${kodeRekening}, ${merk}`);
         
         return (
@@ -232,40 +203,31 @@ function BHPPage() {
       
       console.log(`Search found ${searchFiltered.length} items from ${assets.length} total`);
       
-      // Then apply date filters to the search results
       applyFiltersWithData(searchFiltered);
     }
   }, [searchTerm, assets]);
 
-  // Update the handleSearchChange function
   const handleSearchChange = (e) => {
     console.log('Search input changed:', e.target.value);
     setSearchTerm(e.target.value);
-    // Reset to the first page when searching
     setCurrentPage(1);
   };
 
-  // Calculate total value
   useEffect(() => {
     let overallTotal = 0;
     
     filteredData.forEach((item) => {
-      // Get stock akhir - use the highest value available
       const stockAkhir = Math.max(
         parseInt(item.stock_akhir || 0), 
         parseInt(item['Stock Akhir'] || 0)
       );
       
-      // Get harga satuan with fallbacks
       const hargaSatuan = parseInt(item.harga_satuan || item['Harga Satuan'] || 0);
       
-      // Calculate total value for this item
       const itemTotal = stockAkhir * hargaSatuan;
       
-      // Add to overall total
       overallTotal += itemTotal;
       
-      // Debug log to see what's being calculated
       console.log(`Item: ${item.nama_barang}, Stock: ${stockAkhir}, Harga: ${hargaSatuan}, Total: ${itemTotal}`);
     });
     
@@ -273,7 +235,6 @@ function BHPPage() {
     setTotalValue(overallTotal);
   }, [filteredData]);
 
-  // Function to open the modal
   const openModal = (bhpItem = null) => {
     if (bhpItem) {
       setSelectedBHP(bhpItem);
@@ -285,28 +246,22 @@ function BHPPage() {
     setIsModalOpen(true);
   };
 
-  // Function to close the modal
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedBHP(null);
     setIsEditMode(false);
   };
 
-  // Handle form submission (both add and edit)
   const handleSubmit = async (formData) => {
     try {
       console.log('Submitting BHP data:', formData);
       
       if (isEditMode && selectedBHP) {
-        // Update existing BHP item
-        // API endpoint for updating BHP isn't provided, so we'll use a placeholder
-        // This would be replaced with an actual API call when available
         const updatedAssets = assets.map(item => {
           if (item.id === selectedBHP.id) {
             return {
               ...item,
               ...formData,
-              // Ensure stock_akhir is set correctly
               stock_akhir: formData.stock_awal
             };
           }
@@ -317,16 +272,13 @@ function BHPPage() {
         setFilteredData(updatedAssets);
         alert('BHP item updated successfully');
       } else {
-        // Add new BHP item using the API
         const result = await addBHPManually(formData);
         console.log('Manual add result:', result);
         
-        // Refresh the data to get the new item
         fetchBHPItems();
         alert('BHP item added successfully');
       }
       
-      // Close modal
       closeModal();
       
     } catch (error) {
@@ -335,37 +287,32 @@ function BHPPage() {
     }
   };
 
-  // Handle successful import
   const handleImportSuccess = (importedData) => {
     console.log('Import completed successfully', importedData);
     
     if (importedData && Array.isArray(importedData) && importedData.length > 0) {
-      // If importedData is a non-empty array, update the assets directly
       setAssets(importedData);
       setFilteredData(importedData);
       setTotalPages(Math.ceil(importedData.length / itemsPerPage));
       alert('Import completed successfully');
     } else {
-      // If the returned data isn't in the expected format, fetch all data again
       console.log("Import success but data format unexpected. Fetching all BHP items...");
       fetchBHPItems();
       alert('Import completed successfully. Refreshing data...');
     }
   };
 
-  // Handle edit button click in table
   const handleEditClick = (asset) => {
     openModal(asset);
   };
 
-  // Handle delete button click in table
   const handleDeleteClick = async (id) => {
     if (window.confirm("Are you sure you want to delete this BHP item?")) {
       try {
         setIsLoading(true);
         await removeBHP(id);
         alert("BHP item deleted successfully");
-        fetchBHPItems(); // Refresh the data after deletion
+        fetchBHPItems(); // Refresh the item list after deletion
       } catch (error) {
         console.error("Error deleting BHP item:", error);
         alert(`Failed to delete BHP item: ${error.message || 'Unknown error'}`);
@@ -375,9 +322,7 @@ function BHPPage() {
     }
   };
 
-  // Modify the handleDecrementStock function
   const handleDecrementStock = (itemId) => {
-    // Find the item being decremented
     const item = assets.find(item => item.id === itemId);
     
     if (!item) {
@@ -385,39 +330,31 @@ function BHPPage() {
       return;
     }
     
-    // Look at both potential stock fields and use the highest value
     const currentStock = Math.max(
       parseInt(item.stock_akhir || 0), 
       parseInt(item['Stock Akhir'] || 0)
     );
     
-    // Only proceed if stock is > 0
     if (currentStock <= 0) {
       alert('Stock is already 0');
       return;
     }
     
-    // Set both fields to the same value to ensure consistency
     item.stock_akhir = currentStock;
     item['Stock Akhir'] = currentStock;
     
-    // Open modal with this item
     setSelectedItemForDecrement(item);
     setIsDecrementModalOpen(true);
   };
 
-  // New function to handle the confirmation from the modal
   const handleDecrementConfirm = async (formData) => {
     try {
       setIsLoading(true);
       
-      // Send API request to remove items
       await removeBHP(selectedItemForDecrement.id, formData);
       
-      // Success - refresh the data
       fetchBHPItems();
       
-      // Show success message
       alert('Stock decreased successfully. The transaction has been recorded.');
     } catch (error) {
       console.error('Error decreasing stock:', error);
@@ -427,7 +364,6 @@ function BHPPage() {
     }
   };
 
-  // Functions for filter modal
   const openFilterModal = () => {
     setIsFilterModalOpen(true);
   };
@@ -444,7 +380,6 @@ function BHPPage() {
     setSelectedYear(year);
   };
 
-  // Update active filters count
   useEffect(() => {
     let count = 0;
     if (selectedMonth !== "All") count++;
@@ -452,123 +387,49 @@ function BHPPage() {
     setActiveFilters(count);
   }, [selectedMonth, selectedYear]);
 
-  // Export to Excel function
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     try {
-      // Debug check
-      console.log("Exporting data:", filteredData);
+      setIsLoading(true);
       
-      // Don't continue if there's no data
-      if (!filteredData || filteredData.length === 0) {
-        alert('No data to export');
-        return;
-      }
+      console.log("Initiating BHP export through API...");
       
-      // Create a workbook
-      const wb = XLSX.utils.book_new();
+      const response = await exportBHP();
       
-      // Helper function to safely get a property value with multiple potential names
-      const getProperty = (item, propertyNames, defaultValue = null) => {
-        for (const name of propertyNames) {
-          if (item[name] !== undefined && item[name] !== null) {
-            return item[name];
-          }
-        }
-        return defaultValue;
-      };
-      
-      // Prepare the data for export
-      const exportData = filteredData.map((item, index) => {
-        // Extract all possible property values with fallbacks
-        const namaBarang = getProperty(item, ['nama_barang', 'Nama Barang'], '');
-        
-        // Handle nested kode rekening
-        let kodeRekening = getProperty(item, ['kode_rekening', 'Kode Rekening'], '');
-        if (!kodeRekening && item.kodeRekening && item.kodeRekening.kode) {
-          kodeRekening = item.kodeRekening.kode;
-        }
-        
-        const merk = getProperty(item, ['merk', 'Merk'], '');
-        const tanggal = getProperty(item, ['tanggal', 'Tanggal', 'created_at'], '');
-        
-        // Handle numeric values safely
-        const stockAwal = parseInt(getProperty(
-          item, 
-          ['stock_awal', 'Stock_Awal', 'volume', 'Volume', 'initial_volume'], 
-          0
-        )) || 0;
-        
-        const stockAkhir = parseInt(getProperty(
-          item, 
-          ['stock_akhir', 'Stock_Akhir', 'final_volume', 'volume_akhir', 'total_volume'],
-          stockAwal
-        )) || 0;
-        
-        const hargaSatuan = parseInt(getProperty(
-          item, 
-          ['harga_satuan', 'Harga_Satuan', 'harga', 'price'], 
-          0
-        )) || 0;
-        
-        const satuan = getProperty(item, ['satuan', 'Satuan'], 'Pcs');
-        
-        // Calculate values
-        const jumlahAwal = stockAwal * hargaSatuan;
-        const jumlahAkhir = stockAkhir * hargaSatuan;
-        
-        // Create export row
-        return {
-          'No': (index + 1),
-          'Nama Barang': namaBarang,
-          'Kode Rekening': kodeRekening,
-          'Merk': merk,
-          'Tanggal': tanggal,
-          'Stock Awal': stockAwal,
-          'Satuan': satuan,
-          'Stock Akhir': stockAkhir,
-          'Harga Satuan': `Rp. ${hargaSatuan.toLocaleString('id-ID')}`,
-          'Jumlah Awal': `Rp. ${jumlahAwal.toLocaleString('id-ID')}`,
-          'Jumlah Akhir': `Rp. ${jumlahAkhir.toLocaleString('id-ID')}`
-        };
+      const blob = new Blob([response.data], { 
+        type: response.headers['content-type'] 
       });
       
-      // Log the export data to verify
-      console.log("Data to export:", exportData);
-      
-      // Convert data to worksheet
-      const ws = XLSX.utils.json_to_sheet(exportData);
-      
-      // Set column widths for better readability
-      const colWidths = [
-        { wch: 5 },   // No
-        { wch: 30 },  // Nama Barang
-        { wch: 15 },  // Kode Rekening
-        { wch: 15 },  // Merk
-        { wch: 12 },  // Tanggal
-        { wch: 12 },  // Stock Awal
-        { wch: 10 },  // Satuan
-        { wch: 12 },  // Stock Akhir
-        { wch: 15 },  // Harga Satuan
-        { wch: 15 },  // Jumlah Awal
-        { wch: 15 },  // Jumlah Akhir
-      ];
-      ws['!cols'] = colWidths;
-      
-      // Add the worksheet to the workbook
-      XLSX.utils.book_append_sheet(wb, ws, 'BHP Report');
-      
-      // Generate a timestamp for the filename
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       
-      // Create an export filename
-      const fileName = `bhp_report_${timestamp}.xlsx`;
+      let filename = `bhp_export_${timestamp}.xlsx`;
+      const contentDisposition = response.headers['content-disposition'];
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
       
-      // Export the file
-      XLSX.writeFile(wb, fileName);
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      
+      document.body.appendChild(link);
+      
+      link.click();
+      
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log("Export completed successfully");
       alert('Export successful!');
     } catch (error) {
       console.error("Export error:", error);
-      alert(`Export failed: ${error.message}`);
+      alert(`Export failed: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -576,13 +437,11 @@ function BHPPage() {
     console.log("Current assets:", assets);
     console.log("Filtered data:", filteredData);
     
-    // Check the first item's date structure 
     if (assets.length > 0) {
       const firstItem = assets[0];
       console.log("Sample item:", firstItem);
       console.log("Date field:", firstItem.tanggal);
       
-      // Try to parse the date
       if (firstItem.tanggal) {
         try {
           const date = new Date(firstItem.tanggal);
@@ -607,7 +466,6 @@ function BHPPage() {
     currentPage * itemsPerPage
   );
 
-  // Safe render function to catch errors
   const renderContent = () => {
     try {
       if (isLoading) {
@@ -723,7 +581,6 @@ function BHPPage() {
     }
   };
 
-  // Modify your return statement to use the safe render function
   return (
     <div className="asset-home-container">
       <SidebarBHP />

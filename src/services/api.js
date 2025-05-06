@@ -413,16 +413,15 @@ export const addBHPManually = async (bhpData) => {
 
 export const removeBHP = async (id, data = {}) => {
   try {
-    console.log(`Removing BHP item with ID: ${id}`, data);
+    console.log(`Deleting BHP item with ID: ${id}`);
     
-    const payload = {};
-    if (data.volume) payload.volume = data.volume;
-    if (data.taker_name) payload.taker_name = data.taker_name;
+    // Use DELETE method with the specified endpoint
+    const response = await api.delete(`/bhp/${id}`);
     
-    const response = await api.post(`/bhp/remove/${id}`, payload);
+    console.log('Delete response:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error removing BHP item:', error.response?.data || error.message);
+    console.error('Error deleting BHP item:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -440,8 +439,7 @@ export const importBHP = async (file) => {
     
     console.log("Import BHP response:", response);
     
-    // The backend returns a success message but not the data
-    // We need to fetch the updated data after import
+   
     if (response.data && response.data.message && response.data.message.includes('success')) {
       // Fetch fresh data after successful import
       const freshData = await getBHPs();
@@ -451,6 +449,22 @@ export const importBHP = async (file) => {
     return [];
   } catch (error) {
     console.error('Error importing BHP items:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Add a new function for exporting BHP data via the API
+export const exportBHP = async () => {
+  try {
+    console.log('Exporting BHP data via API...');
+    const response = await api.get('/bhp/export-bhp', {
+      responseType: 'blob', // Important for handling file downloads
+    });
+    
+    console.log('Export response received');
+    return response;
+  } catch (error) {
+    console.error('Error exporting BHP data:', error);
     throw error;
   }
 };
@@ -481,6 +495,43 @@ export const undoBHPRemoval = async (id) => {
   }
 };
 
+// BHP Statistics API functions
+export const getTotalBHP = async () => {
+  try {
+    console.log('Fetching total BHP count...');
+    const response = await api.get('/bhp/total-bhp');
+    console.log('Total BHP response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching total BHP count:', error);
+    throw error;
+  }
+};
+
+export const getTotalPeminjam = async () => {
+  try {
+    console.log('Fetching total peminjam count...');
+    const response = await api.get('/bhp/total-peminjam');
+    console.log('Total peminjam response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching total peminjam count:', error);
+    throw error;
+  }
+};
+
+// Chart API functions
+export const getMonthlyExpenses = async (year) => {
+  try {
+    console.log(`Fetching monthly expenses for year: ${year}`);
+    const response = await api.get(`/bhp/total-harga/${year}`);
+    console.log('Monthly expenses response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching monthly expenses for ${year}:`, error);
+    throw error;
+  }
+};
 // Change username
 export const changeUsername = async (newName) => {
   try {

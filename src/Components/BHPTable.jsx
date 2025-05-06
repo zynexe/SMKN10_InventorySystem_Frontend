@@ -1,10 +1,9 @@
 import React from 'react';
-import { FaEdit, FaTrash, FaMinus } from 'react-icons/fa';
+import { FaTrash, FaMinus } from 'react-icons/fa';
 
 const BHPTable = ({ 
   paginatedData = [], 
   onDecrementStock, 
-  onEdit,
   onDelete,
   currentPage = 1, 
   itemsPerPage = 25 
@@ -56,7 +55,7 @@ const BHPTable = ({
             <th>Harga Satuan</th>
             <th>Jumlah Awal</th>
             <th>Jumlah Akhir</th>
-            <th>Actions</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -119,13 +118,8 @@ const BHPTable = ({
                   <td>Rp. {jumlahAkhir.toLocaleString('id-ID')}</td>
                   <td>
                     <div className="table-actions">
-                      {onEdit && (
-                        <button className="action-button edit" onClick={() => onEdit(item)}>
-                          <FaEdit />
-                        </button>
-                      )}
                       {onDelete && (
-                        <button className="action-button delete" onClick={() => onDelete(item.id)}>
+                        <button className="icon-button delete-button" onClick={() => onDelete(item.id)}>
                           <FaTrash />
                         </button>
                       )}

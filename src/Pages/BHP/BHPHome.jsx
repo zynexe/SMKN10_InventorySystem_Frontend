@@ -7,21 +7,22 @@ import SidebarBHP from '../../Layout/SidebarBHP';
 import Dropdown from "../../Components/Dropdown"; 
 import ProfileBar from "../../Components/ProfileBar"; 
 import BalanceModal from "../../Components/BalanceModal";
-import api from '../../services/api'; 
+import api, { getMonthlyExpenses, getTotalBHP, getTotalPeminjam } from '../../services/api'; 
 
 function BHPHome() {
     const navigate = useNavigate();
     const chartRef = useRef(null);
     const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-indexed
     const years = Array.from({ length: 40 }, (_, index) => currentYear - index);
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
     
-    // Dummy data for statistics
-    const [rekapTahunan, setRekapTahunan] = useState(125750000);
-    const [rekapBulanan, setRekapBulanan] = useState(15200000);
-    const [totalPeminjam, setTotalPeminjam] = useState(42);
-    const [totalItems, setTotalItems] = useState(156);
+    // Update state for statistics
+    const [rekapTahunan, setRekapTahunan] = useState(0);
+    const [rekapBulanan, setRekapBulanan] = useState(0);
+    const [totalPeminjam, setTotalPeminjam] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
     
     const [loadingStats, setLoadingStats] = useState(false);
     const [statsError, setStatsError] = useState(null);
@@ -37,30 +38,44 @@ function BHPHome() {
     const [isLoadingBalance, setIsLoadingBalance] = useState(false);
     const [balanceError, setBalanceError] = useState(null);
     
-    // Fetch monthly expenses data from the API
+    // Fetch monthly expenses data and update rekap values
     useEffect(() => {
         const fetchMonthlyExpenses = async () => {
             setLoadingChart(true);
             setChartError(null);
+            setLoadingStats(true);
             
             try {
-                // Use the api service instead of axios directly
-                const response = await api.get(`/bhp/total-harga/${selectedYear}`);
-                console.log('API Response:', response.data); // Debug log
+                // Use the imported function from api.js
+                const data = await getMonthlyExpenses(selectedYear);
+                setMonthlyExpenses(data);
                 
-                // No need to check if it's an array since we know it's an object
-                setMonthlyExpenses(response.data);
+                // Update rekap tahunan from the API response
+                if (data && data.total_jumlah_akhir_year) {
+                    setRekapTahunan(parseFloat(data.total_jumlah_akhir_year));
+                }
+                
+                // Update rekap bulanan from the current month's data
+                if (data && data.monthly_totals) {
+                    const currentMonthPadded = String(currentMonth).padStart(2, '0');
+                    const currentMonthTotal = data.monthly_totals[currentMonthPadded] || 0;
+                    setRekapBulanan(parseFloat(currentMonthTotal));
+                }
+                
+                setStatsError(null);
             } catch (error) {
                 console.error("Error fetching monthly expenses:", error);
                 setChartError("Failed to load expense data");
+                setStatsError("Failed to load rekap data");
                 setMonthlyExpenses({});
             } finally {
                 setLoadingChart(false);
+                setLoadingStats(false);
             }
         };
         
         fetchMonthlyExpenses();
-    }, [selectedYear]);
+    }, [selectedYear, currentMonth]);
 
     // Render chart when expenses data or selected year changes
     useEffect(() => {
@@ -138,6 +153,36 @@ function BHPHome() {
             };
         }
     }, [monthlyExpenses, loadingChart, chartError]);
+
+    // Fetch BHP statistics - Total Peminjam and Total Item
+    useEffect(() => {
+        const fetchStatistics = async () => {
+            setLoadingStats(true);
+            setStatsError(null);
+            
+            try {
+                // Use the dedicated API endpoints for statistics
+                const totalBHPResponse = await getTotalBHP();
+                const totalPeminjamResponse = await getTotalPeminjam();
+                
+                // Extract the values using the correct field names from the responses
+                const bhpCount = totalBHPResponse.total_stock_akhir || 0;
+                const peminjamCount = totalPeminjamResponse.total_unique_peminjam || 0;
+                
+                setTotalItems(bhpCount);
+                setTotalPeminjam(peminjamCount);
+                
+                setStatsError(null);
+            } catch (error) {
+                console.error("Error fetching BHP statistics:", error);
+                setStatsError("Failed to load statistics");
+            } finally {
+                setLoadingStats(false);
+            }
+        };
+        
+        fetchStatistics();
+    }, []);
 
     // Function to toggle year dropdown
     const toggleYearDropdown = (isOpen) => {
