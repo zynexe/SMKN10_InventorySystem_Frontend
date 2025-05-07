@@ -688,8 +688,10 @@
 
 .gedung-card:hover {
   transform: translateY(-3px); /* Move card up slightly on hover */
-  box-shadow: 0 4px 24px rgba(122, 122, 122, 0.266); /* More prominent shadow */
+  box-shadow: 0 4px 24px rgba(122, 122, 122, 0.2); /* More prominent shadow */
   transition: all 0.3s ease;
+  border: 1px solid #B0C4DE; /* Change border color on hover */
+  background-color: #EBF4FF; /* Change background color on hover */
 }
 
 .gedung-card:active { /* Style when the card is clicked */
@@ -830,7 +832,8 @@ modal-overlay {
 }
 
 .pagination button:hover {
-  background-color: #cfe3fd;
+  background-color: #EBF4FF;
+  border-color: #B0C4DE;
   
 }
 

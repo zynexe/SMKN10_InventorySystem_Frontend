@@ -14,7 +14,8 @@ import {
   getBHPs, 
   addBHPManually, 
   removeBHP, 
-  exportBHP 
+  exportBHP,
+  decrementBHPStock // Add this import
 } from "../../services/api";
 import DecrementStockModal from '../../Components/DecrementStockModal';
 
@@ -351,9 +352,17 @@ function BHPPage() {
     try {
       setIsLoading(true);
       
-      await removeBHP(selectedItemForDecrement.id, formData);
+      console.log('Decrementing stock for item:', selectedItemForDecrement);
+      console.log('Decrement data:', formData);
       
-      fetchBHPItems();
+      // Use the new decrementBHPStock function instead of removeBHP
+      await decrementBHPStock(selectedItemForDecrement.id, {
+        volume: formData.volume,
+        taker_name: formData.taker_name
+      });
+      
+      setIsDecrementModalOpen(false);
+      fetchBHPItems(); // Refresh the items list
       
       alert('Stock decreased successfully. The transaction has been recorded.');
     } catch (error) {

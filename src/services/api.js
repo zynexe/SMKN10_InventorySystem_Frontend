@@ -495,6 +495,25 @@ export const undoBHPRemoval = async (id) => {
   }
 };
 
+// Add this new function specifically for decreasing stock
+export const decrementBHPStock = async (id, data) => {
+  try {
+    console.log(`Decreasing stock for BHP item with ID: ${id}`, data);
+    
+    // Use POST method with the correct endpoint for stock decrementation
+    const response = await api.post(`/bhp/remove/${id}`, {
+      volume: data.volume,
+      taker_name: data.taker_name
+    });
+    
+    console.log('Decrement response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error decreasing BHP stock:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // BHP Statistics API functions
 export const getTotalBHP = async () => {
   try {
