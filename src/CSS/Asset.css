@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* AssetHome.css (and BHPHome.css - adjust as needed) */
+
 .asset-home-container, .bhp-home-container { /* Common styles */
     display: flex;
     height: 100vh; /* Ensure full viewport height */
@@ -218,7 +218,6 @@
     }
     .pagination {
       max-width: 95%;
-       /* Make pagination full width */
       justify-content: center; /* Center items horizontally */
       flex-wrap: wrap; /* Allow buttons to wrap to the next line */
     }
@@ -652,10 +651,6 @@
 }
 
 
-
-
-/* Gedung.css */
-
 .gedung-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
@@ -692,7 +687,7 @@
 }
 
 .gedung-card:hover {
-  transform: translateY(-4px); /* Move card up slightly on hover */
+  transform: translateY(-3px); /* Move card up slightly on hover */
   box-shadow: 0 4px 24px rgba(122, 122, 122, 0.266); /* More prominent shadow */
   transition: all 0.3s ease;
 }
@@ -774,7 +769,7 @@ modal-overlay {
    /* Active step border color */
 }
 
-/* Optional: Add a separator between breadcrumb items */
+
 .breadcrumb-item + .breadcrumb-item::before {
   content: ">";
   margin: 0 10px;
@@ -887,21 +882,21 @@ modal-overlay {
 
 .edit-button {
   
-  color: #007bff; /* Blue color for edit */
+  color: #007bff; 
 }
 
 .edit-button:hover {
   background-color: #007bff;
-  color: #ffffff; /* Darker blue on hover */
+  color: #ffffff; 
 }
 
 .delete-button {
-  color: red; /* Red color for delete */
+  color: red; 
 }
 
 .delete-button:hover {
   background-color: red;
-  color:  #ffffff;/* Darker red on hover */
+  color:  #ffffff;
 }
 
 .delete-button-gedung {
@@ -921,7 +916,7 @@ modal-overlay {
 
 .table-container { /* Style for the wrapper div */
   overflow-x: auto; /* Enable horizontal scrolling */
-  /* Add any other styling you want for the scrollbar */
+  /* any other styling you want for the scrollbar */
 }
 
 
@@ -994,7 +989,7 @@ modal-overlay {
   font-weight: bold;
 }
 
-/* Add these styles to your existing CSS */
+
 .secondary-button.active {
   background-color: #e0e0e0;
   border-color: #666;
@@ -1134,7 +1129,7 @@ modal-overlay {
 .profile-image-name-wrapper { /* Style the new wrapper */
   display: flex;
   align-items: center;
-  margin-bottom: 20px; /* Add some space below the image/name */
+  margin-bottom: 20px; 
   margin-top: -80px;
   z-index: 2;
   
@@ -1192,7 +1187,7 @@ modal-overlay {
   border-radius: 5px;
   margin-bottom: 10px;
   width: 100%;
-  box-sizing: border-box; /* Add this line */
+  box-sizing: border-box; 
 }
 
 .password-page-inputs .reset-password-button {
@@ -1208,7 +1203,7 @@ modal-overlay {
 
 .section-divider {
   border-bottom: 1px solid #ccc;
-  margin: 12px 0; /* Add some space above and below the line */
+  margin: 12px 0; 
 }
 
 .step-content {
@@ -1246,7 +1241,7 @@ modal-overlay {
 }
 
 
-/* Add these styles to your existing Asset.css file */
+
 
 /* Badge styling for kondisi column */
 .badge {
@@ -1295,7 +1290,6 @@ modal-overlay {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-/* Add these styles to your existing Asset.css file */
 
 /* Success and error messages */
 .success-message, .error-message {
@@ -1376,6 +1370,7 @@ button:disabled {
 .card.clickable:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(176, 196, 222, 0.38);
+
 }
 
 .card.non-clickable {
@@ -1497,7 +1492,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Add these styles to your existing CSS file */
+
 
 /* Filter Modal Styles */
 .filter-modal {
@@ -1608,7 +1603,7 @@ button:disabled {
   font-size: 12px;
   margin-left: 4px;
 }
-/* Add this to your existing Asset.css file */
+
 
 .no-data-message {
   display: flex;

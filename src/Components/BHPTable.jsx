@@ -49,9 +49,9 @@ const BHPTable = ({
             <th>Kode Rekening</th>
             <th>Merk</th>
             <th>Tanggal</th>
-            <th>Stock Awal</th>
+            <th>Stok Bulan Lalu</th>
             <th>Pengurangan</th> 
-            <th>Stock Akhir</th>
+            <th>Stok Bulan Ini</th>
             <th>Harga Satuan</th>
             <th>Jumlah Awal</th>
             <th>Jumlah Akhir</th>
