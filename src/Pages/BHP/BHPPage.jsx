@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import '../../CSS/Asset.css';
-import filterIcon from "../../assets/filter_icon.svg";
 import addIcon from "../../assets/add.png";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../Components/Pagination";
 import ModalBHPPage from '../../Components/ModalBHPPage';
 import SidebarBHP from '../../Layout/SidebarBHP';
 import SearchBar from '../../Components/SearchBar';
-import FilterModal from "../../Components/FilterModal";
 import BHPTable from '../../Components/BHPTable';
 import { FaDownload } from 'react-icons/fa';
 import { 
@@ -15,7 +13,7 @@ import {
   addBHPManually, 
   removeBHP, 
   exportBHP,
-  decrementBHPStock // Add this import
+  decrementBHPStock
 } from "../../services/api";
 import DecrementStockModal from '../../Components/DecrementStockModal';
 
@@ -37,25 +35,12 @@ function BHPPage() {
   const [selectedBHP, setSelectedBHP] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // Add missing state variables
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [activeFilters, setActiveFilters] = useState(0);
-  const [totalValue, setTotalValue] = useState(0);
-
   // Add state for stock decrement modal
   const [isDecrementModalOpen, setIsDecrementModalOpen] = useState(false);
   const [selectedItemForDecrement, setSelectedItemForDecrement] = useState(null);
   
-  // Months array with "All" as the first option
-  const months = ["All", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-    "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-  // Years array with "All" as the first option
-  const currentYear = new Date().getFullYear();
-  const years = ["All", ...Array.from({ length: 30 }, (_, index) => currentYear - index)];
-
-  // Change default values for selected month and year to "All"
-  const [selectedMonth, setSelectedMonth] = useState("All");
-  const [selectedYear, setSelectedYear] = useState("All");
+  // Total value state
+  const [totalValue, setTotalValue] = useState(0);
 
   // Fetch BHP items from API
   const fetchBHPItems = async () => {
@@ -90,14 +75,8 @@ function BHPPage() {
       });
 
       setAssets(normalizedBHPs);
-      
-      if (normalizedBHPs.length > 0) {
-        setTimeout(() => applyFiltersWithData(normalizedBHPs), 0);
-      } else {
-        setFilteredData([]);
-        setTotalPages(0);
-      }
-      
+      setFilteredData(normalizedBHPs);
+      setTotalPages(Math.ceil(normalizedBHPs.length / itemsPerPage));
       setError(null);
     } catch (err) {
       console.error('Failed to fetch BHP items:', err);
@@ -109,81 +88,17 @@ function BHPPage() {
     }
   };
 
-  const applyFiltersWithData = (dataToFilter) => {
-    console.log('Filtering data:', dataToFilter);
-    
-    const filtered = dataToFilter.filter(item => {
-      if (selectedMonth === "All" && selectedYear === "All") {
-        return true;
-      }
-      
-      console.log('Item date field:', item.tanggal);
-      
-      let itemDate;
-      try {
-        if (item.tanggal) {
-          if (typeof item.tanggal === 'string' && item.tanggal.includes('/')) {
-            const [day, month, year] = item.tanggal.split('/');
-            itemDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-          } else if (typeof item.tanggal === 'string' && item.tanggal.includes('-')) {
-            itemDate = new Date(item.tanggal);
-          } else {
-            itemDate = new Date(item.tanggal);
-          }
-        } else if (item.created_at) {
-          itemDate = new Date(item.created_at);
-        } else {
-          return selectedMonth === "All" && selectedYear === "All";
-        }
-        
-        console.log('Parsed date:', itemDate);
-        
-        if (isNaN(itemDate.getTime())) {
-          console.error('Invalid date parsed:', item.tanggal);
-          return false;
-        }
-        
-      } catch (err) {
-        console.error('Error parsing date:', item.tanggal, err);
-        return selectedMonth === "All" && selectedYear === "All";
-      }
-      
-      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
-        "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      const itemMonth = monthNames[itemDate.getMonth()];
-      const itemYear = itemDate.getFullYear();
-      
-      console.log(`Item date: ${itemMonth} ${itemYear}, Selected: ${selectedMonth} ${selectedYear}`);
-      
-      const monthMatch = selectedMonth === "All" || itemMonth === selectedMonth;
-      const yearMatch = selectedYear === "All" || itemYear === parseInt(selectedYear);
-      
-      console.log(`Month match: ${monthMatch}, Year match: ${yearMatch}`);
-      
-      return monthMatch && yearMatch;
-    });
-    
-    console.log(`Applied filters: Month=${selectedMonth}, Year=${selectedYear}, Results=${filtered.length}`);
-    setFilteredData(filtered);
-    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
-  };
-
   useEffect(() => {
     fetchBHPItems();
   }, []);
-
-  const applyFilters = () => {
-    setCurrentPage(1);
-    closeFilterModal();
-    applyFiltersWithData(assets);
-  };
 
   useEffect(() => {
     if (assets.length > 0) {
       console.log('Search term changed to:', searchTerm);
       
       if (!searchTerm.trim()) {
-        applyFiltersWithData(assets);
+        setFilteredData(assets);
+        setTotalPages(Math.ceil(assets.length / itemsPerPage));
         return;
       }
       
@@ -192,8 +107,6 @@ function BHPPage() {
         const namaBarang = (item.nama_barang || item['Nama Barang'] || '').toLowerCase();
         const kodeRekening = (item.kode_rekening || item['Kode Rekening'] || '').toLowerCase();
         const merk = (item.merk || item.Merk || '').toLowerCase();
-        
-        console.log(`Searching "${lowerCaseSearchTerm}" in: ${namaBarang}, ${kodeRekening}, ${merk}`);
         
         return (
           namaBarang.includes(lowerCaseSearchTerm) ||
@@ -204,7 +117,8 @@ function BHPPage() {
       
       console.log(`Search found ${searchFiltered.length} items from ${assets.length} total`);
       
-      applyFiltersWithData(searchFiltered);
+      setFilteredData(searchFiltered);
+      setTotalPages(Math.ceil(searchFiltered.length / itemsPerPage));
     }
   }, [searchTerm, assets]);
 
@@ -228,11 +142,8 @@ function BHPPage() {
       const itemTotal = stockAkhir * hargaSatuan;
       
       overallTotal += itemTotal;
-      
-      console.log(`Item: ${item.nama_barang}, Stock: ${stockAkhir}, Harga: ${hargaSatuan}, Total: ${itemTotal}`);
     });
     
-    console.log('Total value calculated:', overallTotal);
     setTotalValue(overallTotal);
   }, [filteredData]);
 
@@ -373,29 +284,6 @@ function BHPPage() {
     }
   };
 
-  const openFilterModal = () => {
-    setIsFilterModalOpen(true);
-  };
-
-  const closeFilterModal = () => {
-    setIsFilterModalOpen(false);
-  };
-
-  const handleMonthSelect = (month) => {
-    setSelectedMonth(month);
-  };
-
-  const handleYearSelect = (year) => {
-    setSelectedYear(year);
-  };
-
-  useEffect(() => {
-    let count = 0;
-    if (selectedMonth !== "All") count++;
-    if (selectedYear !== "All") count++;
-    setActiveFilters(count);
-  }, [selectedMonth, selectedYear]);
-
   const exportToExcel = async () => {
     try {
       setIsLoading(true);
@@ -442,34 +330,6 @@ function BHPPage() {
     }
   };
 
-  const debugData = () => {
-    console.log("Current assets:", assets);
-    console.log("Filtered data:", filteredData);
-    
-    if (assets.length > 0) {
-      const firstItem = assets[0];
-      console.log("Sample item:", firstItem);
-      console.log("Date field:", firstItem.tanggal);
-      
-      if (firstItem.tanggal) {
-        try {
-          const date = new Date(firstItem.tanggal);
-          console.log("Parsed date:", date);
-          console.log("Month:", date.getMonth());
-          console.log("Year:", date.getFullYear());
-        } catch (e) {
-          console.error("Failed to parse date:", e);
-        }
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (assets.length > 0) {
-      debugData();
-    }
-  }, [assets]);
-
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -505,17 +365,6 @@ function BHPPage() {
               <SearchBar
                 searchTerm={searchTerm}
                 handleSearchChange={handleSearchChange} />
-
-              <button 
-                className={`filter-button ${activeFilters > 0 ? 'active' : ''}`} 
-                onClick={openFilterModal}
-              >
-                <img src={filterIcon} alt="Filter" />
-                Filter
-                {activeFilters > 0 && (
-                  <span className="filter-badge">{activeFilters}</span>
-                )}
-              </button>
 
               <button 
                 className="main-button export-button" 
@@ -554,18 +403,6 @@ function BHPPage() {
             bhpData={selectedBHP}
             isEditMode={isEditMode}
             onImportSuccess={handleImportSuccess}
-          />
-          
-          <FilterModal
-            isOpen={isFilterModalOpen}
-            closeModal={closeFilterModal}
-            months={months}
-            years={years}
-            selectedMonth={selectedMonth}
-            selectedYear={selectedYear}
-            handleMonthSelect={handleMonthSelect}
-            handleYearSelect={handleYearSelect}
-            applyFilters={applyFilters}
           />
 
           <DecrementStockModal

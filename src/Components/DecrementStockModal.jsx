@@ -69,6 +69,18 @@ function DecrementStockModal({ isOpen, closeModal, onConfirm, item }) {
   
   if (!isOpen) return null;
 
+  // Get the correct nama_barang from various possible property names
+  const getItemName = () => {
+    if (!item) return '';
+    
+    // Try to access the name from various property names that might exist
+    return item.nama_barang || 
+           item['Nama Barang'] || 
+           item.name || 
+           item.item_name || 
+           'Unknown Item';
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-content" style={{ maxWidth: '500px' }}>
@@ -85,7 +97,7 @@ function DecrementStockModal({ isOpen, closeModal, onConfirm, item }) {
               <label>Nama Barang:</label>
               <input
                 type="text"
-                value={item?.nama_barang || ''}
+                value={getItemName()}
                 disabled
                 className="form-control"
               />
@@ -143,12 +155,12 @@ function DecrementStockModal({ isOpen, closeModal, onConfirm, item }) {
               )}
             </div>
             
-            <div className="form-actions">
+            <div className="modal-buttons">
               <button type="button" className="cancel-button" onClick={closeModal}>
-                Batal
+                Cancel
               </button>
-              <button type="submit" className="confirm-button">
-                Konfirmasi
+              <button type="submit" className="main-button">
+                Confirm
               </button>
             </div>
           </form>
