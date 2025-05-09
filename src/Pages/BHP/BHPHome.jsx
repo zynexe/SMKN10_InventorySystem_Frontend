@@ -7,7 +7,14 @@ import SidebarBHP from '../../Layout/SidebarBHP';
 import Dropdown from "../../Components/Dropdown"; 
 import ProfileBar from "../../Components/ProfileBar"; 
 import BalanceModal from "../../Components/BalanceModal";
-import api, { getMonthlyExpenses, getTotalBHP, getTotalPeminjam } from '../../services/api'; 
+import api, { 
+  getMonthlyExpenses, 
+  getTotalBHP, 
+  getTotalPeminjam,
+  getBalance,
+  addBalance,
+  updateBalance 
+} from '../../services/api'; 
 
 function BHPHome() {
     const navigate = useNavigate();
@@ -32,11 +39,101 @@ function BHPHome() {
     const [loadingChart, setLoadingChart] = useState(false);
     const [chartError, setChartError] = useState(null);
     
-    // Dummy balance
-    const [balance, setBalance] = useState(5000000);
+    // Balance state management
+    const [balance, setBalance] = useState(0);
     const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
-    const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+    const [isLoadingBalance, setIsLoadingBalance] = useState(true);
     const [balanceError, setBalanceError] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    
+    // Create a custom event listener for balance updates from other components
+    useEffect(() => {
+      const handleBalanceUpdate = () => {
+        console.log('Balance update event received in BHPHome');
+        setRefreshTrigger(prev => prev + 1);
+      };
+
+      // Add event listener
+      window.addEventListener('bhp-balance-updated', handleBalanceUpdate);
+
+      // Clean up
+      return () => {
+        window.removeEventListener('bhp-balance-updated', handleBalanceUpdate);
+      };
+    }, []);
+
+    // Fetch balance data
+    const fetchBalance = async () => {
+      try {
+        setIsLoadingBalance(true);
+        console.log('Fetching balance...');
+        const response = await getBalance();
+        
+        console.log('Balance data response:', response);
+        console.log('Balance data value:', response?.data);
+        
+        if (response && response.data !== undefined) {
+          const newBalance = Number(response.data);
+          console.log('Setting balance state to:', newBalance);
+          setBalance(newBalance);
+        }
+        setBalanceError(null);
+      } catch (error) {
+        console.error('Failed to fetch balance:', error);
+        setBalanceError('Failed to load balance data');
+      } finally {
+        setIsLoadingBalance(false);
+      }
+    };
+    
+    // Load balance data on component mount and when refreshTrigger changes
+    useEffect(() => {
+      fetchBalance();
+    }, [refreshTrigger]);
+    
+    // Handle balance updates
+    const handleBalanceUpdate = async (newBalance, isAddition = false) => {
+      try {
+        if (isAddition) {
+          console.log(`Adding balance: ${newBalance}`);
+          const response = await addBalance(parseFloat(newBalance));
+          console.log('Add balance response:', response);
+          if (response && response.data !== undefined) {
+            const updatedBalance = Number(response.data);
+            console.log('Setting updated balance to:', updatedBalance);
+            setBalance(updatedBalance);
+          }
+        } else {
+          console.log(`Updating balance to: ${newBalance}`);
+          const response = await updateBalance(parseFloat(newBalance));
+          console.log('Update balance response:', response);
+          if (response && response.data !== undefined) {
+            const updatedBalance = Number(response.data);
+            console.log('Setting updated balance to:', updatedBalance);
+            setBalance(updatedBalance);
+          }
+        }
+        
+        // Force a refresh of balance data
+        setRefreshTrigger(prev => prev + 1);
+        setIsBalanceModalOpen(false);
+      } catch (error) {
+        console.error('Error updating balance:', error);
+        
+        // More detailed error logging
+        if (error.response) {
+          console.error('Error response status:', error.response.status);
+          console.error('Error response data:', error.response.data);
+          alert(`Failed to update balance: ${error.response.data?.message || 'Please try again.'}`);
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+          alert('No response from server. Please check your internet connection.');
+        } else {
+          console.error('Request setup error:', error.message);
+          alert(`Error: ${error.message}`);
+        }
+      }
+    };
     
     // Fetch monthly expenses data and update rekap values
     useEffect(() => {
@@ -194,24 +291,6 @@ function BHPHome() {
         setIsYearDropdownOpen(false);
     };
 
-    // Handle balance update for dummy data
-    const handleBalanceUpdate = async (newBalance, isAddition = false) => {
-        try {
-            if (isAddition) {
-                // Add to existing balance
-                setBalance(prevBalance => prevBalance + parseFloat(newBalance));
-            } else {
-                // Set to exact amount
-                setBalance(parseFloat(newBalance));
-            }
-            
-            setIsBalanceModalOpen(false);
-        } catch (error) {
-            console.error('Error updating balance:', error);
-            alert('Failed to update balance. Please try again.');
-        }
-    };
-    
     const handleCardClick = (route) => {
         navigate(route); 
     };
@@ -240,7 +319,9 @@ function BHPHome() {
                             ) : balanceError ? (
                                 <p className="error-text">Error loading balance</p>
                             ) : (
-                                <p>Rp. {balance.toLocaleString('id-ID')}</p>
+                                <p className={balance < 0 ? "negative-balance" : ""}>
+                                    Rp. {balance.toLocaleString('id-ID')}
+                                </p>
                             )}
                         </div>
                         <div className="card non-clickable tooltip-container">

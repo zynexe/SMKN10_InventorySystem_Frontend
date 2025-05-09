@@ -53,8 +53,8 @@ const BHPTable = ({
             <th>Pengurangan</th> 
             <th>Stok Bulan Ini</th>
             <th>Harga Satuan</th>
-            <th>Jumlah Awal</th>
-            <th>Jumlah Akhir</th>
+            <th>Total Bulan Lalu</th>
+            <th>Total Bulan Ini</th>
             <th>Aksi</th>
           </tr>
         </thead>

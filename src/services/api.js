@@ -388,6 +388,10 @@ export const addBHPManually = async (bhpData) => {
   try {
     console.log('Adding BHP item manually:', bhpData);
     
+    // Calculate the total value that will be deducted from the balance
+    const totalValue = parseInt(bhpData.stock_awal || 0) * parseInt(bhpData.harga_satuan || 0);
+    console.log(`Total value to be deducted from balance: Rp ${totalValue.toLocaleString('id-ID')}`);
+    
     // Prepare the payload according to the API requirements
     const payload = {
       nama_barang: bhpData.nama_barang,
@@ -395,14 +399,30 @@ export const addBHPManually = async (bhpData) => {
       merk: bhpData.merk,
       volume: parseInt(bhpData.stock_awal) || 0,
       satuan: bhpData.satuan || 'Pcs',
-      harga: parseInt(bhpData.harga_satuan) || 0
+      harga: parseInt(bhpData.harga_satuan) || 0,
+      // Add flag to automatically update balance
+      update_balance: true,
+      // Pass the total value that should be deducted from the balance
+      total_value: totalValue
     };
     
     console.log('API payload:', payload);
     
-    // Call the actual API endpoint
+    // Call the API endpoint to add BHP and update balance
     const response = await api.post('/bhp', payload);
     console.log('API response:', response);
+    
+    // After adding BHP item, fetch the updated balance
+    try {
+      const balanceResponse = await getBalance();
+      console.log('Updated balance after adding BHP:', balanceResponse?.data);
+      
+      // Dispatch a custom event to notify other components about balance update
+      const balanceUpdateEvent = new Event('bhp-balance-updated');
+      window.dispatchEvent(balanceUpdateEvent);
+    } catch (balanceError) {
+      console.error('Failed to fetch updated balance:', balanceError);
+    }
     
     return response.data;
   } catch (error) {
@@ -430,6 +450,8 @@ export const importBHP = async (file) => {
   try {
     const formData = new FormData();
     formData.append('file', file);
+    // Add flag to update balance automatically
+    formData.append('update_balance', 'true');
     
     const response = await api.post('/bhp/import', formData, {
       headers: {
@@ -439,7 +461,10 @@ export const importBHP = async (file) => {
     
     console.log("Import BHP response:", response);
     
-   
+    // Dispatch a custom event to notify other components about balance update
+    const balanceUpdateEvent = new Event('bhp-balance-updated');
+    window.dispatchEvent(balanceUpdateEvent);
+    
     if (response.data && response.data.message && response.data.message.includes('success')) {
       // Fetch fresh data after successful import
       const freshData = await getBHPs();

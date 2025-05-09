@@ -31,7 +31,6 @@ const ModalAssetPage = ({
     NoSPKFakturKuitansi: '',
     NoBAPenerimaan: '',
     KodeRekeningAset: '',
-    NamaRekeningAset: '',
     UmurEkonomis: '',
     NilaiPerolehan: '',
     BebanPenyusutan: '',

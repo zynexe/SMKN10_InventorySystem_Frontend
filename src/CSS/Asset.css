@@ -1397,6 +1397,11 @@ button:disabled {
   text-align: center;
 }
 
+.negative-balance {
+  color: #ff3333;
+  font-weight: bold;
+}
+
 .error-text {
   color: #d32f2f;
   font-size: 14px;
