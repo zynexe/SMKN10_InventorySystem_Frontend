@@ -56,7 +56,6 @@ function BHPHome() {
       // Add event listener
       window.addEventListener('bhp-balance-updated', handleBalanceUpdate);
 
-      // Clean up
       return () => {
         window.removeEventListener('bhp-balance-updated', handleBalanceUpdate);
       };
