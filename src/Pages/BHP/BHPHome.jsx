@@ -114,13 +114,13 @@ function BHPHome() {
           }
         }
         
-        // Force a refresh of balance data
+        
         setRefreshTrigger(prev => prev + 1);
         setIsBalanceModalOpen(false);
       } catch (error) {
         console.error('Error updating balance:', error);
         
-        // More detailed error logging
+        
         if (error.response) {
           console.error('Error response status:', error.response.status);
           console.error('Error response data:', error.response.data);
@@ -135,7 +135,6 @@ function BHPHome() {
       }
     };
     
-    // Fetch monthly expenses data and update rekap values
     useEffect(() => {
         const fetchMonthlyExpenses = async () => {
             setLoadingChart(true);
@@ -143,7 +142,7 @@ function BHPHome() {
             setLoadingStats(true);
             
             try {
-                // Use the imported function from api.js
+            
                 const data = await getMonthlyExpenses(selectedYear);
                 setMonthlyExpenses(data);
                 
@@ -177,7 +176,7 @@ function BHPHome() {
     // Render chart when expenses data or selected year changes
     useEffect(() => {
         if (chartRef.current && !loadingChart && !chartError) {
-            // Clear previous chart
+           
             while (chartRef.current.firstChild) {
                 chartRef.current.removeChild(chartRef.current.firstChild);
             }
@@ -185,7 +184,7 @@ function BHPHome() {
             // Format monthly data for the chart based on the object structure
             const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
             
-            // Extract values from the monthlyExpenses object using padded month numbers (01, 02, etc.)
+          
             const monthlyData = months.map((month, index) => {
                 // Create padded month number (01, 02, etc.)
                 const paddedMonth = String(index + 1).padStart(2, '0');
@@ -281,7 +280,7 @@ function BHPHome() {
         fetchStatistics();
     }, []);
 
-    // Function to toggle year dropdown
+    
     const toggleYearDropdown = (isOpen) => {
         setIsYearDropdownOpen(isOpen !== undefined ? isOpen : !isYearDropdownOpen);
     };
@@ -313,7 +312,7 @@ function BHPHome() {
                             className="card clickable" 
                             onClick={() => setIsBalanceModalOpen(true)}
                         >
-                            <h3>Balance</h3>
+                            <h3>Saldo</h3>
                             {isLoadingBalance ? (
                                 <p>Loading...</p>
                             ) : balanceError ? (
@@ -350,7 +349,7 @@ function BHPHome() {
                         </div>
                     </div>
                     
-                    {/* Add Balance Modal */}
+                   
                     <BalanceModal 
                         isOpen={isBalanceModalOpen} 
                         closeModal={() => setIsBalanceModalOpen(false)}
@@ -361,7 +360,7 @@ function BHPHome() {
 
                     <div className="chart-container">
                         <div className="chart-header">
-                            <h3>Monthly Expenses</h3>
+                            <h3>Pengeluaran Bulanan</h3>
                             <Dropdown
                                 options={years}
                                 isOpen={isYearDropdownOpen}
@@ -380,7 +379,7 @@ function BHPHome() {
                     </div>
                     
                     <div className="header">
-                        <h3>BHP Statistics</h3>
+                        <h3>Statistik BHP</h3>
                     </div>
                     <div className="dashboard-cards">
                         <div className="card-statistic" onClick={() => handleCardClick("/riwayat")}>

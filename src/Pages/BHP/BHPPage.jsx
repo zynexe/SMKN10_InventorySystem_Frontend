@@ -359,7 +359,7 @@ function BHPPage() {
       return (
         <>
           <div className="header">
-            <h2 style={{ marginRight: "10px" }}>BHP</h2>
+            <h2 style={{ marginRight: "10px" }}>Barang Habis Pakai</h2>
             
             <div className="header-buttons">
               <SearchBar
