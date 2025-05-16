@@ -6,13 +6,9 @@ import calendarYear from "../../assets/calenderYear.png";
 import Sidebar from '../../Layout/Sidebar'; 
 import Dropdown from "../../Components/Dropdown"; 
 import ProfileBar from "../../Components/ProfileBar"; 
-import BalanceModal from "../../Components/BalanceModal";
 
 // Import API functions
 import { 
-  getBalance, 
-  addBalance, 
-  updateBalance, 
   getAssets,
   getCurrentTotals,  
   getTotalAssetCount, 
@@ -40,12 +36,9 @@ function AssetHome() {
     
     // State for expenses data
     const [expensesData, setExpensesData] = useState({});
-    
-    // State for balance
-    const [balance, setBalance] = useState(0);
-    const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
-    const [isLoadingBalance, setIsLoadingBalance] = useState(true);
-    const [balanceError, setBalanceError] = useState(null);
+    const [totalAssetValue, setTotalAssetValue] = useState(0);
+    const [isLoadingTotalValue, setIsLoadingTotalValue] = useState(true);
+    const [totalValueError, setTotalValueError] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     // Function to format currency
@@ -95,7 +88,49 @@ function AssetHome() {
       };
       
       fetchAllStats();
-    }, [refreshTrigger]); // Adding refreshTrigger ensures it refreshes when balance updates
+    }, [refreshTrigger]);
+    
+    // Calculate total asset value from all assets
+    useEffect(() => {
+      const calculateTotalAssetValue = async () => {
+        try {
+          setIsLoadingTotalValue(true);
+          setTotalValueError(null);
+          
+          const assetsResponse = await getAssets();
+          let assets = [];
+          
+          if (Array.isArray(assetsResponse)) {
+            assets = assetsResponse;
+          } else if (assetsResponse && Array.isArray(assetsResponse.data)) {
+            assets = assetsResponse.data;
+          }
+          
+          let totalValue = 0;
+          assets.forEach((item) => {
+            // Handle both backend and frontend data formats
+            let price = 0;
+            if (typeof item.harga === 'string' && item.harga.includes('Rp')) {
+              price = parseFloat(item.harga.replace("Rp.", "").replace(/\./g, "").replace(/,/g, ""));
+            } else {
+              price = parseFloat(item.harga || 0);
+            }
+            
+            totalValue += price * (parseInt(item.jumlah) || 1);
+          });
+          
+          setTotalAssetValue(totalValue);
+          
+        } catch (error) {
+          console.error('Error calculating total asset value:', error);
+          setTotalValueError('Failed to calculate total asset value');
+        } finally {
+          setIsLoadingTotalValue(false);
+        }
+      };
+      
+      calculateTotalAssetValue();
+    }, [refreshTrigger]);
     
     // Fetch expense data for chart
     useEffect(() => {
@@ -115,12 +150,10 @@ function AssetHome() {
             assets = assetsResponse.data;
           }
           
-          // Optimize: Create a more efficient data structure
           const expensesByYear = {};
           
           // Process assets in a single pass
           assets.forEach(asset => {
-            // Skip invalid dates
             if (!asset.tanggal && !asset.tanggal_pembelian) return;
             
             const purchaseDate = new Date(asset.tanggal || asset.tanggal_pembelian);
@@ -138,12 +171,11 @@ function AssetHome() {
             const quantity = Number(asset.jumlah) || 1;
             const totalExpense = price * quantity;
             
-            // Initialize year data if needed
+         
             if (!expensesByYear[year]) {
               expensesByYear[year] = Array(12).fill(0);
             }
-            
-            // Add expense to the right month
+
             expensesByYear[year][month] += totalExpense;
           });
           
@@ -225,35 +257,6 @@ function AssetHome() {
       }
     }, [selectedYear, expensesData]);
 
-    // Fetch balance
-    const fetchBalance = async () => {
-      try {
-        setIsLoadingBalance(true);
-        console.log('Fetching balance...');
-        const response = await getBalance();
-        
-        console.log('Balance data response:', response);
-        console.log('Balance data value:', response?.data);
-        
-        if (response && response.data !== undefined) {
-          const newBalance = Number(response.data);
-          console.log('Setting balance state to:', newBalance);
-          setBalance(newBalance);
-        }
-        setBalanceError(null);
-      } catch (error) {
-        console.error('Failed to fetch balance:', error);
-        setBalanceError('Failed to load balance data');
-      } finally {
-        setIsLoadingBalance(false);
-      }
-    };
-
-    // Update the useEffect to include refreshTrigger in the dependency array
-    useEffect(() => {
-      fetchBalance();
-    }, [refreshTrigger]);
-
     // Function to toggle year dropdown
     const toggleYearDropdown = (isOpen) => {
       setIsYearDropdownOpen(isOpen !== undefined ? isOpen : !isYearDropdownOpen);
@@ -262,50 +265,6 @@ function AssetHome() {
     const handleYearSelect = (year) => {
       setSelectedYear(parseInt(year));
       setIsYearDropdownOpen(false);
-    };
-
-    // Handle balance update
-    const handleBalanceUpdate = async (newBalance, isAddition = false) => {
-      try {
-        if (isAddition) {
-          console.log(`Adding balance: ${newBalance}`);
-          const response = await addBalance(parseFloat(newBalance));
-          console.log('Add balance response:', response);
-          if (response && response.data !== undefined) {
-            const updatedBalance = Number(response.data);
-            console.log('Setting updated balance to:', updatedBalance);
-            setBalance(updatedBalance);
-          }
-        } else {
-          console.log(`Updating balance to: ${newBalance}`);
-          const response = await updateBalance(parseFloat(newBalance));
-          console.log('Update balance response:', response);
-          if (response && response.data !== undefined) {
-            const updatedBalance = Number(response.data);
-            console.log('Setting updated balance to:', updatedBalance);
-            setBalance(updatedBalance);
-          }
-        }
-        
-        // Force a refresh of balance data
-        setRefreshTrigger(prev => prev + 1);
-        setIsBalanceModalOpen(false);
-      } catch (error) {
-        console.error('Error updating balance:', error);
-        
-        // More detailed error logging
-        if (error.response) {
-          console.error('Error response status:', error.response.status);
-          console.error('Error response data:', error.response.data);
-          alert(`Failed to update balance: ${error.response.data?.message || 'Please try again.'}`);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-          alert('No response from server. Please check your internet connection.');
-        } else {
-          console.error('Request setup error:', error.message);
-          alert(`Error: ${error.message}`);
-        }
-      }
     };
     
     const handleCardClick = (route) => {
@@ -328,15 +287,15 @@ function AssetHome() {
                     <div className="dashboard-cards">
                         <div 
                             className="card clickable" 
-                            onClick={() => setIsBalanceModalOpen(true)}
+                            onClick={() => navigate('/asset-page')} 
                         >
-                            <h3>Balance</h3>
-                            {isLoadingBalance ? (
+                            <h3>Total Aset</h3>
+                            {isLoadingTotalValue ? (
                                 <p>Loading...</p>
-                            ) : balanceError ? (
-                                <p className="error-text">Error loading balance</p>
+                            ) : totalValueError ? (
+                                <p className="error-text">Error loading total value</p>
                             ) : (
-                                <p>Rp. {balance.toLocaleString('id-ID')}</p>
+                                <p>Rp. {totalAssetValue.toLocaleString('id-ID')}</p>
                             )}
                         </div>
                         <div className="card non-clickable tooltip-container">
@@ -364,19 +323,10 @@ function AssetHome() {
                             )}
                         </div>
                     </div>
-                    
-                    {/* Add Balance Modal */}
-                    <BalanceModal 
-                        isOpen={isBalanceModalOpen} 
-                        closeModal={() => setIsBalanceModalOpen(false)}
-                        currentBalance={balance}
-                        onUpdateBalance={handleBalanceUpdate}
-                        isLoading={isLoadingBalance}
-                    />
 
                     <div className="chart-container">
                         <div className="chart-header">
-                            <h3>Monthly Expenses</h3>
+                            <h3>Pengeluaran Bulanan</h3>
                             <Dropdown
                                 options={years}
                                 isOpen={isYearDropdownOpen}
@@ -389,12 +339,12 @@ function AssetHome() {
                     </div>
                     
                     <div className="header">
-                        <h3>Asset Statistics</h3>
+                        <h3>Statistik Aset</h3>
                     </div>
                     <div className="dashboard-cards">
                         <div className="card-statistic" onClick={() => handleCardClick("/gedung")}>
                             <h3>
-                                Total Lokasi <span className="card-arrow">→</span> {/* Changed from Total Gedung */}
+                                Total Lokasi <span className="card-arrow">→</span>
                             </h3>
                             {loadingStats ? (
                                 <h2>Loading...</h2>
@@ -406,7 +356,7 @@ function AssetHome() {
                         </div>
                         <div className="card-statistic" onClick={() => handleCardClick("/asset-page")}>
                             <h3>
-                                Total Assets <span className="card-arrow">→</span> {/* Changed from Total Item */}
+                                Total Assets <span className="card-arrow">→</span>
                             </h3>
                             {loadingStats ? (
                                 <h2>Loading...</h2>

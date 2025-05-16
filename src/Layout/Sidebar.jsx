@@ -60,7 +60,7 @@ function Sidebar() {
                             className={location.pathname === "/asset-page" ? "active" : ""}
                         >
                             <img src={assetIcon} alt="Asset" className="icon" />
-                            Asset
+                            Aset
                         </a>
                     </li>
                     <li>

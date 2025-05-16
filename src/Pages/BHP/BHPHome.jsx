@@ -6,14 +6,17 @@ import calendarYear from "../../assets/calenderYear.png";
 import SidebarBHP from '../../Layout/SidebarBHP'; 
 import Dropdown from "../../Components/Dropdown"; 
 import ProfileBar from "../../Components/ProfileBar"; 
-import BalanceModal from "../../Components/BalanceModal";
+// Remove BalanceModal import since we're not using it anymore
+// import BalanceModal from "../../Components/BalanceModal";
 import api, { 
   getMonthlyExpenses, 
   getTotalBHP, 
   getTotalPeminjam,
-  getBalance,
-  addBalance,
-  updateBalance 
+  // Remove balance-related imports
+  // getBalance,
+  // addBalance,
+  // updateBalance,
+  getBHPs
 } from '../../services/api'; 
 
 function BHPHome() {
@@ -39,17 +42,18 @@ function BHPHome() {
     const [loadingChart, setLoadingChart] = useState(false);
     const [chartError, setChartError] = useState(null);
     
-    // Balance state management
-    const [balance, setBalance] = useState(0);
-    const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
-    const [isLoadingBalance, setIsLoadingBalance] = useState(true);
-    const [balanceError, setBalanceError] = useState(null);
+    // Replace balance state with totalBHPValue
+    const [totalBHPValue, setTotalBHPValue] = useState(0);
+    const [isLoadingTotalValue, setIsLoadingTotalValue] = useState(true);
+    const [totalValueError, setTotalValueError] = useState(null);
+    // Remove balance modal state
+    // const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     
-    // Create a custom event listener for balance updates from other components
+    // Keep the event listener but change it to refresh total value instead of balance
     useEffect(() => {
       const handleBalanceUpdate = () => {
-        console.log('Balance update event received in BHPHome');
+        console.log('BHP update event received in BHPHome');
         setRefreshTrigger(prev => prev + 1);
       };
 
@@ -61,78 +65,49 @@ function BHPHome() {
       };
     }, []);
 
-    // Fetch balance data
-    const fetchBalance = async () => {
+    // Replace balance fetch with total BHP value calculation
+    const calculateTotalBHPValue = async () => {
       try {
-        setIsLoadingBalance(true);
-        console.log('Fetching balance...');
-        const response = await getBalance();
+        setIsLoadingTotalValue(true);
+        setTotalValueError(null);
         
-        console.log('Balance data response:', response);
-        console.log('Balance data value:', response?.data);
+        const bhpItems = await getBHPs();
         
-        if (response && response.data !== undefined) {
-          const newBalance = Number(response.data);
-          console.log('Setting balance state to:', newBalance);
-          setBalance(newBalance);
+        let items = [];
+        if (bhpItems && bhpItems.data) {
+          items = bhpItems.data;
+        } else if (Array.isArray(bhpItems)) {
+          items = bhpItems;
         }
-        setBalanceError(null);
+        
+        let totalValue = 0;
+        
+        items.forEach((item) => {
+          const stockAkhir = Math.max(
+            parseInt(item.stock_akhir || 0), 
+            parseInt(item['Stock Akhir'] || 0)
+          );
+          
+          const hargaSatuan = parseInt(item.harga_satuan || item['Harga Satuan'] || item.harga || 0);
+          
+          const itemTotal = stockAkhir * hargaSatuan;
+          totalValue += itemTotal;
+        });
+        
+        setTotalBHPValue(totalValue);
+        setTotalValueError(null);
       } catch (error) {
-        console.error('Failed to fetch balance:', error);
-        setBalanceError('Failed to load balance data');
+        console.error('Failed to calculate total BHP value:', error);
+        setTotalValueError('Failed to load total value');
       } finally {
-        setIsLoadingBalance(false);
+        setIsLoadingTotalValue(false);
       }
     };
     
-    // Load balance data on component mount and when refreshTrigger changes
+    // Load total BHP value on component mount and when refreshTrigger changes
     useEffect(() => {
-      fetchBalance();
+      calculateTotalBHPValue();
     }, [refreshTrigger]);
-    
-    // Handle balance updates
-    const handleBalanceUpdate = async (newBalance, isAddition = false) => {
-      try {
-        if (isAddition) {
-          console.log(`Adding balance: ${newBalance}`);
-          const response = await addBalance(parseFloat(newBalance));
-          console.log('Add balance response:', response);
-          if (response && response.data !== undefined) {
-            const updatedBalance = Number(response.data);
-            console.log('Setting updated balance to:', updatedBalance);
-            setBalance(updatedBalance);
-          }
-        } else {
-          console.log(`Updating balance to: ${newBalance}`);
-          const response = await updateBalance(parseFloat(newBalance));
-          console.log('Update balance response:', response);
-          if (response && response.data !== undefined) {
-            const updatedBalance = Number(response.data);
-            console.log('Setting updated balance to:', updatedBalance);
-            setBalance(updatedBalance);
-          }
-        }
-        
-        
-        setRefreshTrigger(prev => prev + 1);
-        setIsBalanceModalOpen(false);
-      } catch (error) {
-        console.error('Error updating balance:', error);
-        
-        
-        if (error.response) {
-          console.error('Error response status:', error.response.status);
-          console.error('Error response data:', error.response.data);
-          alert(`Failed to update balance: ${error.response.data?.message || 'Please try again.'}`);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-          alert('No response from server. Please check your internet connection.');
-        } else {
-          console.error('Request setup error:', error.message);
-          alert(`Error: ${error.message}`);
-        }
-      }
-    };
     
     useEffect(() => {
         const fetchMonthlyExpenses = async () => {
@@ -309,17 +284,15 @@ function BHPHome() {
                     <div className="dashboard-cards">
                         <div 
                             className="card clickable" 
-                            onClick={() => setIsBalanceModalOpen(true)}
+                            onClick={() => navigate('/bhp-page')} // Navigate to BHP page instead of opening modal
                         >
-                            <h3>Saldo</h3>
-                            {isLoadingBalance ? (
+                            <h3>Total BHP</h3>
+                            {isLoadingTotalValue ? (
                                 <p>Loading...</p>
-                            ) : balanceError ? (
-                                <p className="error-text">Error loading balance</p>
+                            ) : totalValueError ? (
+                                <p className="error-text">Error loading value</p>
                             ) : (
-                                <p className={balance < 0 ? "negative-balance" : ""}>
-                                    Rp. {balance.toLocaleString('id-ID')}
-                                </p>
+                                <p>Rp. {totalBHPValue.toLocaleString('id-ID')}</p>
                             )}
                         </div>
                         <div className="card non-clickable tooltip-container">
@@ -348,14 +321,7 @@ function BHPHome() {
                         </div>
                     </div>
                     
-                   
-                    <BalanceModal 
-                        isOpen={isBalanceModalOpen} 
-                        closeModal={() => setIsBalanceModalOpen(false)}
-                        currentBalance={balance}
-                        onUpdateBalance={handleBalanceUpdate}
-                        isLoading={isLoadingBalance}
-                    />
+                    {/* Remove the BalanceModal */}
 
                     <div className="chart-container">
                         <div className="chart-header">

@@ -329,16 +329,10 @@ function AssetPage() {
     try {
       console.log('Submitting asset data:', formData);
       
-      // Calculate the total cost of the asset(s)
-      const assetCost = Number(formData.harga || 0) * Number(formData.jumlah || 1);
-      
       if (isEditMode && selectedAsset) {
         // If in edit mode, update the existing asset
         const response = await updateAsset(selectedAsset.id, formData);
         console.log("Asset updated:", response);
-        
-        // No need to update balance if it's an edit (unless quantity or price changed)
-        // You could add more complex balance handling here if needed
         
         // Refresh the asset list
         await fetchAssets();
@@ -349,20 +343,9 @@ function AssetPage() {
         // Show success message
         alert("Asset updated successfully.");
       } else {
-        // If adding a new asset, check balance first
-        if (assetCost > balance) {
-          alert(`Insufficient balance. Current balance: Rp ${balance.toLocaleString('id-ID')}, Required: Rp ${assetCost.toLocaleString('id-ID')}`);
-          return;
-        }
-        
-        // Add the asset
+        // Add the asset - removed balance check
         const response = await addAsset(formData);
         console.log("Asset added:", response);
-        
-        // Then update the balance
-        const newBalance = balance - assetCost;
-        await updateBalance(newBalance);
-        setBalance(newBalance);
         
         // Refresh the asset list
         await fetchAssets();
@@ -370,8 +353,8 @@ function AssetPage() {
         // Close modal
         closeModal();
         
-        // Show success message with updated balance
-        alert(`Asset added successfully. New balance: Rp ${newBalance.toLocaleString('id-ID')}`);
+        // Show success message without balance information
+        alert("Asset added successfully.");
       }
     } catch (error) {
       console.error("Error saving asset:", error);

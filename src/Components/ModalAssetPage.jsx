@@ -248,14 +248,14 @@ const ModalAssetPage = ({
       { key: 'merk_barang', label: 'Merk Barang' },
       { key: 'satuan', label: 'Satuan' },
       { key: 'tanggal_pembelian', label: 'Tanggal' },
-      { key: 'no_spk_faktur_kuitansi', label: 'No. SPK/Faktur/Kuitansi' },
-      { key: 'kode_rekening_belanja', label: 'Kodering Belanja' },
-      { key: 'no_bast', label: 'No BA Penerimaan' },
-      { key: 'kondisi', label: 'Kondisi' },
-      { key: 'umur_ekonomis', label: 'Umur Ekonomis' },
-      { key: 'nilai_perolehan', label: 'Nilai Perolehan' },
-      { key: 'beban_penyusutan', label: 'Beban Penyusutan' },
-      { key: 'sumber_perolehan', label: 'Sumber Perolehan' }  // Add this line to include in validation
+      // Remove step 2 and 3 fields from required validation:
+      // { key: 'no_spk_faktur_kuitansi', label: 'No. SPK/Faktur/Kuitansi' },
+      // { key: 'kode_rekening_belanja', label: 'Kodering Belanja' },
+      // { key: 'no_bast', label: 'No BA Penerimaan' },
+      // { key: 'umur_ekonomis', label: 'Umur Ekonomis' },
+      // { key: 'nilai_perolehan', label: 'Nilai Perolehan' },
+      // { key: 'beban_penyusutan', label: 'Beban Penyusutan' },
+      // { key: 'sumber_perolehan', label: 'Sumber Perolehan' }
     ];
     
     const emptyFields = requiredFields.filter(field => {
@@ -521,7 +521,6 @@ const ModalAssetPage = ({
                 name="SumberPerolehan"
                 value={formData.SumberPerolehan || ''}
                 onChange={handleInputChange}
-                required
               />
             </div>
             <div className="form-group">
@@ -532,7 +531,6 @@ const ModalAssetPage = ({
                 name="KoderingBelanja"
                 value={formData.KoderingBelanja || ''}
                 onChange={handleInputChange}
-                required
               />
             </div>
             <div className="form-group">
@@ -543,7 +541,6 @@ const ModalAssetPage = ({
                 name="NoSPKFakturKuitansi"
                 value={formData.NoSPKFakturKuitansi || ''}
                 onChange={handleInputChange}
-                required
               />
             </div>
             <div className="form-group">
@@ -554,7 +551,6 @@ const ModalAssetPage = ({
                 name="NoBAPenerimaan"
                 value={formData.NoBAPenerimaan || ''}
                 onChange={handleInputChange}
-                required
               />
             </div>
           </div>
@@ -569,7 +565,7 @@ const ModalAssetPage = ({
                 name="KodeRekeningAset"
                 value={formData.KodeRekeningAset || ''}
                 onChange={handleInputChange}
-                required
+                // removed required attribute
               />
             </div>
             <div className="form-group">
@@ -580,7 +576,7 @@ const ModalAssetPage = ({
                 name="NamaRekeningAset"
                 value={formData.NamaRekeningAset || ''}
                 onChange={handleInputChange}
-                required
+                // removed required attribute
               />
             </div>
             <div className="form-group">
@@ -591,7 +587,7 @@ const ModalAssetPage = ({
                 name="UmurEkonomis"
                 value={formData.UmurEkonomis || ''}
                 onChange={handleInputChange}
-                required
+                // removed required attribute
               />
             </div>
             <div className="form-group">
@@ -602,7 +598,7 @@ const ModalAssetPage = ({
                 name="NilaiPerolehan"
                 value={formData.NilaiPerolehan || ''}
                 onChange={handleInputChange}
-                required
+                // removed required attribute
               />
             </div>
             <div className="form-group">
@@ -613,7 +609,7 @@ const ModalAssetPage = ({
                 name="BebanPenyusutan"
                 value={formData.BebanPenyusutan || ''}
                 onChange={handleInputChange}
-                required
+                // removed required attribute
               />
             </div>
           </div>

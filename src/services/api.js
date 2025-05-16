@@ -388,11 +388,7 @@ export const addBHPManually = async (bhpData) => {
   try {
     console.log('Adding BHP item manually:', bhpData);
     
-    // Calculate the total value that will be deducted from the balance
-    const totalValue = parseInt(bhpData.stock_awal || 0) * parseInt(bhpData.harga_satuan || 0);
-    console.log(`Total value to be deducted from balance: Rp ${totalValue.toLocaleString('id-ID')}`);
-    
-    // Prepare the payload according to the API requirements
+    // Prepare the payload according to the API requirements without balance update
     const payload = {
       nama_barang: bhpData.nama_barang,
       kode_rekening: bhpData.kode_rekening,
@@ -400,29 +396,18 @@ export const addBHPManually = async (bhpData) => {
       volume: parseInt(bhpData.stock_awal) || 0,
       satuan: bhpData.satuan || 'Pcs',
       harga: parseInt(bhpData.harga_satuan) || 0,
-      // Add flag to automatically update balance
-      update_balance: true,
-      // Pass the total value that should be deducted from the balance
-      total_value: totalValue
+      update_balance: false
     };
     
     console.log('API payload:', payload);
     
-    // Call the API endpoint to add BHP and update balance
+    // Call the API endpoint to add BHP
     const response = await api.post('/bhp', payload);
     console.log('API response:', response);
     
-    // After adding BHP item, fetch the updated balance
-    try {
-      const balanceResponse = await getBalance();
-      console.log('Updated balance after adding BHP:', balanceResponse?.data);
-      
-      // Dispatch a custom event to notify other components about balance update
-      const balanceUpdateEvent = new Event('bhp-balance-updated');
-      window.dispatchEvent(balanceUpdateEvent);
-    } catch (balanceError) {
-      console.error('Failed to fetch updated balance:', balanceError);
-    }
+    // Dispatch a custom event to notify other components about BHP update
+    const bhpUpdateEvent = new Event('bhp-balance-updated');
+    window.dispatchEvent(bhpUpdateEvent);
     
     return response.data;
   } catch (error) {
