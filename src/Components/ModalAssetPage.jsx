@@ -23,9 +23,10 @@ const ModalAssetPage = ({
     harga: '',
     kondisi: 'Baru', 
     lokasi: '',
+    // Set today's date as default
     Tanggal: new Date().toISOString().split('T')[0], 
     
-    //Step 2 Fields
+    // Step 2 Fields
     SumberPerolehan: '',
     KoderingBelanja: '',
     NoSPKFakturKuitansi: '',
@@ -224,6 +225,10 @@ const ModalAssetPage = ({
   const handleFormSubmit = (e) => {
     e.preventDefault();
     
+    // Default date format in case it's not provided
+    const defaultFormattedDate = new Date().toISOString().split('T')[0];
+    
+    // Make sure all string fields are sent as empty strings, not null or undefined
     const processedFormData = {
       kode: String(formData.kodeBarang || ''),
       nama_gedung: String(formData.lokasi || ''), // keep the backend field name for compatibility
@@ -233,13 +238,17 @@ const ModalAssetPage = ({
       harga: Number(formData.harga || 0),
       kondisi: String(formData.kondisi || 'Baru'),
       tanggal_pembelian: String(formData.Tanggal) || defaultFormattedDate,
+      
+      // Step 2 fields - ensure these are always strings, even if empty
       kode_rekening_belanja: String(formData.KoderingBelanja || ''),
       no_spk_faktur_kuitansi: String(formData.NoSPKFakturKuitansi || ''),
       no_bast: String(formData.NoBAPenerimaan || ''),
+      sumber_perolehan: String(formData.SumberPerolehan || ''),
+      
+      // Step 3 fields - ensure numeric fields have defaults
       umur_ekonomis: Number(formData.UmurEkonomis || 0),
       nilai_perolehan: Number(formData.NilaiPerolehan || 0),
       beban_penyusutan: Number(formData.BebanPenyusutan || 0),
-      sumber_perolehan: String(formData.SumberPerolehan || '')  // Add this line to include sumber_perolehan
     };
     
     const requiredFields = [
@@ -248,14 +257,7 @@ const ModalAssetPage = ({
       { key: 'merk_barang', label: 'Merk Barang' },
       { key: 'satuan', label: 'Satuan' },
       { key: 'tanggal_pembelian', label: 'Tanggal' },
-      // Remove step 2 and 3 fields from required validation:
-      // { key: 'no_spk_faktur_kuitansi', label: 'No. SPK/Faktur/Kuitansi' },
-      // { key: 'kode_rekening_belanja', label: 'Kodering Belanja' },
-      // { key: 'no_bast', label: 'No BA Penerimaan' },
-      // { key: 'umur_ekonomis', label: 'Umur Ekonomis' },
-      // { key: 'nilai_perolehan', label: 'Nilai Perolehan' },
-      // { key: 'beban_penyusutan', label: 'Beban Penyusutan' },
-      // { key: 'sumber_perolehan', label: 'Sumber Perolehan' }
+      // Step 2 and 3 fields are now optional
     ];
     
     const emptyFields = requiredFields.filter(field => {
@@ -276,8 +278,28 @@ const ModalAssetPage = ({
 
   const validateStep = (step) => {
     if (step === 1) {
-      if (!formData.kodeBarang || !formData.lokasi || !formData.merkBarang) {
-        alert('Please fill in all required fields before continuing.');
+      const requiredFields = [
+        { key: 'kodeBarang', label: 'Kode Barang' },
+        { key: 'namaBarang', label: 'Nama Barang' },
+        { key: 'merkBarang', label: 'Merk Barang' },
+        { key: 'satuan', label: 'Satuan' },
+        { key: 'lokasi', label: 'Lokasi' },
+        { key: 'Tanggal', label: 'Tanggal' }
+      ];
+      
+      const missingFields = requiredFields.filter(field => {
+        // Check if the field exists and is not empty
+        // Handle both string and numeric fields
+        const value = formData[field.key];
+        if (value === null || value === undefined) return true;
+        if (typeof value === 'string') return value.trim() === '';
+        if (typeof value === 'number') return isNaN(value) || value === 0;
+        return true;
+      });
+      
+      if (missingFields.length > 0) {
+        const fieldLabels = missingFields.map(f => f.label).join(', ');
+        alert(`Please fill in the following fields: ${fieldLabels}`);
         return false;
       }
     }
@@ -293,7 +315,27 @@ const ModalAssetPage = ({
 
   useEffect(() => {
     if (!isOpen) {
-      setFormData({});
+      // Reset form when closing
+      setFormData({
+        kodeBarang: '',
+        namaBarang: '',
+        merkBarang: '',
+        jumlah: '1',
+        satuan: '',
+        harga: '',
+        kondisi: 'Baru',
+        lokasi: '',
+        // Set today's date as default
+        Tanggal: new Date().toISOString().split('T')[0],
+        SumberPerolehan: '',
+        KoderingBelanja: '',
+        NoSPKFakturKuitansi: '',
+        NoBAPenerimaan: '',
+        KodeRekeningAset: '',
+        UmurEkonomis: '',
+        NilaiPerolehan: '',
+        BebanPenyusutan: '',
+      });
       setCurrentStep(1);
     }
   }, [isOpen, setCurrentStep]);

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrashAlt, FaFileImport } from 'react-icons/fa';
+// Add FaTrash to imports
+import { FaEdit, FaTrashAlt, FaFileImport, FaTrash } from 'react-icons/fa';
 import SearchBar from '../../Components/SearchBar';
 import Pagination from '../../Components/Pagination';
 import SidebarBHP from '../../Layout/SidebarBHP';
 import KodeRekeningModal from '../../Components/KodeRekeningModal';
 import '../../CSS/Asset.css';
 import { useNavigate } from 'react-router-dom';
-import { getKodeRekenings, addKodeRekening, updateKodeRekening, deleteKodeRekening, importKodeRekening } from '../../services/api';
+import { getKodeRekenings, addKodeRekening, updateKodeRekening, deleteKodeRekening, importKodeRekening, deleteAllKodeRekening } from '../../services/api';
 
 const RekeningPage = () => {
     const navigate = useNavigate();
@@ -19,6 +20,8 @@ const RekeningPage = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [isEditing, setIsEditing] = useState(false);
     const [currentItem, setCurrentItem] = useState(null);
+    // Add state for delete all functionality
+    const [isDeleting, setIsDeleting] = useState(false);
     const itemsPerPage = 10;
 
     // Fetch all kode rekening items
@@ -134,6 +137,43 @@ const RekeningPage = () => {
         }
     };
 
+    // Update the handleDeleteAll function to use the API
+    const handleDeleteAll = async () => {
+        // Show a confirmation dialog with strong warning
+        const confirmResult = window.confirm(
+            'WARNING: This will permanently delete ALL Kode Rekening items. This action cannot be undone. Are you absolutely sure?'
+        );
+        
+        if (confirmResult) {
+            // Double-check with a more specific confirmation
+            const secondConfirm = window.confirm(
+                `You are about to delete ${items.length} items. Please confirm once more to proceed.`
+            );
+            
+            if (secondConfirm) {
+                try {
+                    setIsDeleting(true);
+                    
+                    // Call the API to delete all items
+                    await deleteAllKodeRekening();
+                    
+                    // Show success message
+                    alert('All Kode Rekening items have been successfully deleted.');
+                    
+                    // Clear the local items list and refresh the data
+                    setItems([]);
+                    fetchItems();
+                    
+                } catch (error) {
+                    console.error("Error deleting all items:", error);
+                    alert(`Failed to delete all items: ${error.message}`);
+                } finally {
+                    setIsDeleting(false);
+                }
+            }
+        }
+    };
+
     // Debug items state
     useEffect(() => {
         console.log('Current Items state:', { items, filteredItems, currentItems });
@@ -151,6 +191,17 @@ const RekeningPage = () => {
                             searchTerm={searchTerm}
                             handleSearchChange={(e) => setSearchTerm(e.target.value)}
                         />
+                        {/* Add Delete All button here */}
+                        {items.length > 0 && (
+                            <button 
+                                className="delete-all-button"
+                                onClick={handleDeleteAll}
+                                disabled={isDeleting || loading}
+                            >
+                                <FaTrash style={{ marginRight: '5px' }} />
+                                {isDeleting ? "Deleting..." : "Delete All"}
+                            </button>
+                        )}
                         <button className="main-button" onClick={handleAddItem}>
                             + Add
                         </button>

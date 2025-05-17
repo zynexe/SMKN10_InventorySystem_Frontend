@@ -12,9 +12,17 @@ import InfoBA from "../../Components/InfoBA";
 import InfoAset from "../../Components/InfoAset";
 import AssetTable from '../../Components/AssetTable';
 import * as XLSX from 'xlsx'; 
-import { FaDownload } from 'react-icons/fa';
+import { FaDownload, FaTrash } from 'react-icons/fa';
 //api functions
-import { getAssets, addAsset, updateAsset, deleteAsset, getBalance, updateBalance } from '../../services/api';
+import { 
+  getAssets, 
+  addAsset, 
+  updateAsset, 
+  deleteAsset, 
+  getBalance, 
+  updateBalance,
+  deleteAllAssets 
+} from '../../services/api';
 
 // Keep the dummy data generation functions for fallback
 const generateRandomNamaBarang = () => {
@@ -407,7 +415,7 @@ function AssetPage() {
   const applyFilters = () => {
     // Reset to first page when filters are applied
     setCurrentPage(1);
-    // Filtering logic is already handled by the useEffect
+    // Filtering logic is already handled in the useEffect
   };
 
   // State for InfoBA modal
@@ -534,6 +542,45 @@ function AssetPage() {
     setCurrentPage(1);
   };
 
+  // Add these new state variables
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Add this new function to handle delete all functionality
+  const handleDeleteAll = async () => {
+    // Show a confirmation dialog with strong warning
+    const confirmResult = window.confirm(
+      'WARNING: This will permanently delete ALL assets. This action cannot be undone. Are you absolutely sure?'
+    );
+    
+    if (confirmResult) {
+      // Double-check with a more specific confirmation
+      const secondConfirm = window.confirm(
+        `You are about to delete ${filteredData.length} assets. Please confirm once more to proceed.`
+      );
+      
+      if (secondConfirm) {
+        try {
+          setIsDeleting(true);
+          
+          // Call the API to delete all assets
+          await deleteAllAssets();
+          
+          // Success message
+          alert('All assets have been successfully deleted.');
+          
+          // Refresh the asset list
+          await fetchAssets();
+          
+        } catch (error) {
+          console.error("Error deleting all assets:", error);
+          alert(`Failed to delete all assets: ${error.response?.data?.message || error.message}`);
+        } finally {
+          setIsDeleting(false);
+        }
+      }
+    }
+  };
+
   return (
     <div className="asset-home-container">
       <Sidebar />
@@ -589,7 +636,18 @@ function AssetPage() {
             />
 
             <div className="pagination-total-container">
+              
               <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
+              <div className="delete-all-container">
+                <button 
+                  className={`delete-all-button ${isDeleting ? 'deleting' : ''}`}
+                  onClick={handleDeleteAll}
+                  disabled={isDeleting || isLoading || filteredData.length === 0}
+                >
+                  <FaTrash className="icon" /> 
+                  {isDeleting ? 'Deleting...' : 'Delete All'}
+                </button>
+              </div>
               <div className="total-value">Total: Rp. {totalValue.toLocaleString("id-ID")}</div>
             </div>
 

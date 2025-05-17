@@ -157,6 +157,30 @@ function Riwayat() {
     }
   };
 
+  // Format date function to handle different date formats and display nicely
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    let date;
+    try {
+      // Try to parse the date string
+      date = new Date(dateString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) return 'N/A';
+      
+      // Return formatted date (DD/MM/YYYY)
+      return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return 'N/A';
+    }
+  };
+
   // Export to Excel function
   const exportToExcel = () => {
     // Create a workbook
@@ -171,9 +195,11 @@ function Riwayat() {
       const peminjam = item.Peminjam || item.taker_name || 'N/A';
       const jumlahBarang = item['Jumlah Barang'] ? `${item['Jumlah Barang']} Pcs` : '0 Pcs';
       const total = parseInt(item.Total || 0);
+      const tanggal = formatDate(item.created_at || item.date || item.tanggal);
       
       return {
         'No': (index + 1),
+        'Tanggal': tanggal,
         'Nama Barang': namaBarang,
         'Kode Rekening': kodeRekening,
         'Merk': merk,
@@ -189,6 +215,7 @@ function Riwayat() {
     // Set column widths for better readability
     const colWidths = [
       { wch: 5 },   // No
+      { wch: 15 },  // Tanggal (new column)
       { wch: 30 },  // Nama Barang
       { wch: 15 },  // Kode Rekening
       { wch: 15 },  // Merk
@@ -257,6 +284,7 @@ function Riwayat() {
                   <thead>
                     <tr>
                       <th>No</th>
+                      <th>Tanggal</th>
                       <th>Nama Barang</th>
                       <th>Kode Rekening</th>
                       <th>Merk</th>
@@ -269,13 +297,10 @@ function Riwayat() {
                   <tbody>
                     {paginatedData.length > 0 ? (
                       paginatedData.map((item, index) => {
-                        console.log('Displaying item:', item); // Keep this debug line
-                        
                         // Calculate row number based on current page and index
                         const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
                         
                         // Use the exact field names from the API response
-                        // Your API is returning PascalCase field names - use those directly
                         const namaBarang = item['Nama Barang'] || item.nama_barang || 'N/A';
                         const kodeRekening = item['Kode Rekening'] || item.kode_rekening || 'N/A';
                         const merk = item.Merk || item.merk || 'N/A';
@@ -285,9 +310,13 @@ function Riwayat() {
                         const jumlahBarang = item['Jumlah Barang'] ? `${volume} ${satuan}` : '0 Pcs';
                         const total = parseInt(item.Total || 0);
                         
+                        // Get the date - try different possible field names
+                        const tanggal = formatDate(item.created_at || item.date || item.tanggal);
+                        
                         return (
                           <tr key={item.Id || item.id || index}>
                             <td>{rowNumber}</td>
+                            <td>{tanggal}</td>
                             <td>{namaBarang}</td>
                             <td>{kodeRekening}</td>
                             <td>{merk}</td>
@@ -308,7 +337,7 @@ function Riwayat() {
                       })
                     ) : (
                       <tr>
-                        <td colSpan="8" className="no-data-cell">No history data available</td>
+                        <td colSpan="9" className="no-data-cell">No history data available</td>
                       </tr>
                     )}
                   </tbody>

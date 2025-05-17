@@ -205,9 +205,11 @@
     }
 
     .pagination-total-container {
-      flex-direction: column; /* Stack pagination and total value */
-      align-items: center; /* Center items horizontally */
-      gap: 10px; /* Add some space between them */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      padding: 0 10px;
     }
 
     .total-value {
@@ -1693,3 +1695,47 @@ button:disabled {
 .table th, .table td {
   padding: 10px 8px;
 }
+
+/* Delete All Button Styles */
+.delete-all-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.delete-all-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.delete-all-button:hover {
+  background-color: #c82333;
+}
+
+.delete-all-button:active {
+  transform: scale(0.98);
+}
+
+.delete-all-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.delete-all-button .icon {
+  margin-right: 8px;
+}
+
+.delete-all-button.deleting {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+

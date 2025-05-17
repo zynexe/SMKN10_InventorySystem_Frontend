@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+// Add FaTrash to imports
+import { FaEdit, FaTrashAlt, FaTrash } from 'react-icons/fa';
 import SearchBar from '../../Components/SearchBar';
 import Pagination from '../../Components/Pagination';
 import Sidebar from '../../Layout/Sidebar';
 import KodeBarangModal from '../../Components/KodeBarangModal';
 import '../../CSS/Asset.css';
 import { useNavigate } from 'react-router-dom';
-import { getKodeBarangs, deleteKodeBarang, addKodeBarang, updateKodeBarang, getTotalKodeBarang } from '../../services/api';
+import { getKodeBarangs, deleteKodeBarang, addKodeBarang, updateKodeBarang, getTotalKodeBarang, deleteAllKodeBarang } from '../../services/api';
 
 const KodeBarangPage = () => {
     const navigate = useNavigate();
@@ -19,6 +20,8 @@ const KodeBarangPage = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [isEditing, setIsEditing] = useState(false);
     const [currentItem, setCurrentItem] = useState(null);
+    // Add state for delete all functionality
+    const [isDeleting, setIsDeleting] = useState(false);
     const itemsPerPage = 10;
 
     // Fetch kode barang items from API
@@ -179,6 +182,43 @@ const KodeBarangPage = () => {
         }
     };
 
+    // Update the handleDeleteAll function to use the API
+    const handleDeleteAll = async () => {
+        // Show a confirmation dialog with strong warning
+        const confirmResult = window.confirm(
+            'WARNING: This will permanently delete ALL Kode Barang items. This action cannot be undone. Are you absolutely sure?'
+        );
+        
+        if (confirmResult) {
+            // Double-check with a more specific confirmation
+            const secondConfirm = window.confirm(
+                `You are about to delete ${items.length} items. Please confirm once more to proceed.`
+            );
+            
+            if (secondConfirm) {
+                try {
+                    setIsDeleting(true);
+                    
+                    // Call the API to delete all items
+                    await deleteAllKodeBarang();
+                    
+                    // Show success message
+                    alert('All Kode Barang items have been successfully deleted.');
+                    
+                    // Clear the local items list and refresh the data
+                    setItems([]);
+                    fetchItems();
+                    
+                } catch (error) {
+                    console.error("Error deleting all items:", error);
+                    alert(`Failed to delete all items: ${error.message}`);
+                } finally {
+                    setIsDeleting(false);
+                }
+            }
+        }
+    };
+
     return (
         <div className="asset-home-container">
             <Sidebar />
@@ -191,6 +231,17 @@ const KodeBarangPage = () => {
                             searchTerm={searchTerm}
                             handleSearchChange={(e) => setSearchTerm(e.target.value)}
                         />
+                        {/* Add Delete All button here */}
+                        {items.length > 0 && (
+                            <button 
+                                className="delete-all-button"
+                                onClick={handleDeleteAll}
+                                disabled={isDeleting || loading}
+                            >
+                                <FaTrash style={{ marginRight: '5px' }} />
+                                {isDeleting ? "Deleting..." : "Delete All"}
+                            </button>
+                        )}
                         <button className="main-button" onClick={handleAddItem}>
                             + Add
                         </button>
@@ -272,7 +323,7 @@ const KodeBarangPage = () => {
                 onAdd={handleAddFromModal}
                 isEditing={isEditing}
                 currentItem={currentItem}
-                onImportSuccess={fetchItems}  // Pass the fetchItems function to refresh after import
+                onImportSuccess={fetchItems}
             />
         </div>
     );

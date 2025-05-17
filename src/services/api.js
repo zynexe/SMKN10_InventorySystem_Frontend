@@ -199,12 +199,24 @@ export const getTotalKodeBarang = async () => {
   }
 };
 
+// Update the deleteAllKodeBarang function with the correct endpoint
 export const deleteAllKodeBarang = async () => {
   try {
-    const response = await api.delete('/kode-barang/delete-all');
+    const response = await api.delete('/kode-barang/destroy-all');
     return response.data;
   } catch (error) {
     console.error('Error deleting all kode barang:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Add deleteAllKodeRekening function
+export const deleteAllKodeRekening = async () => {
+  try {
+    const response = await api.delete('/kode-rekening/destroy-all');
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting all kode rekening:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -600,82 +612,82 @@ export const getCurrentUser = async () => {
 
 // Balance management API functions
 export const getBalance = async () => {
-  try {
-    console.log('Fetching balance...');
-    const response = await api.get('/balance');
-    console.log('Raw balance response:', response);
-    
-    // Check different possible formats of the response
-    let balanceValue;
-    
-    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
-      // If response is { data: value }
-      balanceValue = response.data.data;
-      console.log('Found balance in response.data.data:', balanceValue);
-    } else if (response.data && typeof response.data === 'object') {
-      // If response is an object with another structure
-      balanceValue = response.data.balance || response.data.amount || response.data.value;
-      console.log('Found balance in response.data object:', balanceValue);
-    } else {
-      // If response.data is the balance directly
-      balanceValue = response.data;
-      console.log('Using response.data directly as balance:', balanceValue);
-    }
-    
-    return { data: balanceValue };
+   try {
+     console.log('Fetching balance...');
+     const response = await api.get('/balance');
+     console.log('Raw balance response:', response);
+     
+// Check different possible formats of the response
+let balanceValue;
+
+if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+  // If response is { data: value }
+  balanceValue = response.data.data;
+  console.log('Found balance in response.data.data:', balanceValue);
+} else if (response.data && typeof response.data === 'object') {
+  // If response is an object with another structure
+  balanceValue = response.data.balance || response.data.amount || response.data.value;
+  console.log('Found balance in response.data object:', balanceValue);
+} else {
+  // If response.data is the balance directly
+  balanceValue = response.data;
+  console.log('Using response.data directly as balance:', balanceValue);
+}
+
+return { data: balanceValue };
   } catch (error) {
-    console.error('Error fetching balance:', error);
-    throw error;
+console.error('Error fetching balance:', error);
+throw error;
   }
 };
 
 export const addBalance = async (amount) => {
   try {
-    console.log(`Adding balance amount: ${amount}`);
-    const response = await api.post('/balance/add', { amount });
-    console.log('Raw add balance response:', response);
-    
-    // Check different possible formats of the response
-    let balanceValue;
-    
-    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
-      balanceValue = response.data.data;
-    } else if (response.data && typeof response.data === 'object') {
-      balanceValue = response.data.balance || response.data.amount || response.data.value || response.data;
-    } else {
-      balanceValue = response.data;
-    }
-    
-    console.log('Extracted balance value:', balanceValue);
-    return { data: balanceValue };
+console.log(`Adding balance amount: ${amount}`);
+const response = await api.post('/balance/add', { amount });
+console.log('Raw add balance response:', response);
+
+// Check different possible formats of the response
+let balanceValue;
+
+if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+  balanceValue = response.data.data;
+} else if (response.data && typeof response.data === 'object') {
+  balanceValue = response.data.balance || response.data.amount || response.data.value || response.data;
+} else {
+  balanceValue = response.data;
+}
+
+console.log('Extracted balance value:', balanceValue);
+return { data: balanceValue };
   } catch (error) {
-    console.error('Error adding balance:', error);
-    throw error;
+console.error('Error adding balance:', error);
+throw error;
   }
 };
 
 export const updateBalance = async (amount) => {
   try {
-    console.log(`Updating balance amount: ${amount}`);
-    const response = await api.post('/balance/update', { amount });
-    console.log('Raw update balance response:', response);
-    
-    // Check different possible formats of the response
-    let balanceValue;
-    
-    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
-      balanceValue = response.data.data;
-    } else if (response.data && typeof response.data === 'object') {
-      balanceValue = response.data.balance || response.data.amount || response.data.value || response.data;
-    } else {
-      balanceValue = response.data;
-    }
-    
-    console.log('Extracted balance value:', balanceValue);
-    return { data: balanceValue };
+console.log(`Updating balance amount: ${amount}`);
+const response = await api.post('/balance/update', { amount });
+console.log('Raw update balance response:', response);
+
+// Check different possible formats of the response
+let balanceValue;
+
+if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+  balanceValue = response.data.data;
+} else if (response.data && typeof response.data === 'object') {
+  balanceValue = response.data.balance || response.data.amount || response.data.value || response.data;
+} else {
+  balanceValue = response.data;
+}
+
+console.log('Extracted balance value:', balanceValue);
+return { data: balanceValue };
   } catch (error) {
-    console.error('Error updating balance:', error);
-    throw error;
+console.error('Error updating balance:', error);
+throw error;
   }
 };
 
@@ -724,6 +736,28 @@ export const getGedungStats = async (gedungId) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching gedung stats:', error);
+    throw error;
+  }
+};
+
+// Add deleteAllAssets function
+export const deleteAllAssets = async () => {
+  try {
+    const response = await api.delete('/aset/destroy-all');
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting all assets:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Add deleteAllBHP function
+export const deleteAllBHP = async () => {
+  try {
+    const response = await api.delete('/bhp/destroy-all');
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting all BHP items:', error.response?.data || error.message);
     throw error;
   }
 };
