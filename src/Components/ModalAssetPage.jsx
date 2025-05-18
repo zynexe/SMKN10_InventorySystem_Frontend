@@ -1,7 +1,7 @@
 // ModalAssetPage.js
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
-import { getKodeBarangs, getGedungs } from "../services/api"; // Add getGedungs import
+import { getKodeBarangs, getGedungs } from "../services/api";
 
 const ModalAssetPage = ({ 
   isOpen, 
@@ -26,12 +26,15 @@ const ModalAssetPage = ({
     // Set today's date as default
     Tanggal: new Date().toISOString().split('T')[0], 
     
-    // Step 2 Fields
+    // Step 2 Fields - optional
     SumberPerolehan: '',
     KoderingBelanja: '',
     NoSPKFakturKuitansi: '',
     NoBAPenerimaan: '',
+    
+    // Step 3 Fields - optional
     KodeRekeningAset: '',
+    NamaRekeningAset: '',
     UmurEkonomis: '',
     NilaiPerolehan: '',
     BebanPenyusutan: '',
@@ -222,6 +225,7 @@ const ModalAssetPage = ({
     setShowLokasiDropdown(false);
   };
 
+  // Update handleFormSubmit to properly handle optional fields
   const handleFormSubmit = (e) => {
     e.preventDefault();
     
@@ -230,8 +234,9 @@ const ModalAssetPage = ({
     
     // Make sure all string fields are sent as empty strings, not null or undefined
     const processedFormData = {
+      // Step 1 fields - required
       kode: String(formData.kodeBarang || ''),
-      nama_gedung: String(formData.lokasi || ''), // keep the backend field name for compatibility
+      nama_gedung: String(formData.lokasi || ''),
       merk_barang: String(formData.merkBarang || ''),
       jumlah: Number(formData.jumlah || 0),
       satuan: String(formData.satuan || ''),
@@ -239,25 +244,27 @@ const ModalAssetPage = ({
       kondisi: String(formData.kondisi || 'Baru'),
       tanggal_pembelian: String(formData.Tanggal) || defaultFormattedDate,
       
-      // Step 2 fields - ensure these are always strings, even if empty
-      kode_rekening_belanja: String(formData.KoderingBelanja || ''),
-      no_spk_faktur_kuitansi: String(formData.NoSPKFakturKuitansi || ''),
-      no_bast: String(formData.NoBAPenerimaan || ''),
-      sumber_perolehan: String(formData.SumberPerolehan || ''),
+      // Step 2 fields - optional but must be valid strings or excluded
+      // Only include if they have values, otherwise exclude them from the request
+      ...(formData.KoderingBelanja ? { kode_rekening_belanja: String(formData.KoderingBelanja) } : {}),
+      ...(formData.NoSPKFakturKuitansi ? { no_spk_faktur_kuitansi: String(formData.NoSPKFakturKuitansi) } : {}),
+      ...(formData.NoBAPenerimaan ? { no_bast: String(formData.NoBAPenerimaan) } : {}),
+      ...(formData.SumberPerolehan ? { sumber_perolehan: String(formData.SumberPerolehan) } : {}),
       
-      // Step 3 fields - ensure numeric fields have defaults
-      umur_ekonomis: Number(formData.UmurEkonomis || 0),
-      nilai_perolehan: Number(formData.NilaiPerolehan || 0),
-      beban_penyusutan: Number(formData.BebanPenyusutan || 0),
+      // Step 3 fields - optional but must be valid numbers or excluded
+      // Only include if they have values, otherwise exclude them from the request
+      ...(formData.UmurEkonomis ? { umur_ekonomis: Number(formData.UmurEkonomis) } : {}),
+      ...(formData.NilaiPerolehan ? { nilai_perolehan: Number(formData.NilaiPerolehan) } : {}),
+      ...(formData.BebanPenyusutan ? { beban_penyusutan: Number(formData.BebanPenyusutan) } : {})
     };
     
+    // Validate only the required fields from Step 1
     const requiredFields = [
       { key: 'kode', label: 'Kode Barang' },
       { key: 'nama_gedung', label: 'Lokasi' },
       { key: 'merk_barang', label: 'Merk Barang' },
       { key: 'satuan', label: 'Satuan' },
-      { key: 'tanggal_pembelian', label: 'Tanggal' },
-      // Step 2 and 3 fields are now optional
+      { key: 'tanggal_pembelian', label: 'Tanggal' }
     ];
     
     const emptyFields = requiredFields.filter(field => {
@@ -276,6 +283,7 @@ const ModalAssetPage = ({
     handleSubmit(processedFormData);
   };
 
+  // Validate only the Step 1 fields, since steps 2 and 3 are now optional
   const validateStep = (step) => {
     if (step === 1) {
       const requiredFields = [
@@ -289,7 +297,6 @@ const ModalAssetPage = ({
       
       const missingFields = requiredFields.filter(field => {
         // Check if the field exists and is not empty
-        // Handle both string and numeric fields
         const value = formData[field.key];
         if (value === null || value === undefined) return true;
         if (typeof value === 'string') return value.trim() === '';
@@ -299,10 +306,11 @@ const ModalAssetPage = ({
       
       if (missingFields.length > 0) {
         const fieldLabels = missingFields.map(f => f.label).join(', ');
-        alert(`Please fill in the following fields: ${fieldLabels}`);
+        alert(`Please fill in the following required fields: ${fieldLabels}`);
         return false;
       }
     }
+    // Steps 2 and 3 are optional, so always return true for those steps
     return true;
   };
 
@@ -556,43 +564,47 @@ const ModalAssetPage = ({
         {currentStep === 2 && (
           <div className="step-content">
             <div className="form-group">
-              <label htmlFor="SumberPerolehan">Sumber Perolehan</label>
+              <label htmlFor="SumberPerolehan">Sumber Perolehan (Optional)</label>
               <input
                 type="text"
                 id="SumberPerolehan"
                 name="SumberPerolehan"
                 value={formData.SumberPerolehan || ''}
                 onChange={handleInputChange}
+                // Remove required attribute
               />
             </div>
             <div className="form-group">
-              <label htmlFor="KoderingBelanja">Kodering Belanja</label>
+              <label htmlFor="KoderingBelanja">Kodering Belanja (Optional)</label>
               <input
                 type="text"
                 id="KoderingBelanja"
                 name="KoderingBelanja"
                 value={formData.KoderingBelanja || ''}
                 onChange={handleInputChange}
+                // Remove required attribute
               />
             </div>
             <div className="form-group">
-              <label htmlFor="NoSPKFakturKuitansi">No.SPK / Faktur / Kuitansi</label>
+              <label htmlFor="NoSPKFakturKuitansi">No.SPK / Faktur / Kuitansi (Optional)</label>
               <input
                 type="text"
                 id="NoSPKFakturKuitansi"
                 name="NoSPKFakturKuitansi"
                 value={formData.NoSPKFakturKuitansi || ''}
                 onChange={handleInputChange}
+                // Remove required attribute
               />
             </div>
             <div className="form-group">
-              <label htmlFor="NoBAPenerimaan">No BA Penerimaan</label>
+              <label htmlFor="NoBAPenerimaan">No BA Penerimaan (Optional)</label>
               <input
                 type="text"
                 id="NoBAPenerimaan"
                 name="NoBAPenerimaan"
                 value={formData.NoBAPenerimaan || ''}
                 onChange={handleInputChange}
+                // Remove required attribute
               />
             </div>
           </div>
@@ -600,58 +612,58 @@ const ModalAssetPage = ({
         {currentStep === 3 && (
           <div className="step-content">
             <div className="form-group">
-              <label htmlFor="KodeRekeningAset">Kode Rekening Aset</label>
+              <label htmlFor="KodeRekeningAset">Kode Rekening Aset (Optional)</label>
               <input
                 type="text"
                 id="KodeRekeningAset"
                 name="KodeRekeningAset"
                 value={formData.KodeRekeningAset || ''}
                 onChange={handleInputChange}
-                // removed required attribute
+                // Remove required attribute
               />
             </div>
             <div className="form-group">
-              <label htmlFor="NamaRekeningAset">Nama Rekening Aset</label>
+              <label htmlFor="NamaRekeningAset">Nama Rekening Aset (Optional)</label>
               <input
                 type="text"
                 id="NamaRekeningAset"
                 name="NamaRekeningAset"
                 value={formData.NamaRekeningAset || ''}
                 onChange={handleInputChange}
-                // removed required attribute
+                // Remove required attribute
               />
             </div>
             <div className="form-group">
-              <label htmlFor="UmurEkonomis">Umur Ekonomis</label>
+              <label htmlFor="UmurEkonomis">Umur Ekonomis (Optional)</label>
               <input
                 type="number"
                 id="UmurEkonomis"
                 name="UmurEkonomis"
                 value={formData.UmurEkonomis || ''}
                 onChange={handleInputChange}
-                // removed required attribute
+                // Remove required attribute
               />
             </div>
             <div className="form-group">
-              <label htmlFor="NilaiPerolehan">Nilai Perolehan</label>
+              <label htmlFor="NilaiPerolehan">Nilai Perolehan (Optional)</label>
               <input
                 type="number"
                 id="NilaiPerolehan"
                 name="NilaiPerolehan"
                 value={formData.NilaiPerolehan || ''}
                 onChange={handleInputChange}
-                // removed required attribute
+                // Remove required attribute
               />
             </div>
             <div className="form-group">
-              <label htmlFor="BebanPenyusutan">Beban Penyusutan</label>
+              <label htmlFor="BebanPenyusutan">Beban Penyusutan (Optional)</label>
               <input
                 type="number"
                 id="BebanPenyusutan"
                 name="BebanPenyusutan"
                 value={formData.BebanPenyusutan || ''}
                 onChange={handleInputChange}
-                // removed required attribute
+                // Remove required attribute
               />
             </div>
           </div>

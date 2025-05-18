@@ -761,3 +761,37 @@ export const deleteAllBHP = async () => {
     throw error;
   }
 };
+
+// Get all asset borrowing records
+export const getPeminjamanAset = async () => {
+  try {
+    const response = await api.get('/peminjaman-aset');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching peminjaman aset:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Create new asset borrowing record
+export const createPeminjamanAset = async (id, peminjamanData) => {
+  try {
+    const response = await api.post(`/peminjaman-aset/${id}`, peminjamanData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating peminjaman aset:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Return borrowed asset
+export const kembalikanAset = async (id) => {
+  try {
+    // Changed from PUT to POST to match the Laravel route
+    const response = await api.post(`/peminjaman-aset/${id}/kembalikan`);
+    return response.data;
+  } catch (error) {
+    console.error('Error returning peminjaman aset:', error.response?.data || error.message);
+    throw error;
+  }
+};

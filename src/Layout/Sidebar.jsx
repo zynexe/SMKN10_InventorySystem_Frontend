@@ -7,6 +7,7 @@ import kodeRekeningIcon from '../assets/kode-rekening.png';
 import gedungIcon from '../assets/gedung.png'; 
 import profileIcon from '../assets/profile.png'; 
 import switchIcon from '../assets/switch.png'; 
+import pinjamIcon from '../assets/Pinjam.png';
 import '../CSS/Asset.css';
 
 function Sidebar() {
@@ -61,6 +62,16 @@ function Sidebar() {
                         >
                             <img src={assetIcon} alt="Asset" className="icon" />
                             Aset
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="#"
+                            onClick={() => { navigate("/pinjam"); toggleSidebar(); }}
+                            className={location.pathname === "/pinjam" ? "active" : ""}
+                        >
+                            <img src={pinjamIcon} alt="Pinjam" className="icon" />
+                            Peminjaman
                         </a>
                     </li>
                     <li>

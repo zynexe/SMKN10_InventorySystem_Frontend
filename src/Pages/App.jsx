@@ -7,6 +7,7 @@ import { UserProvider } from '../context/UserContext';
 // Asset imports
 import AssetHome from './Aset/AssetHome';
 import AssetPage from './Aset/AssetPage';
+import Pinjam from './Aset/Pinjam';
 
 // BHP imports
 import BHPHome from './BHP/BHPHome';
@@ -104,6 +105,8 @@ function App() {
             <Route path="/choose-system" element={<ChooseSystem />} />
             <Route path="/asset-home" element={<AssetHome />} />
             <Route path="/asset-page" element={<AssetPage />} />
+            {/* Add the new Pinjam route */}
+            <Route path="/pinjam" element={<Pinjam />} />
             <Route path="/bhp-home" element={<BHPHome />} />
             <Route path="/gedung" element={<Gedung />} />
             <Route path="/kode-barang" element={<KodeBarang />} />

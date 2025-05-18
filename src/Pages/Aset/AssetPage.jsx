@@ -544,6 +544,7 @@ function AssetPage() {
 
   // Add these new state variables
   const [isDeleting, setIsDeleting] = useState(false);
+  const [borrowingSuccess, setBorrowingSuccess] = useState(false);
 
   // Add this new function to handle delete all functionality
   const handleDeleteAll = async () => {
@@ -578,6 +579,26 @@ function AssetPage() {
           setIsDeleting(false);
         }
       }
+    }
+  };
+
+  // Handler for borrow submit
+  const handlePinjamSubmit = async (borrowData) => {
+    try {
+      // No need to call API here, as PinjamModal already does it
+      // Just show a success message
+      setBorrowingSuccess(true);
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setBorrowingSuccess(false);
+      }, 3000);
+      
+      // Refresh assets to update quantities
+      fetchAssets();
+    } catch (error) {
+      console.error("Error processing borrow request:", error);
+      alert(`Failed to process borrow request: ${error.message}`);
     }
   };
 
@@ -625,12 +646,26 @@ function AssetPage() {
               </div>
             </div>
 
+            {borrowingSuccess && (
+              <div className="success-message" style={{ 
+                color: 'green', 
+                background: '#e7f7e7', 
+                padding: '10px', 
+                borderRadius: '5px',
+                marginBottom: '15px',
+                textAlign: 'center'
+              }}>
+                Peminjaman asset berhasil dicatat. Lihat di halaman Peminjaman.
+              </div>
+            )}
+
             <AssetTable 
               paginatedData={paginatedData}
               openInfoBA={openInfoBA}
               openInfoAset={openInfoAset}
               onEditClick={handleEditClick}
               onDeleteClick={handleDeleteClick}
+              onPinjamSubmit={handlePinjamSubmit}
               currentPage={currentPage}
               itemsPerPage={itemsPerPage} // Make sure itemsPerPage is defined in your component state
             />
