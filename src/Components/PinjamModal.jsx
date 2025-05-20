@@ -37,16 +37,36 @@ const PinjamModal = ({ isOpen, closeModal, assetData, onSubmit, previousBorrower
     
     // For jumlah field, ensure it's not more than available stock
     if (name === 'jumlah') {
-      const maxStock = assetData?.jumlah || 1;
-      const numValue = parseInt(value) || 0;
-      
-      if (numValue > maxStock) {
-        alert(`Jumlah tidak boleh melebihi stok tersedia (${maxStock} ${assetData?.satuan || 'unit'})`);
+      // Allow the field to be empty temporarily during typing
+      if (value === '') {
+        setFormData({
+          ...formData,
+          [name]: value
+        });
         return;
       }
       
-      if (numValue <= 0) {
+      const maxStock = assetData?.jumlah || 1;
+      const numValue = parseInt(value) || 0;
+      
+      // Only show alerts if the user has finished typing (by checking if value length > 0)
+      if (numValue > maxStock && value.length > 0) {
+        alert(`Jumlah tidak boleh melebihi stok tersedia (${maxStock} ${assetData?.satuan || 'unit'})`);
+        // Still update with the max value instead of blocking input completely
+        setFormData({
+          ...formData,
+          [name]: maxStock.toString()
+        });
+        return;
+      }
+      
+      if (numValue <= 0 && value.length > 0) {
         alert('Jumlah harus minimal 1');
+        // Set to minimum value of 1
+        setFormData({
+          ...formData,
+          [name]: '1'
+        });
         return;
       }
     }

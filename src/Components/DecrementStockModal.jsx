@@ -155,8 +155,8 @@ function DecrementStockModal({ isOpen, closeModal, onConfirm, item }) {
               )}
             </div>
             
-            <div className="modal-buttons">
-              <button type="button" className="cancel-button" onClick={closeModal}>
+            <div className="form-buttons">
+              <button type="button" className="secondary-button" onClick={closeModal}>
                 Cancel
               </button>
               <button type="submit" className="main-button">

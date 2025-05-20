@@ -3,12 +3,13 @@ import '../../CSS/Asset.css';
 import Sidebar from '../../Layout/Sidebar';
 import Pagination from "../../Components/Pagination";
 import SearchBar from '../../Components/SearchBar';
-import { FaDownload } from 'react-icons/fa';
+import { FaDownload, FaUndo } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
-import { getPeminjamanAset, kembalikanAset } from '../../services/api';
+import { getPeminjamanAset, kembalikanAset, undoPeminjamanAset } from '../../services/api';
 
 const Pinjam = () => {
+  // Existing state variables
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
@@ -21,70 +22,77 @@ const Pinjam = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingItemId, setProcessingItemId] = useState(null);
+  // New state for tracking undo operations
+  const [isUndoing, setIsUndoing] = useState(false);
+  const [undoingItemId, setUndoingItemId] = useState(null);
 
   // Fetch borrowing data from API
-  useEffect(() => {
-    const fetchBorrowingData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await getPeminjamanAset();
-        console.log("API Response:", response); // Debug log
-        
-        // Process the data with proper format
-        let formattedData = [];
-        if (response && Array.isArray(response)) {
-          formattedData = response.map(item => {
-            // Debug log for each item
-            console.log("Processing item:", item);
-            
-            let namaBarang = "Tidak diketahui";
-            let satuan = "Unit";
-            
-            // First check if assetItem exists with correct casing
-            if (item.asset_item) {
-              namaBarang = item.asset_item.nama_barang || "Tidak diketahui";
-              satuan = item.asset_item.satuan || "Unit";
-            } 
-            // Alternative check for different casing
-            else if (item.assetItem) {
-              namaBarang = item.assetItem.nama_barang || "Tidak diketahui";
-              satuan = item.assetItem.satuan || "Unit";
-            }
-            
-            // Format the status to display capitalized
-            const formattedStatus = item.status ? 
-              item.status.charAt(0).toUpperCase() + item.status.slice(1) : 
-              "Tidak diketahui";
-            
-            return {
-              id: item.id,
-              tanggal: formatDate(item.tanggal_pinjam || item.created_at),
-              nama_barang: namaBarang,
-              jumlah: item.volume || 0,
-              satuan: satuan,
-              keperluan: item.keperluan || "Tidak diketahui",
-              nama_pengambil: item.nama_peminjam || "Tidak diketahui",
-              tanggal_kembali: item.tanggal_kembali ? formatDate(item.tanggal_kembali) : '-',
-              status: formattedStatus,
-              asset_item_id: item.asset_item_id
-            };
-          });
-        }
-        
-        console.log("Formatted Data:", formattedData); // Debug log
-        
-        setBorrowData(formattedData);
-        setFilteredData(formattedData);
-        setTotalPages(Math.ceil(formattedData.length / itemsPerPage));
-        setIsLoading(false);
-      } catch (err) {
-        console.error("Error fetching borrowing data:", err);
-        setError("Failed to load borrowing data. Please try again.");
-        setIsLoading(false);
+  const fetchBorrowingData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await getPeminjamanAset();
+      console.log("API Response:", response); // Debug log
+      
+      // Process the data with proper format
+      let formattedData = [];
+      if (response && Array.isArray(response)) {
+        formattedData = response.map(item => {
+          // Debug log for each item
+          console.log("Processing item:", item);
+          
+          let namaBarang = "Tidak diketahui";
+          let satuan = "Unit";
+          
+          // Check for nama_barang directly in the response
+          if (item.nama_barang) {
+            namaBarang = item.nama_barang;
+          }
+          // First check if assetItem exists with correct casing
+          else if (item.asset_item) {
+            namaBarang = item.asset_item.nama_barang || item.asset_item.kodeBarang?.uraian || "Tidak diketahui";
+            satuan = item.asset_item.satuan || "Unit";
+          } 
+          // Alternative check for different casing
+          else if (item.assetItem) {
+            namaBarang = item.assetItem.nama_barang || item.assetItem.kodeBarang?.uraian || "Tidak diketahui";
+            satuan = item.assetItem.satuan || "Unit";
+          }
+          
+          // Format the status to display capitalized
+          const formattedStatus = item.status ? 
+            item.status.charAt(0).toUpperCase() + item.status.slice(1) : 
+            "Tidak diketahui";
+          
+          return {
+            id: item.id,
+            tanggal: formatDate(item.tanggal_pinjam || item.created_at),
+            nama_barang: namaBarang,
+            jumlah: item.volume || 0,
+            satuan: satuan,
+            keperluan: item.keperluan || "Tidak diketahui",
+            nama_pengambil: item.nama_peminjam || "Tidak diketahui",
+            tanggal_kembali: item.tanggal_kembali ? formatDate(item.tanggal_kembali) : '-',
+            status: formattedStatus,
+            asset_item_id: item.asset_item_id
+          };
+        });
       }
-    };
-    
+      
+      console.log("Formatted Data:", formattedData); // Debug log
+      
+      setBorrowData(formattedData);
+      setFilteredData(formattedData);
+      setTotalPages(Math.ceil(formattedData.length / itemsPerPage));
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Error fetching borrowing data:", err);
+      setError("Failed to load borrowing data. Please try again.");
+      setIsLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchBorrowingData();
   }, []);
 
@@ -102,7 +110,7 @@ const Pinjam = () => {
     });
   };
 
-  // Search functionality
+  // Search functionality (unchanged)
   useEffect(() => {
     const filtered = borrowData.filter((item) => {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
@@ -182,8 +190,38 @@ const Pinjam = () => {
       }
     }
   };
+  
+  // New function to handle undo button click
+  const handleUndoItem = async (id) => {
+    // Confirmation dialog
+    if (window.confirm("Apakah Anda yakin ingin membatalkan peminjaman ini?")) {
+      setIsUndoing(true);
+      setUndoingItemId(id);
+      
+      try {
+        // Call API to undo the borrowing
+        const result = await undoPeminjamanAset(id);
+        console.log("Undo result:", result); // Debug log
+        
+        // Remove the item from the local state
+        const updatedData = borrowData.filter(item => item.id !== id);
+        
+        setBorrowData(updatedData);
+        alert("Peminjaman telah berhasil dibatalkan.");
+        
+        // Refresh data to ensure we have accurate information
+        fetchBorrowingData();
+      } catch (err) {
+        console.error("Error undoing borrowing:", err);
+        alert("Gagal membatalkan peminjaman. Silakan coba lagi.");
+      } finally {
+        setIsUndoing(false);
+        setUndoingItemId(null);
+      }
+    }
+  };
 
-  // Export to Excel function
+  // Export to Excel function (unchanged)
   const exportToExcel = () => {
     // Create a workbook
     const wb = XLSX.utils.book_new();
@@ -280,7 +318,8 @@ const Pinjam = () => {
                       <th>Nama Pengambil</th>
                       <th>Tanggal Kembali</th>
                       <th>Status</th>
-                      <th>Aksi</th>
+                      <th>Kembali</th>
+                      <th>Aksi</th> 
                     </tr>
                   </thead>
                   <tbody>
@@ -292,7 +331,7 @@ const Pinjam = () => {
                         // Combine jumlah and satuan for volume
                         const volume = `${item.jumlah} ${item.satuan}`;
                         
-                        // Determine if the item can be returned - IMPORTANT: match Controller 'dipinjam' (lowercase)
+                        // Determine if the item can be returned
                         const canBeReturned = item.status.toLowerCase() === 'dipinjam';
                         
                         return (
@@ -324,12 +363,29 @@ const Pinjam = () => {
                                 </span>
                               )}
                             </td>
+                            {/* New undo column */}
+                            <td>
+                              <button 
+                                className="secondary-button undo-button"
+                                onClick={() => handleUndoItem(item.id)}
+                                disabled={isUndoing && undoingItemId === item.id}
+                                title="Batalkan peminjaman"
+                              >
+                                {isUndoing && undoingItemId === item.id ? (
+                                  'Processing...' 
+                                ) : (
+                                  <>
+                                    <FaUndo style={{ marginRight: '5px' }} /> Undo
+                                  </>
+                                )}
+                              </button>
+                            </td>
                           </tr>
                         );
                       })
                     ) : (
                       <tr>
-                        <td colSpan="9" className="no-data-cell">No borrowing data available</td>
+                        <td colSpan="10" className="no-data-cell">No borrowing data available</td> {/* Updated colspan to 10 */}
                       </tr>
                     )}
                   </tbody>

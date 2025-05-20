@@ -795,3 +795,25 @@ export const kembalikanAset = async (id) => {
     throw error;
   }
 };
+
+export const undoPeminjamanAset = async (id) => {
+  try {
+    const response = await api.delete(`/peminjaman-aset/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error undoing peminjaman aset:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const deleteAllBHPRiwayat = async () => {
+  try {
+    console.log('Deleting all BHP riwayat records...');
+    const response = await api.delete('/bhp/destroy-all-riwayat');
+    console.log('Delete all BHP riwayat response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting all BHP history:', error.response?.data || error.message);
+    throw error;
+  }
+};
