@@ -33,8 +33,7 @@ const ModalAssetPage = ({
     NoBAPenerimaan: '',
     
     // Step 3 Fields - optional
-    KodeRekeningAset: '',
-    NamaRekeningAset: '',
+    // Removed KodeRekeningAset and NamaRekeningAset
     UmurEkonomis: '',
     NilaiPerolehan: '',
     BebanPenyusutan: '',
@@ -140,11 +139,7 @@ const ModalAssetPage = ({
         NoBAPenerimaan: assetData.no_bast || 
                           (assetData.bpaData ? assetData.bpaData.noBAST : '') || '',
 
-        // Step 3 fields
-        KodeRekeningAset: assetData.kode_rekening_aset || 
-                          (assetData.asetData ? assetData.asetData.kodeRekeningAset : '') || '',
-        NamaRekeningAset: assetData.nama_rekening_aset || 
-                          (assetData.asetData ? assetData.asetData.namaRekeningAset : '') || '',
+        // Step 3 fields - removed KodeRekeningAset and NamaRekeningAset
         UmurEkonomis: assetData.umur_ekonomis || 
                       (assetData.asetData ? assetData.asetData.umurEkonomis : '') || '',
         NilaiPerolehan: assetData.nilai_perolehan || 
@@ -252,7 +247,7 @@ const ModalAssetPage = ({
       ...(formData.SumberPerolehan ? { sumber_perolehan: String(formData.SumberPerolehan) } : {}),
       
       // Step 3 fields - optional but must be valid numbers or excluded
-      // Only include if they have values, otherwise exclude them from the request
+      // Removed KodeRekeningAset and NamaRekeningAset
       ...(formData.UmurEkonomis ? { umur_ekonomis: Number(formData.UmurEkonomis) } : {}),
       ...(formData.NilaiPerolehan ? { nilai_perolehan: Number(formData.NilaiPerolehan) } : {}),
       ...(formData.BebanPenyusutan ? { beban_penyusutan: Number(formData.BebanPenyusutan) } : {})
@@ -339,7 +334,7 @@ const ModalAssetPage = ({
         KoderingBelanja: '',
         NoSPKFakturKuitansi: '',
         NoBAPenerimaan: '',
-        KodeRekeningAset: '',
+        // Removed KodeRekeningAset and NamaRekeningAset
         UmurEkonomis: '',
         NilaiPerolehan: '',
         BebanPenyusutan: '',
@@ -611,28 +606,6 @@ const ModalAssetPage = ({
         )}
         {currentStep === 3 && (
           <div className="step-content">
-            <div className="form-group">
-              <label htmlFor="KodeRekeningAset">Kode Rekening Aset (Optional)</label>
-              <input
-                type="text"
-                id="KodeRekeningAset"
-                name="KodeRekeningAset"
-                value={formData.KodeRekeningAset || ''}
-                onChange={handleInputChange}
-                // Remove required attribute
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="NamaRekeningAset">Nama Rekening Aset (Optional)</label>
-              <input
-                type="text"
-                id="NamaRekeningAset"
-                name="NamaRekeningAset"
-                value={formData.NamaRekeningAset || ''}
-                onChange={handleInputChange}
-                // Remove required attribute
-              />
-            </div>
             <div className="form-group">
               <label htmlFor="UmurEkonomis">Umur Ekonomis (Optional)</label>
               <input

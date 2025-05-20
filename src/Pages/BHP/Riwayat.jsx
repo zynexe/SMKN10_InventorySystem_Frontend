@@ -3,10 +3,10 @@ import '../../CSS/Asset.css';
 import { useNavigate } from "react-router-dom";
 import SidebarBHP from '../../Layout/SidebarBHP';
 import Pagination from "../../Components/Pagination";
-import { FaDownload, FaUndo } from 'react-icons/fa'; // Removed FaTrashAlt
+import { FaDownload, FaUndo } from 'react-icons/fa'; 
 import SearchBar from '../../Components/SearchBar';
 import * as XLSX from 'xlsx';
-import { getBHPRiwayat, undoBHPRemoval } from '../../services/api'; // Removed deleteAllBHPRiwayat
+import { getBHPRiwayat, undoBHPRemoval } from '../../services/api';
 
 function Riwayat() {
   const navigate = useNavigate();
@@ -19,7 +19,6 @@ function Riwayat() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
-  // Removed isDeletingAll state
   
   // Fetch BHP riwayat data from API
   const fetchRiwayat = async () => {
