@@ -182,7 +182,9 @@ const KodeBarangModal = ({ isOpen, onClose, onAdd, isEditing = false, currentIte
               <div className="import-container">
                 <FaFileExcel size={40} className="excel-icon" />
                 <p>Import data from Excel file</p>
-                <p className="file-format-note">Supported format: .xlsx, .xls</p>
+                <p className="file-format-note">Format yang didukung: .xlsx, .xls</p>
+                
+                
                 
                 <div className="file-input-container">
                   <input
@@ -193,23 +195,32 @@ const KodeBarangModal = ({ isOpen, onClose, onAdd, isEditing = false, currentIte
                     aria-label="Upload Excel file (.xlsx or .xls)"
                   />
                   <label htmlFor="excelFile" className="file-input-label">
-                    {file ? file.name : 'Choose Excel File (.xlsx, .xls)'}
+                    {file ? file.name : 'Pilih File Excel (.xlsx, .xls)'}
                   </label>
                   {file && (
                     <div className="file-info">
-                      File size: {(file.size / 1024).toFixed(2)} KB
+                      Ukuran file: {(file.size / 1024).toFixed(2)} KB
                     </div>
                   )}
                 </div>
+                <div className="file-requirements-note">
+                  <h4>Persyaratan File:</h4>
+                  <ul>
+                    <li>File Excel (.xlsx atau .xls)</li>
+                    <li>Harus memiliki kolom: 'kode' dan 'uraian'</li>
+                    <li>Baris pertama harus berupa header</li>
+                    <li>Ukuran file maksimal: 10MB</li>
+                  </ul>
+                </div>
                 
                 <div className="form-buttons">
-                  <button type="button" className="cancel-button" onClick={onClose}>Cancel</button>
+                  <button type="button" className="cancel-button" onClick={onClose}>Batal</button>
                   <button 
                     type="submit" 
                     className={`submit-button ${isLoading ? 'loading' : ''}`}
                     disabled={!file || isLoading}
                   >
-                    {isLoading ? 'Importing...' : 'Import'}
+                    {isLoading ? 'Mengimpor...' : 'Import'}
                   </button>
                 </div>
               </div>

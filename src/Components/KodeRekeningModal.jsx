@@ -216,13 +216,13 @@ const KodeRekeningModal = ({ isOpen, onClose, onAdd, isEditing = false, currentI
                   )}
                 </div>
                 
-                <div className="file-requirements">
-                  <h4>File Requirements:</h4>
+                 <div className="file-requirements-note">
+                  <h4>Persyaratan File:</h4>
                   <ul>
-                    <li>Excel file (.xlsx or .xls)</li>
-                    <li>Must include columns: 'kode' and 'uraian'</li>
-                    <li>The first row should be the header</li>
-                    <li>Maximum file size: 10MB</li>
+                    <li>File Excel (.xlsx atau .xls)</li>
+                    <li>Harus memiliki kolom: 'kode' dan 'uraian'</li>
+                    <li>Baris pertama harus berupa header</li>
+                    <li>Ukuran file maksimal: 10MB</li>
                   </ul>
                 </div>
                 

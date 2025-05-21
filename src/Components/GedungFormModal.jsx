@@ -86,6 +86,7 @@ function GedungFormModal({ isOpen, closeModal, gedung, onSubmit, mode }) {
             onChange={handleChange}
             accept="image/*"
           />
+          <small className="file-type-note">*Accepted files: JPG/PNG</small>
           {formData.imagePreview && (
             <img
               src={formData.imagePreview}

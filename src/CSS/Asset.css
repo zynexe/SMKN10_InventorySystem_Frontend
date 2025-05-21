@@ -1819,3 +1819,10 @@ button:disabled {
   opacity: 0.7;
   cursor: wait;
 }
+
+.file-type-note {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
