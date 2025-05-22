@@ -252,7 +252,7 @@ const ModalBHPPage = ({
             className={`tab-button ${activeTab === 'manual' ? 'active' : ''}`}
             onClick={() => setActiveTab('manual')}
           >
-            Manual Input
+            Input Manual
           </button>
           <button 
             className={`tab-button ${activeTab === 'import' ? 'active' : ''}`}
@@ -399,9 +399,9 @@ const ModalBHPPage = ({
         <form onSubmit={handleImportSubmit}>
           <div className="import-container" style={{textAlign: 'center', padding: '20px 0'}}>
             <FaFileExcel size={40} style={{color: '#1D6F42', marginBottom: '15px'}} />
-            <p>Import BHP data from Excel file</p>
+            <p>Import data BHP dari file Excel </p>
             <p style={{fontSize: '0.8rem', color: '#666', marginBottom: '20px'}}>
-              Supported formats: .xlsx, .xls
+               Format diterima: .xlsx, .xls
             </p>
             
             <div className="file-input-container" style={{margin: '20px 0'}}>
@@ -421,7 +421,7 @@ const ModalBHPPage = ({
                 cursor: 'pointer',
                 backgroundColor: '#f9f9f9'
               }}>
-                {file ? file.name : 'Choose Excel File (.xlsx, .xls)'}
+                {file ? file.name : 'Pilih File Excel (.xlsx, .xls)'}
               </label>
               {file && (
                 <div className="file-info" style={{fontSize: '0.8rem', marginTop: '5px'}}>
@@ -437,12 +437,12 @@ const ModalBHPPage = ({
               marginBottom: '20px',
               textAlign: 'left'
             }}>
-              <h4>Excel File Requirements:</h4>
+              <h4>Persyaratan File:</h4>
               <ul style={{paddingLeft: '20px', fontSize: '0.9rem'}}>
-                <li>First row must contain column headers</li>
-                <li>Required columns: nama_barang, kode_rekening, merk, tanggal, stock_awal, harga_satuan</li>
-                <li>Dates should be in format DD/MM/YYYY</li>
-                <li>Maximum file size: 10MB</li>
+                <li>Baris pertama harus berisi Column Header</li>
+                <li>Kolom yang wajib diisi: nama_barang, kode_rekening, merk, tanggal, stok_awal, harga_satuan</li>
+                <li>Tanggal harus dalam format DD/MM/YYYY</li>
+                <li>Ukuran file maksimum: 10MB</li>
               </ul>
             </div>
             

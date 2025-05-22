@@ -224,7 +224,7 @@ const RekeningPage = () => {
                                 <tr>
                                     <th>Kode Rekening</th>
                                     <th>Uraian</th>
-                                    <th>Actions</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>

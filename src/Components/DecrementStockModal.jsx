@@ -85,7 +85,7 @@ function DecrementStockModal({ isOpen, closeModal, onConfirm, item }) {
     <div className="modal-overlay">
       <div className="modal-content" style={{ maxWidth: '500px' }}>
         <div className="modal-header">
-          <h2>Pengurangan Stock</h2>
+          <h3 style={{ textAlign: 'left', marginBottom: '12px'}}>Pilih Pengguna & Jumlah Barang</h3>
           <button className="close-button" onClick={closeModal}>
             <FaTimes />
           </button>

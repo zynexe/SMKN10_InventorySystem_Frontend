@@ -116,3 +116,26 @@
     font-size: 12px; /* Reduce font size for very small screens */
   }
 }
+
+.logout-button-choose {
+  margin-top: 24px;
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.logout-button-choose:hover {
+  background-color: rgba(255, 0, 0, 0.82);
+  transform: translateY(-2px);
+}
+
+.logout-button-choose:active {
+  transform: translateY(0px);
+}

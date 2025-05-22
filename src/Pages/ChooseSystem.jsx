@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../CSS/ChooseSystem.css';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaSignOutAlt } from 'react-icons/fa';
 import logo1 from '../assets/pencil-circle-fill.png';
 import logo1Hover from '../assets/pencil-circle-fill-hover.png'; // Import hover image
 import logo2 from '../assets/solar_safe-square-bold.png';
 import logo2Hover from '../assets/solar_safe-square-bold-hover.png'; // Import hover image
+import { logout } from '../services/api';
 
 
 function ChooseSystem() {
@@ -18,13 +19,20 @@ function ChooseSystem() {
       navigate('/bhp-home'); // Navigate to BHPHome
     }
   };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/'); // Navigate to login page after logout
+    } catch (error) {
+      console.error('Logout failed:', error);
+      alert('Logout failed. Please try again.');
+    }
+  };
+
   return (
     <div className="choose-system-container">
-      
-
-
       <div className="choose-system-box">
-
         <h1>Choose a system</h1>
 
         <div className="system-options">
@@ -56,6 +64,13 @@ function ChooseSystem() {
             Sistem Inventaris BHP
           </button>
 
+       
+          <button 
+            className="logout-button-choose"
+            onClick={handleLogout}
+          >
+            <FaSignOutAlt style={{ marginRight: '8px' }} /> Log out
+          </button>
         </div>
       </div>
     </div>
