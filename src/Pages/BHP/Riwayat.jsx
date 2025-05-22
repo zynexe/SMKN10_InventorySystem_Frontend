@@ -295,7 +295,7 @@ function Riwayat() {
                       <th>Peminjam</th>
                       <th>Jumlah Barang</th>
                       <th>Total</th>
-                      <th>Aksi</th>
+                      <th>Undo</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -333,6 +333,7 @@ function Riwayat() {
                                 onClick={() => handleUndo(item.Id || item.id)}
                                 disabled={!(item.Id || item.id)}
                                 title="Batalkan transaksi"
+                                style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block' }}
                               >
                                 <FaUndo style={{ marginRight: '5px' }} /> Undo
                               </button>

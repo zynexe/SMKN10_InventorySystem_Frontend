@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaTrash, FaMinus } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
 
 const BHPTable = ({ 
   paginatedData = [], 
@@ -50,12 +50,12 @@ const BHPTable = ({
             <th>Merk</th>
             <th>Tanggal</th>
             <th>Stok Bulan Lalu</th>
-            <th>Pinjam</th> 
+            <th>Pengguna</th> 
             <th>Stok Bulan Ini</th>
             <th>Harga Satuan</th>
             <th>Total Bulan Lalu</th>
             <th>Total Bulan Ini</th>
-            <th>Aksi</th>
+            <th>Hapus</th>
           </tr>
         </thead>
         <tbody>
@@ -92,7 +92,7 @@ const BHPTable = ({
               const jumlahAwal = stockAwal * hargaSatuan;
               const jumlahAkhir = stockAkhir * hargaSatuan;
               
-              return (
+                return (
                 <tr key={item.id || index}>
                   <td>{startIndex + index + 1}</td>
                   <td>{namaBarang}</td>
@@ -102,31 +102,32 @@ const BHPTable = ({
                   <td>{stockAwal.toLocaleString()} {satuan}</td>
                 
                   <td className="action-cell">
-                    {onDecrementStock && (
-                      <button 
-                        className="action-button decrement" 
-                        onClick={() => onDecrementStock(item.id)}
-                        title="Pengurangan Stock"
-                      >
-                        <FaMinus />
-                      </button>
-                    )}
+                  {onDecrementStock && (
+                    <button 
+                    className="main-button"
+                    onClick={() => onDecrementStock(item.id)}
+                    title="Pengurangan Stock"
+                    style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block' }}
+                    >
+                    Pilih
+                    </button>
+                  )}
                   </td>
                   <td>{stockAkhir.toLocaleString()} {satuan}</td>
                   <td>Rp. {hargaSatuan.toLocaleString('id-ID')}</td>
                   <td>Rp. {jumlahAwal.toLocaleString('id-ID')}</td>
                   <td>Rp. {jumlahAkhir.toLocaleString('id-ID')}</td>
                   <td>
-                    <div className="table-actions">
-                      {onDelete && (
-                        <button className="icon-button delete-button" onClick={() => onDelete(item.id)}>
-                          <FaTrash />
-                        </button>
-                      )}
-                    </div>
+                  <div className="table-actions">
+                    {onDelete && (
+                    <button className="icon-button delete-button" onClick={() => onDelete(item.id)}>
+                      <FaTrash />
+                    </button>
+                    )}
+                  </div>
                   </td>
                 </tr>
-              );
+                );
             })
           ) : (
             <tr>

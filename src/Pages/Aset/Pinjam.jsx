@@ -319,7 +319,7 @@ const Pinjam = () => {
                       <th>Tanggal Kembali</th>
                       <th>Status</th>
                       <th>Kembali</th>
-                      <th>Aksi</th> 
+                      <th>Undo</th> 
                     </tr>
                   </thead>
                   <tbody>
@@ -354,6 +354,7 @@ const Pinjam = () => {
                                   className="main-button"
                                   onClick={() => handleReturnItem(item.id)}
                                   disabled={isProcessing && processingItemId === item.id}
+                                  style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block' }}
                                 >
                                   {isProcessing && processingItemId === item.id ? 'Processing...' : 'Kembalikan'}
                                 </button>
@@ -370,6 +371,7 @@ const Pinjam = () => {
                                 onClick={() => handleUndoItem(item.id)}
                                 disabled={isUndoing && undoingItemId === item.id}
                                 title="Batalkan peminjaman"
+                                style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block' }}
                               >
                                 {isUndoing && undoingItemId === item.id ? (
                                   'Processing...' 

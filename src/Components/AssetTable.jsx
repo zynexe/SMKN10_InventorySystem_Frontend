@@ -127,7 +127,7 @@ const AssetTable = ({
                             <th>Pinjam/Berikan</th>
                             <th>Info BPA Penerimaan</th>
                             <th>Info Asset</th>
-                            <th>Actions</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -160,6 +160,7 @@ const AssetTable = ({
                                             onClick={() => handlePinjamClick(item)}
                                             disabled={item.jumlah <= 0}
                                             title={item.jumlah <= 0 ? 'Stok tidak tersedia' : 'Pinjam/Berikan asset'}
+                                            style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block' }}
                                         >
                                             Pinjam
                                         </button>
