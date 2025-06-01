@@ -64,7 +64,7 @@ function GedungFormModal({ isOpen, closeModal, gedung, onSubmit, mode }) {
       style={customStyles}
       contentLabel="Gedung Form Modal"
     >
-      <h2>{mode === 'edit' ? 'Edit Gedung' : 'Add New Gedung'}</h2>
+      <h2>{mode === 'edit' ? 'Edit Gedung' : 'Tambah Gedung Baru'}</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Nama Gedung</label>
@@ -100,7 +100,7 @@ function GedungFormModal({ isOpen, closeModal, gedung, onSubmit, mode }) {
             Cancel
           </button>
           <button type="submit" className="main-button">
-            {mode === 'edit' ? 'Save Changes' : 'Add Gedung'}
+            {mode === 'edit' ? 'Save Changes' : 'Tambah'}
           </button>
         </div>
       </form>

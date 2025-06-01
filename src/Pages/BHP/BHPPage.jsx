@@ -337,13 +337,13 @@ function BHPPage() {
   const handleDeleteAll = async () => {
     // Show a confirmation dialog with strong warning
     const confirmResult = window.confirm(
-      'WARNING: This will permanently delete ALL BHP items. This action cannot be undone. Are you absolutely sure?'
+      'WARNING: WARNING: Apakah anda yakin untuk menghapus semua kode barang?'
     );
     
     if (confirmResult) {
       // Double-check with a more specific confirmation
       const secondConfirm = window.confirm(
-        `You are about to delete ${filteredData.length} items. Please confirm once more to proceed.`
+        `Anda akan menghapus ${filteredData.length} BHP. apakah anda yakin? Semua data akan hilang dan tidak dapat dikembalikan.`
       );
       
       if (secondConfirm) {

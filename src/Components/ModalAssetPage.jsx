@@ -33,7 +33,6 @@ const ModalAssetPage = ({
     NoBAPenerimaan: '',
     
     // Step 3 Fields - optional
-    // Removed KodeRekeningAset and NamaRekeningAset
     UmurEkonomis: '',
     NilaiPerolehan: '',
     BebanPenyusutan: '',
@@ -400,7 +399,7 @@ const ModalAssetPage = ({
       style={customStyles}
       contentLabel="Add Asset Modal"
     >
-      <h2 style={{ textAlign: "center" }}>{isEditMode ? 'Edit Asset' : 'Add New Asset'}</h2>
+      <h2 style={{ textAlign: "center" }}>{isEditMode ? 'Edit Asset' : 'Tambah Aset'}</h2>
       {renderBreadcrumbs()}
 
       <form onSubmit={handleFormSubmit}>

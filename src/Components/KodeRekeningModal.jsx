@@ -129,7 +129,7 @@ const KodeRekeningModal = ({ isOpen, onClose, onAdd, isEditing = false, currentI
     <div className="modal-overlay">
       <div className="modal-container">
         <div className="modal-header">
-          <h3>{isEditing ? 'Edit Kode Rekening' : 'Add Kode Rekening'}</h3>
+          <h3>{isEditing ? 'Edit Kode Rekening' : 'Tambah Kode Rekening'}</h3>
           <button className="close-button" onClick={onClose}>×</button>
         </div>
 
@@ -186,7 +186,7 @@ const KodeRekeningModal = ({ isOpen, onClose, onAdd, isEditing = false, currentI
                   className={`submit-button ${isLoading ? 'loading' : ''}`}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Processing...' : (isEditing ? 'Update' : 'Add Item')}
+                  {isLoading ? 'Processing...' : (isEditing ? 'Update' : 'Tambah')}
                 </button>
               </div>
             </form>

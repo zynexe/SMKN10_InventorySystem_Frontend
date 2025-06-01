@@ -7,7 +7,7 @@ import Sidebar from '../../Layout/Sidebar';
 import Dropdown from "../../Components/Dropdown"; 
 import ProfileBar from "../../Components/ProfileBar"; 
 
-// Import API functions
+// API functions
 import { 
   getAssets,
   getCurrentTotals,  
@@ -356,7 +356,7 @@ function AssetHome() {
                         </div>
                         <div className="card-statistic" onClick={() => handleCardClick("/asset-page")}>
                             <h3>
-                                Total Assets <span className="card-arrow">→</span>
+                                Total Item <span className="card-arrow">→</span>
                             </h3>
                             {loadingStats ? (
                                 <h2>Loading...</h2>

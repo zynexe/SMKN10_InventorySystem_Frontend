@@ -50,11 +50,11 @@ const BHPTable = ({
             <th>Merk</th>
             <th>Tanggal</th>
             <th>Stok Bulan Lalu</th>
-            <th>Pengguna</th> 
             <th>Stok Bulan Ini</th>
             <th>Harga Satuan</th>
             <th>Total Bulan Lalu</th>
             <th>Total Bulan Ini</th>
+            <th>Pengguna</th>
             <th>Hapus</th>
           </tr>
         </thead>
@@ -100,7 +100,10 @@ const BHPTable = ({
                   <td>{merk}</td>
                   <td>{tanggal}</td>
                   <td>{stockAwal.toLocaleString()} {satuan}</td>
-                
+                  <td>{stockAkhir.toLocaleString()} {satuan}</td>
+                  <td>Rp. {hargaSatuan.toLocaleString('id-ID')}</td>
+                  <td>Rp. {jumlahAwal.toLocaleString('id-ID')}</td>
+                  <td>Rp. {jumlahAkhir.toLocaleString('id-ID')}</td>
                   <td className="action-cell">
                   {onDecrementStock && (
                     <button 
@@ -113,10 +116,6 @@ const BHPTable = ({
                     </button>
                   )}
                   </td>
-                  <td>{stockAkhir.toLocaleString()} {satuan}</td>
-                  <td>Rp. {hargaSatuan.toLocaleString('id-ID')}</td>
-                  <td>Rp. {jumlahAwal.toLocaleString('id-ID')}</td>
-                  <td>Rp. {jumlahAkhir.toLocaleString('id-ID')}</td>
                   <td>
                   <div className="table-actions">
                     {onDelete && (

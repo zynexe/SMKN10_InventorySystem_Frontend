@@ -137,7 +137,7 @@ const KodeBarangPage = () => {
                 setItems([...items, response.data]);
                 alert('Item added successfully');
                 
-                // For new items, we can refresh to ensure proper sorting
+              
                 fetchItems();
             }
             
@@ -172,7 +172,7 @@ const KodeBarangPage = () => {
                 setLoading(true);
                 await deleteKodeBarang(id);
                 setItems(items.filter(item => item.id !== id));
-                fetchItems(); // Refresh data after delete
+                fetchItems(); 
             } catch (err) {
                 console.error('Error deleting item:', err);
                 alert(`Failed to delete item: ${err.message}`);
@@ -186,13 +186,13 @@ const KodeBarangPage = () => {
     const handleDeleteAll = async () => {
         // Show a confirmation dialog with strong warning
         const confirmResult = window.confirm(
-            'WARNING: This will permanently delete ALL Kode Barang items. This action cannot be undone. Are you absolutely sure?'
+            'WARNING: Apakah anda yakin untuk menghapus semua kode barang?'
         );
         
         if (confirmResult) {
             // Double-check with a more specific confirmation
             const secondConfirm = window.confirm(
-                `You are about to delete ${items.length} items. Please confirm once more to proceed.`
+                `Anda akan menghapus ${items.length} kode barang. apakah anda yakin? Semua data akan hilang dan tidak dapat dikembalikan.`
             );
             
             if (secondConfirm) {
@@ -264,7 +264,7 @@ const KodeBarangPage = () => {
                                 <tr>
                                     <th>Kode Barang</th>
                                     <th>Nama Barang</th>
-                                    <th>Actions</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>

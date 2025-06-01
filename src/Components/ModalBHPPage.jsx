@@ -243,7 +243,7 @@ const ModalBHPPage = ({
       style={customStyles}
       contentLabel="Add BHP Modal"
     >
-      <h2 style={{ textAlign: "center" }}>{isEditMode ? 'Edit BHP Item' : 'Add New BHP Item'}</h2>
+      <h2 style={{ textAlign: "center" }}>{isEditMode ? 'Edit BHP Item' : 'Tambah Barang Habis Pakai'}</h2>
       
       {/* Tab navigation - show only if not in edit mode */}
       {!isEditMode && (
@@ -388,7 +388,7 @@ const ModalBHPPage = ({
               Cancel
             </button>
             <button type="submit" className="main-button">
-              {isEditMode ? 'Update' : 'Add'} Item
+              {isEditMode ? 'Update' : 'Tambah'}
             </button>
           </div>
         </form>

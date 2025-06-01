@@ -279,7 +279,7 @@ const Pinjam = () => {
       
       <div className="main-content">
         <div className="header">
-          <h2>Peminjaman Asset</h2>
+          <h2>Peminjaman Aset</h2>
           
           <div className="header-buttons">
             <SearchBar

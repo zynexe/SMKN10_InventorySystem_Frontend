@@ -141,13 +141,13 @@ const RekeningPage = () => {
     const handleDeleteAll = async () => {
         // Show a confirmation dialog with strong warning
         const confirmResult = window.confirm(
-            'WARNING: This will permanently delete ALL Kode Rekening items. This action cannot be undone. Are you absolutely sure?'
+            'WARNING: apakah Anda yakin ingin menghapus semua Kode Rekening? ' 
         );
         
         if (confirmResult) {
             // Double-check with a more specific confirmation
             const secondConfirm = window.confirm(
-                `You are about to delete ${items.length} items. Please confirm once more to proceed.`
+                `Anda akan menghapus ${items.length} Kode Rekening. apakah Anda yakin? setelah dihapus, data tidak dapat dikembalikan.` 
             );
             
             if (secondConfirm) {

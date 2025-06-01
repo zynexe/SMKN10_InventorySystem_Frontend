@@ -16,7 +16,7 @@
     flex: 1; 
     padding: 20px;
     overflow-y: auto; 
-    background-color: #f5f8ff;
+    background-color: #f3f3f3; 
   }
 
   .sidebar {
@@ -254,10 +254,12 @@
     .profile-bar {
       top: 5px;
       right: 5px;
+      
     }
   
     .profile-info {
       padding: 6px 10px;
+      border: 1px solid #ccc; /* Add border */
     }
   
     .profile-logo {
@@ -272,6 +274,7 @@
   
     .dropdown {
       min-width: 100px;
+      shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
     }
   
     .logout-button {
