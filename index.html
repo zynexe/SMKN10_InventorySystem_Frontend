@@ -11,26 +11,26 @@
     />
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
-    <script>
-      (function (m, a, z, e) {
-        var s, t;
-        try {
-          t = m.sessionStorage.getItem('maze-us');
-        } catch (err) {}
+        <script>
+          (function (m, a, z, e) {
+            var s, t;
+            try {
+              t = m.sessionStorage.getItem('maze-us');
+            } catch (err) {}
 
-        if (!t) {
-          t = new Date().getTime();
-          try {
-            m.sessionStorage.setItem('maze-us', t);
-          } catch (err) {}
-        }
+            if (!t) {
+              t = new Date().getTime();
+              try {
+                m.sessionStorage.setItem('maze-us', t);
+              } catch (err) {}
+            }
 
-        s = a.createElement('script');
-        s.src = z + '?apiKey=' + e;
-        s.async = true;
-        a.getElementsByTagName('head')[0].appendChild(s);
-        m.mazeUniversalSnippetApiKey = e;
-      })(window, document, 'https://snippet.maze.co/maze-universal-loader.js', '59192163-a034-4476-8dbc-d5e985f08c06');
+            s = a.createElement('script');
+            s.src = z + '?apiKey=' + e;
+            s.async = true;
+            a.getElementsByTagName('head')[0].appendChild(s);
+            m.mazeUniversalSnippetApiKey = e;
+          })(window, document, 'https://snippet.maze.co/maze-universal-loader.js', '93d205c9-acea-48d5-8c48-2784935c051b');
     </script>
     <title>SMKN10 Inventory System</title>
   </head>
