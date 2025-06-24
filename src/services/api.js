@@ -475,18 +475,47 @@ export const importBHP = async (file) => {
   }
 };
 
-// Add a new function for exporting BHP data via the API
-export const exportBHP = async () => {
+export const importAsset = async (file) => {
   try {
-    console.log('Exporting BHP data via API...');
-    const response = await api.get('/bhp/export-bhp', {
-      responseType: 'blob', // Important for handling file downloads
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await api.post('/aset/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
     
-    console.log('Export response received');
+    console.log("Import Asset response:", response);
+    return response.data;
+  } catch (error) {
+    console.error('Error importing assets:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Add a new function for exporting BHP data via the API
+export const exportBHP = async (filters = {}) => {
+  try {
+    const params = new URLSearchParams();
+    
+    // Add filters if provided
+    if (filters.month && filters.month !== 'all') {
+      params.append('month', filters.month);
+    }
+    if (filters.year) {
+      params.append('year', filters.year);
+    }
+    
+    const queryString = params.toString();
+    const url = queryString ? `/bhp/export-bhp?${queryString}` : '/bhp/export-bhp';
+    
+    const response = await api.get(url, {
+      responseType: 'blob',
+    });
     return response;
   } catch (error) {
-    console.error('Error exporting BHP data:', error);
+    logApiError(error, 'exportBHP');
     throw error;
   }
 };
