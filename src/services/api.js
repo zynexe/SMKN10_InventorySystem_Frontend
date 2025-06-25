@@ -494,21 +494,25 @@ export const importAsset = async (file) => {
   }
 };
 
-// Add a new function for exporting BHP data via the API
 export const exportBHP = async (filters = {}) => {
   try {
+    // Ensure month and year are provided with defaults if not specified
+    const currentDate = new Date();
+    const month = filters.month || (currentDate.getMonth() + 1);
+    const year = filters.year || currentDate.getFullYear();
+    
     const params = new URLSearchParams();
     
-    // Add filters if provided
-    if (filters.month && filters.month !== 'all') {
-      params.append('month', filters.month);
+    // Only add month parameter if it's not null (for "all months" case)
+    if (month !== null) {
+      params.append('month', month.toString());
     }
-    if (filters.year) {
-      params.append('year', filters.year);
-    }
+    params.append('year', year.toString());
     
     const queryString = params.toString();
-    const url = queryString ? `/bhp/export-bhp?${queryString}` : '/bhp/export-bhp';
+    const url = `/bhp/export-bhp?${queryString}`;
+    
+    console.log('Export URL:', url);
     
     const response = await api.get(url, {
       responseType: 'blob',

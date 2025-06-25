@@ -7,6 +7,7 @@ import ModalBHPPage from '../../Components/ModalBHPPage';
 import SidebarBHP from '../../Layout/SidebarBHP';
 import SearchBar from '../../Components/SearchBar';
 import BHPTable from '../../Components/BHPTable';
+import ExportFilterModal from '../../Components/ExportFilterModal'; // Add this import
 import { FaDownload, FaTrash } from 'react-icons/fa';
 import { 
   getBHPs, 
@@ -39,6 +40,9 @@ function BHPPage() {
   // Add state for stock decrement modal
   const [isDecrementModalOpen, setIsDecrementModalOpen] = useState(false);
   const [selectedItemForDecrement, setSelectedItemForDecrement] = useState(null);
+  
+  // Add state for export filter modal
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   
   // Total value state
   const [totalValue, setTotalValue] = useState(0);
@@ -288,13 +292,34 @@ function BHPPage() {
     }
   };
 
-  const exportToExcel = async () => {
+  // Update the exportToExcel function to show the modal first
+  const handleExportClick = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleExportConfirm = async (filters) => {
     try {
       setIsLoading(true);
+      setIsExportModalOpen(false);
       
-      console.log("Initiating BHP export through API...");
+      console.log("Initiating BHP export with filters:", filters);
       
-      const response = await exportBHP();
+      // Prepare export parameters
+      const exportParams = {
+        month: filters.month === 'all' ? null : parseInt(filters.month),
+        year: filters.year
+      };
+      
+      // If month is 'all', we might need to handle this differently based on your backend
+      // For now, let's use month 1 as default when 'all' is selected
+      if (filters.month === 'all') {
+        exportParams.month = 1; // You may need to adjust this based on backend requirements
+      }
+      
+      console.log("Export parameters:", exportParams);
+      
+      // Call the export function with selected parameters
+      const response = await exportBHP(exportParams);
       
       const blob = new Blob([response.data], { 
         type: response.headers['content-type'] 
@@ -302,7 +327,7 @@ function BHPPage() {
       
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       
-      let filename = `bhp_export_${timestamp}.xlsx`;
+      let filename = `bhp_export_${exportParams.year}_${exportParams.month || 'all'}_${timestamp}.xlsx`;
       const contentDisposition = response.headers['content-disposition'];
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
@@ -407,7 +432,7 @@ function BHPPage() {
 
               <button 
                 className="main-button export-button" 
-                onClick={exportToExcel}
+                onClick={handleExportClick} // Changed from exportToExcel to handleExportClick
                 disabled={isLoading || filteredData.length === 0}
               >
                 <FaDownload style={{ marginRight: '5px' }} /> Export 
@@ -460,6 +485,13 @@ function BHPPage() {
             closeModal={() => setIsDecrementModalOpen(false)}
             onConfirm={handleDecrementConfirm}
             item={selectedItemForDecrement}
+          />
+
+          {/* Add the Export Filter Modal */}
+          <ExportFilterModal
+            isOpen={isExportModalOpen}
+            onClose={() => setIsExportModalOpen(false)}
+            onConfirm={handleExportConfirm}
           />
         </>
       );
