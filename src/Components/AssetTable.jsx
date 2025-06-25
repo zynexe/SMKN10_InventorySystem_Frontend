@@ -19,6 +19,9 @@ const AssetTable = ({
     const [previousBorrowers, setPreviousBorrowers] = useState([]);
     const [isLoadingBorrowers, setIsLoadingBorrowers] = useState(false);
     
+    // Debug log to check what data is being received
+    console.log("AssetTable paginatedData:", paginatedData);
+    
     // Load previous borrowers from the API
     useEffect(() => {
         const fetchPreviousBorrowers = async () => {
@@ -62,6 +65,7 @@ const AssetTable = ({
     const getKondisiBadgeClass = (kondisi) => {
         switch(kondisi?.toLowerCase()) {
             case 'baru':
+            case 'baik':
                 return 'badge badge-success';
             case 'pemakaian ringan':
                 return 'badge badge-warning';
@@ -72,8 +76,17 @@ const AssetTable = ({
         }
     };
 
+    // Helper function to safely get nested property values
+    const getProperty = (item, keys, defaultValue = 'N/A') => {
+        for (const key of keys) {
+            if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+                return item[key];
+            }
+        }
+        return defaultValue;
+    };
+
     const hasBPAData = (item) => {
-        // existing function implementation
         const hasBPA = !!(
             item.kode_rekening_belanja || 
             item.no_spk_faktur_kuitansi || 
@@ -90,7 +103,6 @@ const AssetTable = ({
     };
 
     const hasAssetData = (item) => {
-        // existing function implementation
         const hasAset = !!(
             item.kode_rekening_aset || 
             item.nama_rekening_aset || 
@@ -106,6 +118,26 @@ const AssetTable = ({
             ))
         );
         return hasAset;
+    };
+
+    // Helper function to format price
+    const formatPrice = (price) => {
+        if (typeof price === 'string' && price.includes('Rp')) {
+            return price;
+        }
+        const numPrice = parseInt(price) || 0;
+        return `Rp. ${numPrice.toLocaleString('id-ID')}`;
+    };
+
+    // Helper function to format date
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID');
+        } catch (error) {
+            return dateString; // Return original if parsing fails
+        }
     };
 
     return (
@@ -131,90 +163,107 @@ const AssetTable = ({
                         </tr>
                     </thead>
                     <tbody>
-                        {paginatedData.map((item, index) => {
-                            const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
-                            const hasBPA = hasBPAData(item);
-                            const hasAset = hasAssetData(item);
-                            
-                            return (
-                                <tr key={item.id || item.no || index}>
-                                    <td>{rowNumber}</td>
-                                    <td>{item.tanggal_pembelian || item.tanggal}</td>
-                                    <td>{item.kode_barang || item.kodeBarang}</td>
-                                    <td>{item.nama_barang || item.namaBarang}</td>
-                                    <td>{item.merk_barang || item.merkBarang}</td>
-                                    <td>{item.jumlah}</td>
-                                    <td>{item.satuan}</td>
-                                    <td>{typeof item.harga === 'string' && item.harga.includes('Rp') ? 
-                                        item.harga : 
-                                        `Rp. ${parseInt(item.harga).toLocaleString('id-ID')}`}</td>
-                                    <td>
-                                        <span className={getKondisiBadgeClass(item.kondisi)}>
-                                            {item.kondisi || 'Tidak diketahui'}
-                                        </span>
-                                    </td>
-                                    <td>{item.lokasi || item.nama_gedung}</td>
-                                    <td className="pinjam-column">
-                                        <button 
-                                            className="main-button pinjam-button"
-                                            onClick={() => handlePinjamClick(item)}
-                                            disabled={item.jumlah <= 0}
-                                            title={item.jumlah <= 0 ? 'Stok tidak tersedia' : 'Pinjam/Berikan asset'}
-                                            style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block' }}
-                                        >
-                                            Pinjam
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button 
-                                            className={`more-info ${!hasBPA ? 'disabled' : ''}`}
-                                            onClick={() => openInfoBA({
-                                                kodeRekeningBelanja: item.kode_rekening_belanja || (item.bpaData?.kodeRekeningBelanja) || 'Tidak diketahui',
-                                                noSPK: item.no_spk_faktur_kuitansi || (item.bpaData?.noSPK) || 'Tidak diketahui',
-                                                noBAST: item.no_bast || (item.bpaData?.noBAST) || 'Tidak diketahui',
-                                                sumberPerolehan: item.sumber_perolehan || (item.bpaData?.sumberPerolehan) || 'Tidak diketahui',
-                                            })}
-                                            disabled={!hasBPA}
-                                            title={hasBPA ? 'View BA Information' : 'No BA Information Available'}
-                                        >
-                                            More Info
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button 
-                                            className={`more-info ${!hasAset ? 'disabled' : ''}`}
-                                            onClick={() => openInfoAset({
-                                                kodeRekeningAset: item.kode_rekening_aset || (item.asetData?.kodeRekeningAset) || 'Tidak diketahui',
-                                                namaRekeningAset: item.nama_rekening_aset || (item.asetData?.namaRekeningAset) || 'Tidak diketahui',
-                                                umurEkonomis: item.umur_ekonomis || (item.asetData?.umurEkonomis) || 'Tidak diketahui',
-                                                nilaiPerolehan: item.nilai_perolehan || (item.asetData?.nilaiPerolehan) || 'Tidak diketahui',
-                                                bebanPenyusutan: item.beban_penyusutan || (item.asetData?.bebanPenyusutan) || 'Tidak diketahui',
-                                            })}
-                                            disabled={!hasAset}
-                                            title={hasAset ? 'View Asset Information' : 'No Asset Information Available'}
-                                        >
-                                            More Info
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <div className="actions-container">
+                        {paginatedData && paginatedData.length > 0 ? (
+                            paginatedData.map((item, index) => {
+                                const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                                const hasBPA = hasBPAData(item);
+                                const hasAset = hasAssetData(item);
+                                
+                                // Extract data with multiple fallback options
+                                const kodeBarang = getProperty(item, ['kode_barang', 'kodeBarang', 'kode']);
+                                const namaBarang = getProperty(item, ['nama_barang', 'namaBarang', 'nama']);
+                                const merkBarang = getProperty(item, ['merk_barang', 'merkBarang', 'merk']);
+                                const jumlah = getProperty(item, ['jumlah', 'volume'], 0);
+                                const satuan = getProperty(item, ['satuan'], 'Pcs');
+                                const harga = getProperty(item, ['harga', 'harga_satuan'], 0);
+                                const kondisi = getProperty(item, ['kondisi'], 'Tidak diketahui');
+                                const lokasi = getProperty(item, ['lokasi', 'nama_gedung'], 'Tidak diketahui');
+                                const tanggal = formatDate(getProperty(item, ['tanggal_pembelian', 'tanggal', 'created_at']));
+                                
+                                return (
+                                    <tr key={item.id || item.aset || index}>
+                                        <td>{rowNumber}</td>
+                                        <td>{tanggal}</td>
+                                        <td>{kodeBarang}</td>
+                                        <td>{namaBarang}</td>
+                                        <td>{merkBarang}</td>
+                                        <td>{jumlah}</td>
+                                        <td>{satuan}</td>
+                                        <td>{formatPrice(harga)}</td>
+                                        <td>
+                                            <span className={getKondisiBadgeClass(kondisi)}>
+                                                {kondisi}
+                                            </span>
+                                        </td>
+                                        <td>{lokasi}</td>
+                                        <td className="pinjam-column">
                                             <button 
-                                                className="icon-button edit-button"
-                                                onClick={() => onEditClick(item)}
+                                                className="main-button pinjam-button"
+                                                onClick={() => handlePinjamClick(item)}
+                                                disabled={jumlah <= 0}
+                                                title={jumlah <= 0 ? 'Stok tidak tersedia' : 'Pinjam/Berikan asset'}
+                                                style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block' }}
                                             >
-                                                <FaEdit />
+                                                Pinjam
                                             </button>
+                                        </td>
+                                        <td>
                                             <button 
-                                                className="icon-button delete-button"
-                                                onClick={() => onDeleteClick(item.id || item.no)}
+                                                className={`more-info ${!hasBPA ? 'disabled' : ''}`}
+                                                onClick={() => openInfoBA({
+                                                    kodeRekeningBelanja: item.kode_rekening_belanja || (item.bpaData?.kodeRekeningBelanja) || 'Tidak diketahui',
+                                                    noSPK: item.no_spk_faktur_kuitansi || (item.bpaData?.noSPK) || 'Tidak diketahui',
+                                                    noBAST: item.no_bast || (item.bpaData?.noBAST) || 'Tidak diketahui',
+                                                    sumberPerolehan: item.sumber_perolehan || (item.bpaData?.sumberPerolehan) || 'Tidak diketahui',
+                                                })}
+                                                disabled={!hasBPA}
+                                                title={hasBPA ? 'View BA Information' : 'No BA Information Available'}
                                             >
-                                                <FaTrashAlt />
+                                                More Info
                                             </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                                        </td>
+                                        <td>
+                                            <button 
+                                                className={`more-info ${!hasAset ? 'disabled' : ''}`}
+                                                onClick={() => openInfoAset({
+                                                    kodeRekeningAset: item.kode_rekening_aset || (item.asetData?.kodeRekeningAset) || 'Tidak diketahui',
+                                                    namaRekeningAset: item.nama_rekening_aset || (item.asetData?.namaRekeningAset) || 'Tidak diketahui',
+                                                    umurEkonomis: item.umur_ekonomis || (item.asetData?.umurEkonomis) || 'Tidak diketahui',
+                                                    nilaiPerolehan: item.nilai_perolehan || (item.asetData?.nilaiPerolehan) || 'Tidak diketahui',
+                                                    bebanPenyusutan: item.beban_penyusutan || (item.asetData?.bebanPenyusutan) || 'Tidak diketahui',
+                                                })}
+                                                disabled={!hasAset}
+                                                title={hasAset ? 'View Asset Information' : 'No Asset Information Available'}
+                                            >
+                                                More Info
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div className="actions-container">
+                                                <button 
+                                                    className="icon-button edit-button"
+                                                    onClick={() => onEditClick(item)}
+                                                >
+                                                    <FaEdit />
+                                                </button>
+                                                <button 
+                                                    className="icon-button delete-button"
+                                                    onClick={() => onDeleteClick(item.id || item.aset)}
+                                                >
+                                                    <FaTrashAlt />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan="14" className="no-data-cell" style={{ textAlign: 'center', padding: '20px' }}>
+                                    No data available
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

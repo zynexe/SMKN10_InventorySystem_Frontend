@@ -16,7 +16,7 @@
     flex: 1; 
     padding: 20px;
     overflow-y: auto; 
-    background-color: #f3f3f3; 
+    background-color:rgb(252, 252, 252); 
   }
 
   .sidebar {

@@ -125,76 +125,23 @@ function AssetPage() {
   const fetchAssets = async () => {
     try {
       setIsLoading(true);
-      
-      console.log('Attempting to fetch assets from:', `${import.meta.env.VITE_API_BASE_URL}/aset/index`);
-      
+      console.log('Fetching assets...');
       const response = await getAssets();
+      console.log('Raw API response:', response);
       
-      // Debug the response
-      console.log('API Response:', response);
-      
-      // Check if response is an array
-      if (response && Array.isArray(response)) {
-        console.log('Valid data received, items count:', response.length);
-        setAssets(response);
-        setFilteredData(response);
-        setTotalPages(Math.ceil(response.length / itemsPerPage));
-      } 
-      // If response is an object with a data property that's an array
-      else if (response && response.data && Array.isArray(response.data)) {
-        console.log('Valid data received from response.data, items count:', response.data.length);
+      if (response && response.data && Array.isArray(response.data)) {
+        console.log('Setting assets data:', response.data);
         setAssets(response.data);
-        setFilteredData(response.data);
-        setTotalPages(Math.ceil(response.data.length / itemsPerPage));
-      } 
-      // Fallback to dummy data
-      else {
-        console.warn("No valid data received from API:", response);
-        setAssets(assetData);
-        setFilteredData(assetData);
-        setTotalPages(Math.ceil(assetData.length / itemsPerPage));
-        setError("API returned no usable data. Using fallback data.");
+      } else if (Array.isArray(response)) {
+        console.log('Setting assets data (direct array):', response);
+        setAssets(response);
+      } else {
+        console.warn('Unexpected response format:', response);
+        setAssets([]);
       }
     } catch (error) {
-      // More detailed error logging
-      console.error("Error fetching assets:", error);
-      
-      // Check for specific error types
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.error('Error response status:', error.response.status);
-        console.error('Error response headers:', error.response.headers);
-        console.error('Error response data:', error.response.data);
-        
-        // Handle specific status codes
-        if (error.response.status === 401) {
-          setError("Authentication failed. Please log in again.");
-          // Optionally redirect to login page
-          // navigate('/login');
-          return;
-        } else if (error.response.status === 403) {
-          setError("You don't have permission to access assets.");
-          return;
-        } else if (error.response.status === 404) {
-          setError("Assets endpoint not found. Please check API configuration.");
-        } else if (error.response.status >= 500) {
-          setError("Server error. Please try again later or contact support.");
-        }
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error('No response received:', error.request);
-        setError("No response from server. Please check your internet connection.");
-      } else {
-        
-        console.error('Request setup error:', error.message);
-        setError("Error setting up request: " + error.message);
-      }
-      
-      // Fallback to dummy data on error
-      setAssets(assetData);
-      setFilteredData(assetData);
-      setTotalPages(Math.ceil(assetData.length / itemsPerPage));
+      console.error('Error fetching assets:', error);
+      setError('Failed to load assets');
     } finally {
       setIsLoading(false);
     }
@@ -602,6 +549,14 @@ function AssetPage() {
     }
   };
 
+  // Add this function to handle import success
+  const handleImportSuccess = () => {
+    console.log('Import completed successfully');
+    // Refresh the asset list
+    fetchAssets();
+    alert('Import completed successfully');
+  };
+
   return (
     <div className="asset-home-container">
       <Sidebar />
@@ -694,6 +649,7 @@ function AssetPage() {
               handleSubmit={handleSubmit}
               assetData={selectedAsset}
               isEditMode={isEditMode}
+              onImportSuccess={handleImportSuccess}
             />
 
             <FilterModal
