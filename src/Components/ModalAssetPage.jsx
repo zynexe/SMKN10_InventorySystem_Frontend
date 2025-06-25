@@ -508,10 +508,10 @@ const ModalAssetPage = ({
               border: 'none',
               backgroundColor: activeTab === 'import' ? '#007bff' : '#f8f9fa',
               color: activeTab === 'import' ? 'white' : '#333',
-              cursor: 'pointer'
+              cursor: 'pointer' // tes
             }}
           >
-            Import Excel
+            Import Excel 
           </button>
         </div>
       )}
