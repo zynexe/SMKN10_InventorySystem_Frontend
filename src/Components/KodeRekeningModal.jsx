@@ -71,7 +71,7 @@ const KodeRekeningModal = ({ isOpen, onClose, onAdd, isEditing = false, currentI
       // Make direct API call for better error handling
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://127.0.0.1:8000/api/kode-rekening/import', 
+        'https://api-inventura.matradipti.org/api/kode-rekening/import', 
         formData, 
         {
           headers: {

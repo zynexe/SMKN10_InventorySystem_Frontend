@@ -154,7 +154,7 @@ function Gedung() {
                                     onClick={() => handleCardClick(gedung)}
                                 >
                                     <img 
-                                        src={gedung.image ? `https://api-inventaris.matradipti.org/storage/${gedung.image}` : gedungImage} 
+                                        src={gedung.image ? `https://api-inventura.matradipti.org/storage/${gedung.image}` : gedungImage} 
                                         alt={gedung.nama_gedung} 
                                         className="gedung-image" 
                                     />

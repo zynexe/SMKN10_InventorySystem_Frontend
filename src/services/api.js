@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://api-inventaris.matradipti.org/api';
+const API_URL = 'https://api-inventura.matradipti.org/api';
 
 const api = axios.create({
   baseURL: API_URL,

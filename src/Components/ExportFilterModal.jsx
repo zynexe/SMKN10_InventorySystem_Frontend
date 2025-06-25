@@ -6,7 +6,6 @@ const ExportFilterModal = ({ isOpen, onClose, onConfirm }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const months = [
-    { value: 'all', label: 'All Months' },
     { value: '1', label: 'January' },
     { value: '2', label: 'February' },
     { value: '3', label: 'March' },
